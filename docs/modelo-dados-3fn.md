@@ -1,8 +1,15 @@
 # Modelo de dados do VitrineIC — 3FN
 
-Derivado do domínio real do sistema: `src/types/index.ts`, `server/schemas.ts`,
-`server/database.ts`, `src/data/`. O banco atual guarda cada entidade como um
-JSON em `data TEXT`; este documento abre esses JSONs em tabelas relacionais.
+Este é o modelo em produção, não uma proposta. O esquema vive em
+`server/db/migrations/001_schema.sql` e é aplicado por `server/db/migrate.ts`;
+o domínio que ele atende está em `src/types/index.ts`, `server/schemas.ts` e
+`src/data/`.
+
+A versão anterior do sistema guardava cada entidade como um JSON numa coluna
+`data TEXT` do SQLite, e todo filtro era feito em memória depois de ler a tabela
+inteira. Este documento registra a abertura daqueles JSONs em tabelas
+relacionais em 3FN e as decisões tomadas no caminho. O levantamento do custo das
+consultas antes e depois está em `docs/mapa-de-queries.md`.
 
 ## Necessidades do sistema
 
@@ -44,15 +51,16 @@ continuam calculados em tempo de consulta sobre as tabelas abaixo.
    `curso → unidade_academica`.
 2. **`skills[]` + `skillLevels{}` viraram `estudante_competencia`.** Eram um
    grupo repetitivo mais um mapa paralelo que podiam divergir.
-3. **Solicitante ganha chave substituta.** Hoje a PK é o nome da organização e
-   as demandas referenciam esse texto: renomear quebra tudo.
+3. **Solicitante ganha chave substituta.** Antes a PK era o nome da
+   organização e as demandas referenciavam esse texto: renomear quebrava tudo.
 4. **E-mail e nome da pessoa vivem só em `conta`.** Estavam duplicados em
    `Student.email` e `Company.contactEmail`/`contactName`.
 5. **`initials` saiu** — é derivado do nome.
 6. **Notificação não guarda mais o título da demanda nem o nome do remetente.**
    Dependiam de `demanda` e de `conta`, não da notificação.
-7. **Mensagem foi separada de notificação.** Hoje as duas moram na mesma
-   tabela distinguidas por `type`.
+7. **Mensagem foi separada de notificação.** Antes as duas moravam na mesma
+   tabela, distinguidas por `type`. O aviso de sistema sem demanda associada
+   guarda o próprio `assunto`; com demanda, o título sai por junção.
 8. **Duas escalas de proficiência.** O nível 4 é "Especialista" em competência
    e "Fluente" em idioma: são tabelas distintas.
 9. **`status` continua na demanda e no interesse** como estado corrente, com o
@@ -60,287 +68,308 @@ continuam calculados em tempo de consulta sobre as tabelas abaixo.
 
 ## Diagrama
 
+Gerado a partir de `server/db/migrations/001_schema.sql`, para não divergir do
+banco, e na mesma ordem das oito seções daquele arquivo: identidade, vocabulário,
+estudante, solicitante, demanda, match, comunicação, impacto. O vocabulário vem
+na segunda posição porque o PostgreSQL exige a tabela referenciada criada antes
+da `REFERENCES`; na leitura do domínio ele é pano de fundo, não o começo.
+
+Os identificadores expostos pelo contrato HTTP são `text`, porque são semânticos
+e aparecem na tela — o id da demanda é o próprio protocolo (`VIC-2026-0046`). Os
+catálogos e as tabelas internas usam `uuid`.
+
 ```mermaid
 erDiagram
-    %% ───────────── Identidade e acesso ─────────────
+    %% ── 1. Identidade e acesso ──
     conta {
-        uuid id PK
-        varchar email UK "minúsculas, 254"
-        varchar nome "pessoa responsável"
-        varchar papel "student | requester | curator"
-        text senha_hash "scrypt:salt:hash"
-        integer versao_credencial "invalida tokens antigos"
-        timestamp email_confirmado_em "nulo até confirmar posse"
-        timestamp criada_em
+        text id PK
+        text email UK
+        text nome
+        text papel "student | requester | curator"
+        text senha_hash
+        integer versao_credencial
+        timestamptz email_confirmado_em
+        timestamptz criada_em
     }
     sessao {
-        char token_hash PK "sha-256 do cookie"
-        uuid conta_id FK
-        timestamp expira_em
+        text token_hash PK
+        text conta_id FK
+        timestamptz expira_em
     }
     token_conta {
-        char token_hash PK
-        uuid conta_id FK
-        varchar proposito "reset_password | verify_email"
+        text token_hash PK
+        text conta_id FK "UK com proposito"
+        text proposito "reset_password | verify_email"
         integer versao_credencial
-        timestamp criado_em
-        timestamp expira_em
+        timestamptz criado_em
+        timestamptz expira_em
     }
 
-    %% ───────────── Institucional ─────────────
+    %% ── 2. Vocabulário controlado ──
     unidade_academica {
-        varchar codigo PK "IC, CTEC, FAMED"
-        varchar nome UK
+        text codigo PK
+        text nome UK
     }
     curso {
         uuid id PK
-        varchar unidade_codigo FK
-        varchar nome "UK com unidade_codigo"
+        text unidade_codigo FK "UK com nome"
+        text nome "UK com unidade_codigo"
     }
-
-    %% ───────────── Perfil do estudante ─────────────
-    estudante {
-        uuid id PK
-        uuid conta_id FK,UK
-        uuid curso_id FK "unidade vem daqui"
-        varchar matricula
-        varchar semestre
-        numeric cra
-        varchar bio "280"
-        varchar github
-        varchar linkedin
-        varchar site
-        varchar lattes
-        varchar disponibilidade
-        boolean em_projeto "selo mantido apos o contato"
-        text foto "data-uri ou https"
-        date onboarding_em
-        boolean onboarding_pulado
-    }
-    estudante_competencia {
-        uuid estudante_id PK,FK
-        uuid competencia_id PK,FK
-        smallint nivel FK "1..4"
-    }
-    estudante_idioma {
-        uuid estudante_id PK,FK
-        uuid idioma_id PK,FK
-        smallint nivel FK "1..4"
-    }
-    estudante_topico {
-        uuid estudante_id PK,FK
-        uuid topico_id PK,FK
-    }
-    projeto_estudante {
-        uuid id PK
-        uuid estudante_id FK
-        varchar titulo
-        text descricao
-        varchar situacao "ideation | coding | review | done"
-        char ano "AAAA"
-        uuid area_id FK
-        varchar link
-    }
-    projeto_competencia {
-        uuid projeto_id PK,FK
-        uuid competencia_id PK,FK
-    }
-    anexo_estudante {
-        uuid id PK
-        uuid estudante_id FK
-        varchar nome
-        varchar categoria "tech | language | portfolio"
-        varchar mime
-        blob conteudo
-        integer tamanho_bytes
-        timestamp enviado_em
-    }
-
-    %% ───────────── Solicitante ─────────────
-    tipo_solicitante {
-        varchar codigo PK "empresa | ong | orgao_publico | professor"
-        varchar rotulo
-    }
-    solicitante {
-        uuid id PK
-        uuid conta_id FK,UK
-        varchar nome UK "organizacao"
-        varchar tipo_codigo FK
-        varchar rotulo_exibicao "ex.: Empresa de Tecnologia"
-        varchar cidade
-        char desde "AAAA"
-        varchar site
-        text descricao
-    }
-
-    %% ───────────── Demanda ─────────────
-    demanda {
-        uuid id PK
-        varchar protocolo UK "VIC-AAAA-NNNN"
-        uuid solicitante_id FK
-        varchar titulo
-        text descricao
-        uuid area_id FK
-        uuid escopo_id FK
-        date prazo
-        varchar status "nova | em_analise | aprovada | rejeitada | contato_liberado"
-        varchar prioridade "alta | normal | baixa"
-        varchar publico_alvo
-        varchar nivel_academico
-        varchar tamanho_equipe
-        varchar orcamento
-        text observacoes
-        timestamp enviada_em
-    }
-    demanda_competencia {
-        uuid demanda_id PK,FK
-        uuid competencia_id PK,FK
-    }
-    demanda_historico_status {
-        uuid id PK
-        uuid demanda_id FK
-        varchar status
-        uuid alterado_por_conta_id FK "curadoria"
-        text observacao
-        timestamp alterado_em
-    }
-
-    %% ───────────── Match ─────────────
-    interesse {
-        uuid id PK
-        uuid demanda_id FK
-        uuid estudante_id FK "unico por demanda enquanto ativo"
-        varchar origem "candidatura | convite | sugestao"
-        text justificativa "obrigatoria na sugestao"
-        varchar status "aguardando_estudante | aguardando_solicitante | contato_liberado | recusado_estudante | recusado_solicitante"
-        uuid criado_por_conta_id FK
-        timestamp criado_em
-    }
-    interesse_resposta {
-        uuid interesse_id PK,FK
-        varchar lado PK "estudante | solicitante"
-        boolean aceito
-        text motivo_recusa "nunca exposto ao estudante"
-        timestamp respondido_em
-    }
-
-    %% ───────────── Comunicacao ─────────────
-    mensagem {
-        uuid id PK
-        uuid interesse_id FK
-        uuid remetente_conta_id FK
-        text conteudo "5000"
-        timestamp enviada_em
-    }
-    notificacao {
-        uuid id PK
-        uuid destinatario_conta_id FK
-        varchar tipo "SISTEMA | MENSAGEM"
-        uuid demanda_id FK
-        uuid interesse_id FK
-        uuid mensagem_id FK
-        text conteudo "nulo quando vem de mensagem"
-        timestamp criada_em
-        timestamp lida_em "nulo = nao lida"
-    }
-
-    %% ───────────── Catalogos ─────────────
     categoria_competencia {
         uuid id PK
-        varchar nome UK
+        text nome UK
     }
     competencia {
         uuid id PK
-        varchar nome_canonico UK
+        text nome_canonico UK
         uuid categoria_id FK
-        boolean fora_do_catalogo "declarada pelo estudante"
+        boolean fora_do_catalogo
     }
     competencia_alias {
         uuid id PK
         uuid competencia_id FK
-        varchar alias UK "ReactJS, react.js"
-    }
-    idioma {
-        uuid id PK
-        varchar nome UK
+        text alias UK
     }
     nivel_competencia {
         smallint nivel PK "1..4"
-        varchar rotulo "Basico..Especialista"
+        text rotulo UK
+    }
+    idioma {
+        uuid id PK
+        text nome UK
     }
     nivel_idioma {
         smallint nivel PK "1..4"
-        varchar rotulo "Basico..Fluente"
-    }
-    area {
-        uuid id PK
-        varchar nome UK
-    }
-    escopo_demanda {
-        uuid id PK
-        varchar rotulo UK "Pequeno, Medio, Grande"
-        integer meses_max "ordenacao"
+        text rotulo UK
     }
     topico_interesse {
         uuid id PK
-        varchar nome UK
+        text nome UK
+    }
+    area {
+        uuid id PK
+        text nome UK
+    }
+    escopo_demanda {
+        uuid id PK
+        text rotulo UK
+        integer meses_max
+    }
+    tipo_solicitante {
+        text codigo PK "empresa | ong | orgao_publico | professor"
+        text rotulo
     }
 
-    %% ───────────── Impacto (nao derivavel) ─────────────
+    %% ── 3. Perfil do estudante ──
+    estudante {
+        text id PK
+        text conta_id FK,UK
+        uuid curso_id FK
+        text matricula
+        text semestre
+        numeric cra
+        text bio
+        text github
+        text linkedin
+        text site
+        text lattes
+        text certificados
+        text disponibilidade
+        boolean em_projeto
+        text foto
+        date onboarding_em
+        boolean onboarding_pulado
+    }
+    estudante_competencia {
+        text estudante_id PK,FK
+        uuid competencia_id PK,FK
+        smallint nivel FK
+    }
+    estudante_idioma {
+        text estudante_id PK,FK
+        uuid idioma_id PK,FK
+        smallint nivel FK
+    }
+    estudante_topico {
+        text estudante_id PK,FK
+        uuid topico_id PK,FK
+    }
+    projeto_estudante {
+        text id PK
+        text estudante_id FK
+        text titulo
+        text descricao
+        text situacao "ideation | coding | review | done"
+        char ano
+        uuid area_id FK
+        text link
+        timestamptz criado_em
+    }
+    projeto_competencia {
+        text projeto_id PK,FK
+        uuid competencia_id PK,FK
+    }
+    anexo_estudante {
+        uuid id PK
+        text estudante_id FK
+        text nome
+        text categoria "tech | language | portfolio"
+        text mime
+        bytea conteudo
+        integer tamanho_bytes
+        timestamptz enviado_em
+    }
+
+    %% ── 4. Solicitante ──
+    solicitante {
+        text id PK
+        text conta_id FK,UK
+        text nome UK
+        text tipo_codigo FK
+        text rotulo_exibicao
+        text cidade
+        char desde
+        text site
+        text descricao
+    }
+
+    %% ── 5. Demanda ──
+    demanda {
+        text id PK
+        text solicitante_id FK
+        text titulo
+        text descricao
+        uuid area_id FK
+        uuid escopo_id FK
+        date prazo
+        text status "nova | em_analise | aprovada | rejeitada | contato_liberado"
+        text prioridade "alta | normal | baixa"
+        text publico_alvo
+        text nivel_academico
+        text tamanho_equipe
+        text orcamento
+        text observacoes
+        timestamptz enviada_em
+    }
+    demanda_competencia {
+        text demanda_id PK,FK
+        uuid competencia_id PK,FK
+    }
+    demanda_historico_status {
+        uuid id PK
+        text demanda_id FK
+        text status
+        text alterado_por_conta_id FK
+        text observacao
+        timestamptz alterado_em
+    }
+
+    %% ── 6. Match ──
+    interesse {
+        text id PK
+        text demanda_id FK
+        text estudante_id FK
+        text origem "candidatura | convite | sugestao"
+        text justificativa
+        text status "aguardando_estudante | aguardando_solicitante | contato_liberado | recusado_estudante | recusado_solicitante"
+        text criado_por_conta_id FK
+        timestamptz criado_em
+    }
+    interesse_resposta {
+        text interesse_id PK,FK
+        text lado PK "estudante | solicitante"
+        boolean aceito
+        text motivo_recusa
+        timestamptz respondido_em
+    }
+
+    %% ── 7. Comunicação ──
+    mensagem {
+        uuid id PK
+        text interesse_id FK
+        text remetente_conta_id FK
+        text conteudo
+        timestamptz enviada_em
+    }
+    notificacao {
+        uuid id PK
+        text destinatario_conta_id FK
+        text tipo "SISTEMA | MENSAGEM"
+        text demanda_id FK
+        text interesse_id FK
+        uuid mensagem_id FK
+        text assunto
+        text conteudo
+        timestamptz criada_em
+        timestamptz lida_em
+    }
+
+    %% ── 8. Impacto (só o não derivável) ──
     depoimento {
         uuid id PK
         text texto
-        varchar autor
-        varchar papel_autor
-        varchar periodo
+        text autor
+        text papel_autor
+        text periodo
     }
     meta_indicador {
-        varchar chave PK
-        varchar rotulo
+        text chave PK
+        text rotulo
         numeric valor_meta
-        varchar periodo
+        text periodo
     }
 
-    %% ───────────── Relacoes ─────────────
-    conta                 ||--o| estudante                : "perfil"
-    conta                 ||--o| solicitante              : "perfil"
-    conta                 ||--o{ sessao                   : "abre"
-    conta                 ||--o{ token_conta              : "solicita"
-    unidade_academica     ||--o{ curso                    : "oferta"
-    curso                 ||--o{ estudante                : "matricula"
-    estudante             ||--o{ estudante_competencia    : "declara"
-    competencia           ||--o{ estudante_competencia    : "referida em"
-    nivel_competencia     ||--o{ estudante_competencia    : "gradua"
-    estudante             ||--o{ estudante_idioma         : "declara"
-    idioma                ||--o{ estudante_idioma         : "referido em"
-    nivel_idioma          ||--o{ estudante_idioma         : "gradua"
-    estudante             ||--o{ estudante_topico         : "se interessa por"
-    topico_interesse      ||--o{ estudante_topico         : "referido em"
-    estudante             ||--o{ projeto_estudante        : "publica"
-    area                  ||--o{ projeto_estudante        : "classifica"
-    projeto_estudante     ||--o{ projeto_competencia      : "usa"
-    competencia           ||--o{ projeto_competencia      : "referida em"
-    estudante             ||--o{ anexo_estudante          : "envia"
-    tipo_solicitante      ||--o{ solicitante              : "classifica"
-    solicitante           ||--o{ demanda                  : "publica"
-    area                  ||--o{ demanda                  : "classifica"
-    escopo_demanda        ||--o{ demanda                  : "dimensiona"
-    demanda               ||--o{ demanda_competencia      : "exige"
-    competencia           ||--o{ demanda_competencia      : "referida em"
-    demanda               ||--o{ demanda_historico_status : "registra"
-    conta                 ||--o{ demanda_historico_status : "tria"
-    demanda               ||--o{ interesse                : "recebe"
-    estudante             ||--o{ interesse                : "manifesta"
-    conta                 ||--o{ interesse                : "origina"
-    interesse             ||--o{ interesse_resposta       : "coleta"
-    interesse             ||--o{ mensagem                 : "comporta"
-    conta                 ||--o{ mensagem                 : "envia"
-    conta                 ||--o{ notificacao              : "recebe"
-    demanda               ||--o{ notificacao              : "contextualiza"
-    interesse             ||--o{ notificacao              : "contextualiza"
-    mensagem              ||--o| notificacao              : "entrega"
-    categoria_competencia ||--o{ competencia              : "agrupa"
-    competencia           ||--o{ competencia_alias        : "conhecida como"
+    %% ── Relações ──
+    %% 1. Identidade
+    conta                 ||--o{ sessao                   : ""
+    conta                 ||--o{ token_conta              : ""
+    conta                 ||--o| estudante                : ""
+    conta                 ||--o| solicitante              : ""
+
+    %% 2. Catálogos
+    unidade_academica     ||--o{ curso                    : "unidade"
+    categoria_competencia |o--o{ competencia              : "categoria"
+    competencia           ||--o{ competencia_alias        : ""
+
+    %% 3. Estudante
+    curso                 |o--o{ estudante                : ""
+    estudante             ||--o{ estudante_competencia    : ""
+    competencia           ||--o{ estudante_competencia    : ""
+    nivel_competencia     |o--o{ estudante_competencia    : "nivel"
+    estudante             ||--o{ estudante_idioma         : ""
+    idioma                ||--o{ estudante_idioma         : ""
+    nivel_idioma          ||--o{ estudante_idioma         : "nivel"
+    estudante             ||--o{ estudante_topico         : ""
+    topico_interesse      ||--o{ estudante_topico         : "topico"
+    estudante             ||--o{ projeto_estudante        : ""
+    area                  |o--o{ projeto_estudante        : ""
+    projeto_estudante     ||--o{ projeto_competencia      : "projeto"
+    competencia           ||--o{ projeto_competencia      : ""
+    estudante             ||--o{ anexo_estudante          : ""
+
+    %% 4 e 5. Solicitante e demanda
+    tipo_solicitante      ||--o{ solicitante              : "tipo"
+    solicitante           ||--o{ demanda                  : ""
+    area                  |o--o{ demanda                  : ""
+    escopo_demanda        |o--o{ demanda                  : "escopo"
+    demanda               ||--o{ demanda_competencia      : ""
+    competencia           ||--o{ demanda_competencia      : ""
+    demanda               ||--o{ demanda_historico_status : ""
+    conta                 |o--o{ demanda_historico_status : "alterado por"
+
+    %% 6. Match
+    demanda               ||--o{ interesse                : ""
+    estudante             ||--o{ interesse                : ""
+    conta                 |o--o{ interesse                : "criado por"
+    interesse             ||--o{ interesse_resposta       : ""
+
+    %% 7. Comunicação
+    interesse             ||--o{ mensagem                 : ""
+    conta                 ||--o{ mensagem                 : "remetente"
+    conta                 ||--o{ notificacao              : "destinatario"
+    demanda               |o--o{ notificacao              : ""
+    interesse             |o--o{ notificacao              : ""
+    mensagem              |o--o{ notificacao              : ""
 ```
 
 ## Restrições que o diagrama não expressa
@@ -360,3 +389,17 @@ erDiagram
   é regra de consulta, não restrição de tabela.
 - Indicadores do painel de impacto são calculados por consulta. Não crie
   colunas para eles.
+- A canonização de nomes de competência acontece na aplicação, não no banco:
+  `server/schemas.ts` passa toda lista de skills por `canonicalSkill`
+  (`src/data/skills.ts`) antes de validar, então "ReactJS" e "react.js" chegam
+  como "React". A tabela `competencia_alias` é populada por
+  `server/db/sync-catalog.ts` e alimenta a busca do catálogo na interface;
+  nenhuma consulta de match a lê. Nome fora do catálogo entra por
+  `garantirCompetencia`, em `server/db/mutations.ts`, marcado
+  `fora_do_catalogo = true`.
+- `estudante_competencia.nivel` é coletado no onboarding e devolvido pela API
+  como `skillLevels`, mas `scoreStudent` (`src/lib/match.ts`) ainda não o usa:
+  o score é cobertura pura das competências exigidas. A demanda também não
+  declara nível exigido — `demanda_competencia` não tem essa coluna. Dar peso
+  ao nível depende dessa decisão de produto, registrada em
+  `docs/ata-reuniao-final.md`.
