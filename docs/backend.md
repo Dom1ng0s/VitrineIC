@@ -376,18 +376,19 @@ Na Railway, monte um volume em `/data`, defina as variáveis acima e use
 plataforma. Crie o primeiro curador usando o banco desse ambiente. Não carregue
 o banco de demonstração. O frontend e a API devem ficar na **mesma origem**.
 
-PostgreSQL atende esta implantação. Para múltiplas
-réplicas ou maior volume, migre a camada `server/database.ts` para PostgreSQL e
-os anexos para armazenamento de objetos. O rate limit atual fica na memória de
-cada processo; o servidor não confia em `X-Forwarded-For` enviado pelo cliente.
+PostgreSQL atende esta implantação. Para múltiplas réplicas ou maior volume, o
+próximo passo é mover os anexos de `anexo_estudante.conteudo` para armazenamento
+de objetos e tirar o rate limit da memória do processo — hoje ele é por
+processo, e o servidor não confia em `X-Forwarded-For` enviado pelo cliente.
 Atrás de proxy, configure também os limites de tráfego do provedor.
 
-Faça backup com `pg_dump` e restaure com `pg_restore`.
-Não copie apenas o arquivo principal enquanto houver escrita em modo WAL.
-O comando `pnpm db:backup`, com `DATABASE_PATH` e `BACKUP_PATH`, gera um snapshot
-consistente com `VACUUM INTO`, incluindo anexos, mesmo com WAL em uso.
-Guarde backups fora do volume de execução. HTTPS é necessário para o cookie
-Secure; nenhum segredo deve usar prefixo `VITE_`.
+Faça backup com `pg_dump` e restaure com `pg_restore`, apontando `DATABASE_URL`
+para o banco de origem. Os anexos vêm no dump, porque são `bytea` em tabela, não
+arquivos em disco. Não existe comando `pnpm db:backup`: os scripts de banco são
+`db:init`, `db:up`, `db:down`, `db:migrate` e `db:seed`, e os três primeiros
+operam apenas o cluster local de desenvolvimento (`scripts/pg-dev.mjs`, porta
+5433). Guarde backups fora do volume de execução. HTTPS é necessário para o
+cookie Secure; nenhum segredo deve usar prefixo `VITE_`.
 
 ## Verificação e limites
 

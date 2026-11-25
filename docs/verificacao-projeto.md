@@ -1,5 +1,15 @@
 # VitrineIC — verificação local e pendências de validação no Render
 
+> **Registro histórico — superado.** Este relatório descreve o sistema como ele
+> era em 22/10/2026, quando a persistência era um arquivo SQLite. Desde então o
+> app passou a ser servido por PostgreSQL com esquema em 3FN (ver
+> `docs/modelo-dados-3fn.md` e `server/db/migrations/001_schema.sql`), e a suíte
+> tem 20 testes, não 19. Tudo o que esta página diz sobre SQLite, WAL,
+> `DATABASE_PATH`, `VACUUM INTO` e snapshot de arquivo **não vale mais**: a
+> conexão agora é `DATABASE_URL`, e `server/config.ts` recusa subir em produção
+> sem ela. As evidências abaixo ficam preservadas como registro do que foi
+> verificado naquela data; não as cite como estado atual do projeto.
+
 Data: 22/10/2026. Referência inicial: commit `d11bdac`, com a correção do comando
 de build do Render. As alterações descritas nesta revisão ainda precisam ser
 incluídas no próximo commit e enviadas ao GitHub.
