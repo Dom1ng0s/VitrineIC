@@ -2,78 +2,22 @@
 -- Modelo e decisões de normalização: docs/modelo-dados-3fn.md
 -- Só estrutura. Os catálogos (unidades, cursos, competências, idiomas, níveis)
 -- são carregados de src/data/ por server/db/sync-catalog.ts, que é a fonte única.
+--
+-- Ordem de leitura — quem entra, do que ele é feito, o que pede, como se encontram:
+--   1. Identidade e acesso ....... conta, sessao, token_conta
+--   2. Vocabulário controlado .... catálogos que os perfis e as demandas referenciam
+--   3. Perfil do estudante ....... estudante, competências, idiomas, projetos, anexos
+--   4. Solicitante ............... solicitante
+--   5. Demanda ................... demanda, competências exigidas, histórico
+--   6. Match ..................... interesse e o aceite dos dois lados
+--   7. Comunicação ............... mensagem, notificacao
+--   8. Impacto ................... o que não dá para derivar das bases
+--
+-- A seção 2 vem antes dos perfis só porque o PostgreSQL exige a tabela referenciada
+-- criada antes da REFERENCES. Na leitura do domínio ela é pano de fundo, não o começo.
 
--- ───────────────────────── Catálogos de vocabulário ─────────────────────────
-
-CREATE TABLE nivel_competencia (
-  nivel  smallint PRIMARY KEY CHECK (nivel BETWEEN 1 AND 4),
-  rotulo text NOT NULL UNIQUE
-);
-
-CREATE TABLE nivel_idioma (
-  nivel  smallint PRIMARY KEY CHECK (nivel BETWEEN 1 AND 4),
-  rotulo text NOT NULL UNIQUE
-);
-
-CREATE TABLE tipo_solicitante (
-  codigo text PRIMARY KEY CHECK (codigo IN ('empresa', 'ong', 'orgao_publico', 'professor')),
-  rotulo text NOT NULL
-);
-
-CREATE TABLE unidade_academica (
-  codigo text PRIMARY KEY,
-  nome   text NOT NULL UNIQUE
-);
-
-CREATE TABLE curso (
-  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  unidade_codigo  text NOT NULL REFERENCES unidade_academica(codigo) ON UPDATE CASCADE,
-  nome            text NOT NULL,
-  UNIQUE (unidade_codigo, nome)
-);
-
-CREATE TABLE categoria_competencia (
-  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome text NOT NULL UNIQUE
-);
-
-CREATE TABLE competencia (
-  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome_canonico     text NOT NULL UNIQUE,
-  categoria_id      uuid REFERENCES categoria_competencia(id),
-  fora_do_catalogo  boolean NOT NULL DEFAULT false
-);
-
--- O match compara texto canonizado: "ReactJS" e "react.js" chegam como "React".
-CREATE TABLE competencia_alias (
-  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  competencia_id uuid NOT NULL REFERENCES competencia(id) ON DELETE CASCADE,
-  alias          text NOT NULL UNIQUE
-);
-CREATE INDEX competencia_alias_competencia ON competencia_alias(competencia_id);
-
-CREATE TABLE idioma (
-  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome text NOT NULL UNIQUE
-);
-
-CREATE TABLE area (
-  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome text NOT NULL UNIQUE
-);
-
-CREATE TABLE escopo_demanda (
-  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  rotulo     text NOT NULL UNIQUE,
-  meses_max  integer
-);
-
-CREATE TABLE topico_interesse (
-  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nome text NOT NULL UNIQUE
-);
-
--- ───────────────────────── Identidade e acesso ─────────────────────────
+-- ───────────────────────── 1. Identidade e acesso ─────────────────────────
+-- Toda pessoa entra por aqui. O papel decide qual perfil ela ganha adiante.
 
 CREATE TABLE conta (
   id                  text PRIMARY KEY,
@@ -106,7 +50,86 @@ CREATE TABLE token_conta (
 );
 CREATE INDEX token_conta_expira ON token_conta(expira_em);
 
--- ───────────────────────── Perfil do estudante ─────────────────────────
+-- ───────────────────────── 2. Vocabulário controlado ─────────────────────────
+-- Listas fechadas em tabela própria, não em enum: a curadoria muda o vocabulário
+-- sem migração. Agrupadas por quem as consome.
+
+-- 2.1 Origem acadêmica — usada por estudante.
+CREATE TABLE unidade_academica (
+  codigo text PRIMARY KEY,
+  nome   text NOT NULL UNIQUE
+);
+
+CREATE TABLE curso (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  unidade_codigo  text NOT NULL REFERENCES unidade_academica(codigo) ON UPDATE CASCADE,
+  nome            text NOT NULL,
+  UNIQUE (unidade_codigo, nome)
+);
+
+-- 2.2 Competência — o eixo do match: liga estudante, projeto e demanda.
+CREATE TABLE categoria_competencia (
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome text NOT NULL UNIQUE
+);
+
+CREATE TABLE competencia (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome_canonico     text NOT NULL UNIQUE,
+  categoria_id      uuid REFERENCES categoria_competencia(id),
+  fora_do_catalogo  boolean NOT NULL DEFAULT false
+);
+
+-- O match compara texto canonizado: "ReactJS" e "react.js" chegam como "React".
+CREATE TABLE competencia_alias (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  competencia_id uuid NOT NULL REFERENCES competencia(id) ON DELETE CASCADE,
+  alias          text NOT NULL UNIQUE
+);
+CREATE INDEX competencia_alias_competencia ON competencia_alias(competencia_id);
+
+CREATE TABLE nivel_competencia (
+  nivel  smallint PRIMARY KEY CHECK (nivel BETWEEN 1 AND 4),
+  rotulo text NOT NULL UNIQUE
+);
+
+-- 2.3 Idioma e sua fluência.
+CREATE TABLE idioma (
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome text NOT NULL UNIQUE
+);
+
+CREATE TABLE nivel_idioma (
+  nivel  smallint PRIMARY KEY CHECK (nivel BETWEEN 1 AND 4),
+  rotulo text NOT NULL UNIQUE
+);
+
+-- 2.4 Interesse declarado pelo estudante.
+CREATE TABLE topico_interesse (
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome text NOT NULL UNIQUE
+);
+
+-- 2.5 Classificação de projeto e de demanda.
+CREATE TABLE area (
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome text NOT NULL UNIQUE
+);
+
+CREATE TABLE escopo_demanda (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  rotulo     text NOT NULL UNIQUE,
+  meses_max  integer
+);
+
+-- 2.6 Natureza de quem pede — usada por solicitante.
+CREATE TABLE tipo_solicitante (
+  codigo text PRIMARY KEY CHECK (codigo IN ('empresa', 'ong', 'orgao_publico', 'professor')),
+  rotulo text NOT NULL
+);
+
+-- ───────────────────────── 3. Perfil do estudante ─────────────────────────
+-- O que o estudante é. Competência é o que o match enxerga; o resto é vitrine.
 
 CREATE TABLE estudante (
   id                 text PRIMARY KEY,
@@ -183,7 +206,8 @@ CREATE TABLE anexo_estudante (
 -- Faltava no SQLite: a checagem de cota varria a tabela somando BLOBs.
 CREATE INDEX anexo_estudante_estudante ON anexo_estudante(estudante_id);
 
--- ───────────────────────── Solicitante ─────────────────────────
+-- ───────────────────────── 4. Solicitante ─────────────────────────
+-- O outro lado: empresa, ONG, órgão público ou professor que traz um problema.
 
 CREATE TABLE solicitante (
   id               text PRIMARY KEY,
@@ -197,7 +221,8 @@ CREATE TABLE solicitante (
   descricao        text
 );
 
--- ───────────────────────── Demanda ─────────────────────────
+-- ───────────────────────── 5. Demanda ─────────────────────────
+-- O problema publicado. As competências exigidas aqui são o outro lado do match.
 
 CREATE TABLE demanda (
   -- O id e o proprio protocolo mostrado ao solicitante: VIC-2026-0046.
@@ -238,7 +263,9 @@ CREATE TABLE demanda_historico_status (
 );
 CREATE INDEX demanda_historico_demanda ON demanda_historico_status(demanda_id);
 
--- ───────────────────────── Match ─────────────────────────
+-- ───────────────────────── 6. Match ─────────────────────────
+-- Onde estudante e demanda se cruzam. Nasce de candidatura, convite ou sugestão
+-- da curadoria, e só vira contato liberado com o aceite dos dois lados.
 
 CREATE TABLE interesse (
   id                   text PRIMARY KEY,
@@ -261,6 +288,7 @@ CREATE INDEX interesse_estudante ON interesse(estudante_id);
 CREATE INDEX interesse_demanda   ON interesse(demanda_id);
 CREATE INDEX interesse_status    ON interesse(status);
 
+-- Uma linha por lado: a PK composta limita o aceite duplo a duas respostas.
 CREATE TABLE interesse_resposta (
   interesse_id   text NOT NULL REFERENCES interesse(id) ON DELETE CASCADE,
   lado           text NOT NULL CHECK (lado IN ('estudante', 'solicitante')),
@@ -272,7 +300,8 @@ CREATE TABLE interesse_resposta (
   CONSTRAINT interesse_resposta_motivo CHECK (NOT aceito OR motivo_recusa IS NULL)
 );
 
--- ───────────────────────── Comunicação ─────────────────────────
+-- ───────────────────────── 7. Comunicação ─────────────────────────
+-- Só existe pendurada num interesse: ninguém fala com ninguém antes do match.
 
 CREATE TABLE mensagem (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -301,7 +330,9 @@ CREATE TABLE notificacao (
 CREATE INDEX notificacao_caixa ON notificacao(destinatario_conta_id, criada_em DESC);
 CREATE INDEX notificacao_nao_lidas ON notificacao(destinatario_conta_id) WHERE lida_em IS NULL;
 
--- ───────────────────────── Impacto (só o não derivável) ─────────────────────────
+-- ───────────────────────── 8. Impacto (só o não derivável) ─────────────────────────
+-- Os indicadores saem de consulta sobre as tabelas acima. Aqui mora só o que
+-- nenhuma consulta produz: depoimento escrito por gente e meta definida por gente.
 
 CREATE TABLE depoimento (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
