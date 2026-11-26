@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Uma execução por branch: push seguido de push cancela a anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: typecheck, lint, testes e build
+    runs-on: ubuntu-latest
+
+    # Os testes de integração usam um banco de verdade, como no desenvolvimento.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: vitrineic
+          POSTGRES_PASSWORD: vitrineic
+          POSTGRES_DB: vitrineic_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vitrineic"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      # O esquema é aplicado pela própria suíte (`prepararBanco`).
+      DATABASE_URL: postgres://vitrineic:vitrineic@localhost:5432/vitrineic_test
+      TEST_DATABASE_URL: postgres://vitrineic:vitrineic@localhost:5432/vitrineic_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Testes do frontend
+        run: pnpm test:web
+
+      - name: Testes de integração da API
+        run: pnpm test:api
+
+      - name: Build
+        run: pnpm build

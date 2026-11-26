@@ -11,13 +11,30 @@
     "preview": "vite preview",
     "start": "node --env-file-if-exists=.env build/server.mjs",
     "typecheck": "tsc --noEmit && tsc -p server/tsconfig.json --noEmit",
-    "test": "tsx --test --test-concurrency=1 server/tests/*.test.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm test:web && pnpm test:api",
+    "test:web": "vitest run",
+    "test:watch": "vitest",
+    "test:api": "tsx --test --test-concurrency=1 server/tests/*.test.ts",
     "db:init": "node scripts/pg-dev.mjs init",
     "db:up": "node scripts/pg-dev.mjs start",
     "db:down": "node scripts/pg-dev.mjs stop",
     "db:migrate": "tsx --env-file-if-exists=.env server/db/setup.ts",
     "db:seed": "tsx --env-file-if-exists=.env server/db/seed-cli.ts",
-    "curator:create": "tsx --env-file-if-exists=.env server/create-curator.ts"
+    "curator:create": "tsx --env-file-if-exists=.env server/create-curator.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -32,7 +49,11 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@tailwindcss/vite": "^4.0.0",
+    "@testing-library/jest-dom": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.13",
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
@@ -41,10 +62,22 @@
     "@vitejs/plugin-react": "^6.0.0",
     "concurrently": "^9.2.1",
     "esbuild": "^0.28.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.8",
+    "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "jsdom": "^31.0.1",
+    "lint-staged": "^17.6.2",
+    "prettier": "^3.10.1",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.20.6",
     "typescript": "^5.7.0",
-    "vite": "^8.0.5"
+    "typescript-eslint": "^8.74.0",
+    "vite": "^8.0.5",
+    "vitest": "^5.1.2"
   },
   "engines": {
     "node": "^22.13.0 || ^24.0.0"

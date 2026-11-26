@@ -74,22 +74,25 @@ export function SkillPicker({
   const [showCatalog, setShowCatalog] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const selectedNames = value.map((s) => s.name);
+  // `value` é um array novo a cada render, então a chave de texto é o que
+  // identifica a seleção. Nome de competência não contém "|", logo o
+  // ida-e-volta por join/split preserva a lista e mantém os memos estáveis.
+  const selectedKey = value.map((s) => s.name).join("|");
+  const selectedNames = useMemo(() => (selectedKey ? selectedKey.split("|") : []), [selectedKey]);
   const has = (name: string) => selectedNames.some((n) => foldSkill(n) === foldSkill(name));
 
-  const results = useMemo(
-    () => searchSkills(query, selectedNames).slice(0, MAX_SUGGESTIONS),
-    [query, selectedNames.join("|")],
-  );
+  const results = useMemo(() => searchSkills(query, selectedNames).slice(0, MAX_SUGGESTIONS), [query, selectedNames]);
 
   const shortcuts = useMemo(
-    () => suggestedFor(course).filter((n) => !has(n)).slice(0, 12),
-    [course, selectedNames.join("|")],
+    () =>
+      suggestedFor(course)
+        .filter((n) => !selectedNames.some((s) => foldSkill(s) === foldSkill(n)))
+        .slice(0, 12),
+    [course, selectedNames],
   );
 
   const canonical = canonicalSkill(query);
-  const canAddCustom =
-    canonical.length > 1 && !has(canonical) && searchSkills(query, selectedNames).length === 0;
+  const canAddCustom = canonical.length > 1 && !has(canonical) && searchSkills(query, selectedNames).length === 0;
 
   const add = (raw: string) => {
     const name = canonicalSkill(raw);
@@ -100,8 +103,7 @@ export function SkillPicker({
     inputRef.current?.focus();
   };
 
-  const remove = (name: string) =>
-    onChange(value.filter((s) => foldSkill(s.name) !== foldSkill(name)));
+  const remove = (name: string) => onChange(value.filter((s) => foldSkill(s.name) !== foldSkill(name)));
 
   const setLevel = (name: string, level: SkillLevel) =>
     onChange(value.map((s) => (s.name === name ? { ...s, level } : s)));
@@ -279,8 +281,8 @@ export function SkillPicker({
       </div>
 
       <p className="mt-5 font-sans text-xs text-navy/55">
-        Não achou? Digite o nome e pressione Enter: a competência entra marcada como fora do catálogo.
-        Backspace com a busca vazia remove a última.
+        Não achou? Digite o nome e pressione Enter: a competência entra marcada como fora do catálogo. Backspace com a
+        busca vazia remove a última.
       </p>
     </div>
   );

@@ -6,7 +6,7 @@ export function StatusBadge({ status }: { status: string }) {
   const normalized = status.toLowerCase() as ProjectPhase;
 
   let icon = null;
-  let label = status;
+  const label = status;
 
   switch (normalized) {
     case "idealização":
