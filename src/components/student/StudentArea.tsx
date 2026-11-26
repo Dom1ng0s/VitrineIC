@@ -18,7 +18,8 @@ export default function StudentArea({ onBack }: { onBack: () => void }) {
   const [resumeOnboarding, setResumeOnboarding] = useState(false);
   const [view, setView] = useState("opportunities");
   const projects = student?.projects.map(toMyProject) ?? [];
-  const { interests, notifications } = useVitrine();
+  const { auth, interests, notifications } = useVitrine();
+  const emailPending = auth.verificationRequired && !session?.account.emailVerifiedAt;
 
   if (!student) return null;
 
@@ -51,7 +52,7 @@ export default function StudentArea({ onBack }: { onBack: () => void }) {
         name={session.account.name}
       />
 
-      {!isProfileVisible(student) && (
+      {!isProfileVisible(student) ? (
         <div className={`${PAGE} pt-6`}>
           <div className="flex flex-col gap-4 rounded-2xl border border-ochre/30 bg-ochre/8 p-5 md:flex-row md:items-center md:justify-between">
             <div>
@@ -70,7 +71,19 @@ export default function StudentArea({ onBack }: { onBack: () => void }) {
             </button>
           </div>
         </div>
-      )}
+      ) : emailPending ? (
+        <div className={`${PAGE} pt-6`}>
+          <div className="rounded-2xl border border-ochre/30 bg-ochre/8 p-5">
+            <p className="font-display text-lg font-medium tracking-[-0.01em] text-navy">
+              Confirme seu e-mail para aparecer na vitrine
+            </p>
+            <p className="mt-1 font-sans text-sm text-navy/65">
+              Enquanto o endereço institucional não for confirmado, seu perfil fica oculto no diretório e você não pode
+              se candidatar nem receber convites.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       {view === "opportunities" && <Opportunities student={student} onGoToInterests={() => setView("interests")} />}
 

@@ -74,11 +74,48 @@ async function lerIndicadores(sql: Sql, exigirVerificado: boolean): Promise<Impa
   const pares = (linhas: { chave: string; total: string }[]): [string, number][] =>
     linhas.map((l) => [l.chave, Number(l.total)]);
 
+  const metasLinhas = await sql.rows<{ chave: string; valor_meta: string }>(
+    "SELECT chave, valor_meta FROM meta_indicador",
+  );
+  const targets: ImpactStats["targets"] = {};
+  for (const row of metasLinhas) {
+    if (row.chave === "released" || row.chave === "projects" || row.chave === "demands" || row.chave === "students") {
+      targets[row.chave] = Number(row.valor_meta);
+    }
+  }
+
+  const datas = await sql.row<{ inicio: string | null; fim: string | null }>(`
+    SELECT
+      to_char(LEAST(
+        (SELECT min(enviada_em) FROM demanda),
+        (SELECT min(criado_em) FROM interesse),
+        (SELECT min(criado_em) FROM projeto_estudante)
+      ), 'YYYY-MM-DD') AS inicio,
+      to_char(GREATEST(
+        (SELECT max(enviada_em) FROM demanda),
+        (SELECT max(criado_em) FROM interesse),
+        (SELECT max(criado_em) FROM projeto_estudante)
+      ), 'YYYY-MM-DD') AS fim
+  `);
+
+  const formatMonth = (iso: string) =>
+    new Date(`${iso}T12:00:00Z`)
+      .toLocaleDateString("pt-BR", { month: "short", year: "numeric", timeZone: "UTC" })
+      .replace(".", "");
+  let period = "";
+  if (datas?.inicio && datas?.fim) {
+    const start = formatMonth(datas.inicio);
+    const end = formatMonth(datas.fim);
+    period = start === end ? start : `${start} — ${end}`;
+  }
+
   return {
     released: Number(totais.liberados),
     projects: Number(totais.projetos),
     demands: Number(totais.demandas),
     students: Number(totais.estudantes),
+    period,
+    targets,
     byArea: pares(porArea),
     byCourse: pares(porCurso),
   };
@@ -94,6 +131,7 @@ async function lerNotificacoes(sql: Sql, conta: StoredAccount): Promise<Notifica
       to_char(n.criada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS time,
       (n.lida_em IS NULL)                        AS unread,
       COALESCE(n.conteudo, m.conteudo, '')       AS content,
+      n.demanda_id                               AS "demandId",
       n.interesse_id                             AS "interestId",
       i.status                                   AS "interestStatus"
     FROM notificacao n

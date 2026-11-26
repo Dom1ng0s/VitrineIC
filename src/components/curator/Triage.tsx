@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DEMAND_STATUS, KANBAN_COLS, StatusBadge } from "./StatusBadge";
 import { SkillTag } from "./ui";
 import { ClockIcon } from "@/components/app/Icons";
+import { DemandExtras } from "@/components/app/DemandExtras";
 import { StatusPill } from "@/components/app/StatusPill";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
@@ -69,6 +70,9 @@ export function TriageCard({
       {open && (
         <div className="border-t border-navy/8 bg-navy/[0.02] p-3">
           <p className="mb-3 px-1 font-sans text-[12px] leading-[1.55] text-navy/65">{demand.description}</p>
+          <div className="mb-3 px-1">
+            <DemandExtras demand={demand} compact />
+          </div>
           {demand.briefing && (
             <a
               className="mb-3 block px-1 font-sans text-xs text-navy underline underline-offset-2"

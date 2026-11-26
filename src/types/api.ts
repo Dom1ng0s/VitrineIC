@@ -9,6 +9,7 @@ export interface Notification {
   time: string;
   unread: boolean;
   content: string;
+  demandId?: string;
   interestId?: string;
   canReply: boolean;
 }
@@ -20,11 +21,15 @@ export interface Attachment {
   size: number;
 }
 
+export type ImpactTargetKey = "released" | "projects" | "demands" | "students";
+
 export interface ImpactStats {
   released: number;
   projects: number;
   demands: number;
   students: number;
+  period: string;
+  targets: Partial<Record<ImpactTargetKey, number>>;
   byArea: [string, number][];
   byCourse: [string, number][];
 }

@@ -12,7 +12,7 @@ describe("isProfileVisible", () => {
   });
 
   it("não depende de bio, projeto ou foto", () => {
-    const vazio = makeStudent({ skills: ["SQL"], bio: "", projects: [], photo: "" });
+    const vazio = makeStudent({ skills: ["SQL"], bio: "", projects: [] });
     expect(isProfileVisible(vazio)).toBe(true);
   });
 });

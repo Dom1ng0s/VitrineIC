@@ -206,7 +206,7 @@ test("sugestão exige dois aceites, oculta dados e permite mensagens só depois"
   assert.equal(suggested.statusCode, 201, suggested.body);
   const interest = suggested.json<{ interest: Interest }>().interest;
   const duplicate = await request(c.app, "POST", "/api/interests", body, c.curatorCookie);
-  assert.equal(duplicate.json<{ interest: Interest }>().interest.id, interest.id);
+  assert.equal(duplicate.statusCode, 409);
   const hiddenDuplicate = await request(
     c.app,
     "POST",

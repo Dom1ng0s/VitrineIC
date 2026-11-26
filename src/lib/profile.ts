@@ -17,7 +17,6 @@ export interface ProfileDraft {
   name: string;
   unit: string;
   course: string;
-  photo: string;
   matricula: string;
   semester: string;
   bio: string;
@@ -37,7 +36,6 @@ export function toDraft(s: Student): ProfileDraft {
     name: s.name,
     unit: s.unit,
     course: s.course,
-    photo: s.photo ?? "",
     matricula: s.matricula ?? "",
     semester: s.semester,
     bio: s.bio,
@@ -59,7 +57,6 @@ export function fromDraft(d: ProfileDraft): Partial<Student> {
     initials: ((parts[0]?.[0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase(),
     unit: d.unit,
     course: d.course,
-    photo: d.photo,
     matricula: d.matricula.trim(),
     semester: d.semester,
     bio: d.bio.trim(),

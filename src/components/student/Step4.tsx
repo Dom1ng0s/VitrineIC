@@ -1,6 +1,8 @@
 import { FileDrop } from "./FileDrop";
 import { StatusPill } from "@/components/app/StatusPill";
-import { MOSS } from "@/styles/tokens";
+import { MOSS, OCHRE } from "@/styles/tokens";
+import { useSession } from "@/lib/auth";
+import { useVitrine } from "@/lib/store";
 import { Input, Label } from "./ui";
 import type { ProfileDraft } from "@/lib/profile";
 
@@ -13,6 +15,9 @@ export function Step4({
   setData: (d: Partial<ProfileDraft>) => void;
   onGoToSkills: () => void;
 }) {
+  const { auth } = useVitrine();
+  const session = useSession();
+  const emailPending = auth.verificationRequired && !session?.account.emailVerifiedAt;
   const count = data.skills.length;
 
   return (
@@ -54,7 +59,7 @@ export function Step4({
         />
       </div>
 
-      {count > 0 ? (
+      {count > 0 && !emailPending ? (
         <div
           role="status"
           className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-moss/25 bg-moss/8 px-4 py-3"
@@ -63,6 +68,17 @@ export function Step4({
             Perfil pronto para a vitrine: {count} {count === 1 ? "competência adicionada" : "competências adicionadas"}.
           </p>
           <StatusPill color={MOSS}>Visível</StatusPill>
+        </div>
+      ) : count > 0 ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-ochre/30 bg-ochre/8 px-4 py-3"
+        >
+          <p className="font-sans text-sm text-ochre">
+            Competências prontas ({count}), mas o perfil só aparece na vitrine depois que você confirmar seu e-mail
+            institucional.
+          </p>
+          <StatusPill color={OCHRE}>Confirmar e-mail</StatusPill>
         </div>
       ) : (
         <div

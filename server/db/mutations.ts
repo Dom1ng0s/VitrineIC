@@ -132,7 +132,7 @@ export async function salvarEstudante(sql: Sql, estudante: Student, contaId: str
       vazioOuNulo(estudante.certificados),
       vazioOuNulo(estudante.availability),
       !!estudante.inProject,
-      vazioOuNulo(estudante.photo),
+      null,
       vazioOuNulo(estudante.onboardedAt),
       !!estudante.onboardingSkipped,
     ],
@@ -247,10 +247,11 @@ export async function salvarDemanda(sql: Sql, demanda: Demand) {
     ],
   );
   await sql.run("DELETE FROM demanda_competencia WHERE demanda_id = $1", [demanda.id]);
+  const desejaveis = new Set((demanda.desiredSkills ?? []).map((s) => s.toLowerCase()));
   for (const nome of demanda.skills ?? []) {
     await sql.run(
-      "INSERT INTO demanda_competencia (demanda_id, competencia_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-      [demanda.id, await garantirCompetencia(sql, nome)],
+      "INSERT INTO demanda_competencia (demanda_id, competencia_id, obrigatoria) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING",
+      [demanda.id, await garantirCompetencia(sql, nome), !desejaveis.has(nome.toLowerCase())],
     );
   }
 }

@@ -15,6 +15,7 @@ export default function CuratorArea({ onBack }: { onBack: () => void }) {
   const [view, setView] = useState<CuratorTab | "matchmaking" | "confirm" | "confirmed">("triage");
   const [selectedDemandId, setSelectedDemandId] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedScore, setSelectedScore] = useState<number | undefined>(undefined);
   const [suggestion, setSuggestion] = useState<Interest | null>(null);
   const selectedDemand = demands.find((d) => d.id === selectedDemandId) ?? null;
 
@@ -28,8 +29,9 @@ export default function CuratorArea({ onBack }: { onBack: () => void }) {
     go("matchmaking");
   };
 
-  const goToConfirm = (s: Student) => {
+  const goToConfirm = (s: Student, score?: number) => {
     setSelectedStudent(s);
+    setSelectedScore(score);
     setView("confirm");
   };
 
@@ -72,6 +74,7 @@ export default function CuratorArea({ onBack }: { onBack: () => void }) {
         <ConfirmModal
           demand={selectedDemand}
           student={selectedStudent}
+          score={selectedScore}
           onClose={() => setView("matchmaking")}
           onConfirm={doSuggest}
         />

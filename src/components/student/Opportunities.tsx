@@ -3,6 +3,7 @@ import { scoreStudent } from "@/lib/match";
 import { isProfileVisible } from "@/lib/profile";
 import { createInterest, findActiveInterest, useVitrine } from "@/lib/store";
 import { ArrowIcon, BuildingIcon, ClockIcon } from "@/components/app/Icons";
+import { DemandExtras } from "@/components/app/DemandExtras";
 import { InterestStatusPill } from "@/components/app/InterestStatusPill";
 import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
@@ -177,6 +178,9 @@ export function Opportunities({ student, onGoToInterests }: { student: Student; 
                 ))}
               </div>
               <Apply demand={selected} student={student} onGoToInterests={onGoToInterests} />
+            </div>
+            <div className="md:col-span-2">
+              <DemandExtras demand={selected} />
             </div>
           </div>
         </section>

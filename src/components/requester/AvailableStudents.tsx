@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LANGUAGE_LEVELS } from "@/data/languages";
 import { useCurrentRequester } from "@/lib/auth";
 import { isProfileVisible } from "@/lib/profile";
 import { createInterest, findActiveInterest, useVitrine } from "@/lib/store";
@@ -11,8 +12,20 @@ import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
+import type { ProjectStatus, Student } from "@/types";
 
-function StudentCard({ student, inProject, onClick }: { student: any; inProject: boolean; onClick: () => void }) {
+const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
+  ideation: "Ideação",
+  coding: "Em desenvolvimento",
+  review: "Em revisão",
+  done: "Concluído",
+};
+
+function externalHref(raw: string): string {
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+}
+
+function StudentCard({ student, inProject, onClick }: { student: Student; inProject: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} className="vt-card vt-card-interactive flex flex-col gap-4 p-5 text-left">
       <div className="flex w-full items-start gap-3">
@@ -26,7 +39,7 @@ function StudentCard({ student, inProject, onClick }: { student: any; inProject:
         {inProject && <InProjectBadge />}
       </div>
       <div className="flex flex-wrap gap-1.5">
-        {student.skills.slice(0, 3).map((s: string) => (
+        {student.skills.slice(0, 3).map((s) => (
           <span key={s} className="vt-pill">
             {s}
           </span>
@@ -49,7 +62,7 @@ function StudentCard({ student, inProject, onClick }: { student: any; inProject:
 export function AvailableStudents() {
   const { demands, interests, inProject, students } = useVitrine();
   const requester = useCurrentRequester();
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showOfferModal, setShowOfferModal] = useState(false);
   const [selectedDemand, setSelectedDemand] = useState("");
   const [message, setMessage] = useState("");
@@ -69,7 +82,12 @@ export function AvailableStudents() {
   };
 
   if (selectedStudent) {
-    const skillNames: string[] = selectedStudent.skills.map((s: any) => (typeof s === "string" ? s : s.name));
+    const links = [
+      { label: "GitHub", value: selectedStudent.github },
+      { label: "LinkedIn", value: selectedStudent.linkedin },
+      { label: "Site", value: selectedStudent.site },
+      { label: "Lattes", value: selectedStudent.lattes },
+    ].filter((item): item is { label: string; value: string } => Boolean(item.value?.trim()));
 
     return (
       <main className={`${PAGE} pt-8 pb-20`}>
@@ -83,7 +101,7 @@ export function AvailableStudents() {
                 {selectedStudent.name}
               </h1>
               <p className="mt-1 font-sans text-sm text-navy/60">
-                {selectedStudent.course} · {selectedStudent.semester}
+                {[selectedStudent.course, selectedStudent.semester].filter(Boolean).join(" · ")}
               </p>
               {inProject[selectedStudent.id] && (
                 <div className="mt-3">
@@ -101,7 +119,7 @@ export function AvailableStudents() {
             <div className="vt-card flex flex-col gap-4 p-7">
               <Eyebrow>Competências técnicas</Eyebrow>
               <div className="flex flex-wrap gap-1.5">
-                {skillNames.map((s) => (
+                {selectedStudent.skills.map((s) => (
                   <span key={s} className="vt-pill">
                     {s}
                   </span>
@@ -110,9 +128,17 @@ export function AvailableStudents() {
               <div className="mt-2">
                 <Eyebrow>Idiomas</Eyebrow>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="vt-pill">Inglês (Avançado)</span>
-              </div>
+              {selectedStudent.languages.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedStudent.languages.map((lang) => (
+                    <span key={lang.name} className="vt-pill">
+                      {lang.name} ({LANGUAGE_LEVELS[lang.level - 1]})
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-sans text-xs text-navy/50">Nenhum idioma informado.</p>
+              )}
             </div>
           </aside>
 
@@ -120,42 +146,63 @@ export function AvailableStudents() {
             <section className="vt-card p-7">
               <Eyebrow>Sobre</Eyebrow>
               <p className="mt-4 font-sans text-[15px] leading-[1.6] text-navy/75">
-                {selectedStudent.bio ||
-                  "Estudante altamente engajado e em busca de novos desafios em desenvolvimento de software e inteligência artificial."}
+                {selectedStudent.bio || "Este estudante ainda não escreveu uma apresentação."}
               </p>
-              <p className="mt-4 font-mono text-[11px] text-navy/55">
-                github.com/{selectedStudent.name.split(" ")[0].toLowerCase()}
-              </p>
+              {links.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2">
+                  {links.map((item) => (
+                    <a
+                      key={item.label}
+                      href={externalHref(item.value)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-[11px] text-navy/65 underline underline-offset-4 hover:text-navy"
+                    >
+                      {item.label}: {item.value}
+                    </a>
+                  ))}
+                </div>
+              )}
             </section>
 
             <section className="vt-card p-7">
               <Eyebrow>Projetos e experiências</Eyebrow>
-              <div className="mt-2 flex flex-col divide-y divide-navy/8">
-                {[
-                  {
-                    tag: "Em andamento",
-                    title: "API RESTful para E-commerce",
-                    text: "Construção de microsserviços usando Node.js e banco de dados PostgreSQL.",
-                    red: true,
-                  },
-                  {
-                    tag: "Concluído (2025)",
-                    title: "App Mobile de Mobilidade Urbana",
-                    text: "Desenvolvimento de aplicativo em React Native para otimizar rotas de ônibus fretados.",
-                    red: false,
-                  },
-                ].map((p) => (
-                  <div key={p.title} className="py-5">
-                    <p
-                      className={`font-mono text-[10px] uppercase tracking-[0.08em] ${p.red ? "text-red" : "text-navy/55"}`}
-                    >
-                      {p.tag}
-                    </p>
-                    <h3 className="mt-2 font-display text-lg font-medium text-navy">{p.title}</h3>
-                    <p className="mt-1 font-sans text-sm leading-[1.6] text-navy/65">{p.text}</p>
-                  </div>
-                ))}
-              </div>
+              {selectedStudent.projects.length > 0 ? (
+                <div className="mt-2 flex flex-col divide-y divide-navy/8">
+                  {selectedStudent.projects.map((p) => (
+                    <div key={p.id} className="py-5">
+                      <p
+                        className={`font-mono text-[10px] uppercase tracking-[0.08em] ${p.status === "done" ? "text-navy/55" : "text-red"}`}
+                      >
+                        {PROJECT_STATUS_LABEL[p.status]} ({p.year}){p.area ? ` · ${p.area}` : ""}
+                      </p>
+                      <h3 className="mt-2 font-display text-lg font-medium text-navy">{p.title}</h3>
+                      <p className="mt-1 font-sans text-sm leading-[1.6] text-navy/65">{p.description}</p>
+                      {p.stack.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {p.stack.map((tech) => (
+                            <span key={tech} className="vt-pill">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {p.link && (
+                        <a
+                          href={externalHref(p.link)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-block font-mono text-[11px] text-navy/65 underline underline-offset-4 hover:text-navy"
+                        >
+                          Ver repositório ou demonstração
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 font-sans text-sm text-navy/55">Nenhum projeto cadastrado na vitrine ainda.</p>
+              )}
             </section>
           </div>
         </div>

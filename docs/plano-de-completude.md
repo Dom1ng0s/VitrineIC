@@ -21,8 +21,8 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | 2    | Fundações estruturais             | [x]    |
 | 3    | Backend abre o que a UI consome   | [x]    |
 | 4    | Buracos de fluxo                  | [x]    |
-| 5    | Fachadas                          | [~]    |
-| 6    | Acessibilidade e qualidade de uso | [ ]    |
+| 5    | Fachadas                          | [x]    |
+| 6    | Acessibilidade e qualidade de uso | [~]    |
 | 7    | Deploy e operação                 | [ ]    |
 
 ---
@@ -170,30 +170,30 @@ transições; convites seguem possíveis depois do primeiro contato liberado.
 Verificação ao fechar: `typecheck`, 58 testes web, 46 testes da API, lint sem
 erros (47 avisos de acessibilidade da fase 6) e builds do frontend e servidor.
 
-## Fase 5 — Eliminar fachadas
+## Fase 5 — Eliminar fachadas · fechada em 26/11/2026
 
-- [ ] `scoreStudent` usando níveis de proficiência, disponibilidade, área e
+- [x] `scoreStudent` usando níveis de proficiência, disponibilidade, área e
       requisito obrigatório/desejável — uma só implementação, consumindo
-      `/api/demands/:id/ranking` em vez de recalcular no cliente
-- [ ] Perfil do estudante na vitrine do solicitante lendo dados reais (hoje
-      idioma fixo "Inglês (Avançado)", `github.com/<primeiro nome>` e dois
-      projetos hardcoded)
-- [ ] Exibir os cinco campos da demanda que são gravados e nunca mostrados:
-      público-alvo, nível acadêmico, entregáveis, equipe, orçamento
-- [ ] Aviso "perfil visível na vitrine" considerando a confirmação de e-mail
-- [ ] Sugestão duplicada: responder 409 em vez de "Sugestão enviada"
-- [ ] Metas do período pela API (decisão da fase 0): alimentar
-      `meta_indicador`, mostrar a meta ao lado de cada indicador do painel e
-      remover a constante `TARGETS`
-- [ ] Depoimentos: fora do escopo por ora — remover os fictícios da página
-      pública e deixar a tabela `depoimento` sem uso declarado
-- [ ] Capa de projeto e foto de perfil, ou assumir o placeholder e remover
-      `photo` do tipo
-- [ ] Caixinhas "Critérios" do matchmaking: alimentar o score ou rotular como
-      contexto
-- [ ] Período do painel de impacto derivado dos dados, não digitado
-- [ ] Coluna `certificados`: aceitar no schema ou remover
-- [ ] Sino de notificações: derivar `kind`/`target` do tipo real
+      `/api/demands/:id/ranking` em vez de recalcular no cliente (migração `007`)
+- [x] Perfil do estudante na vitrine do solicitante lendo dados reais (idiomas,
+      links e projetos reais; removidos os valores hardcoded)
+- [x] Exibir os cinco campos da demanda que são gravados e nunca mostrados:
+      público-alvo, nível acadêmico, entregáveis, equipe, orçamento (`DemandExtras`)
+- [x] Aviso "perfil visível na vitrine" considerando a confirmação de e-mail
+- [x] Sugestão duplicada: responder 409 em vez de "Sugestão enviada"
+- [x] Metas do período pela API (decisão da fase 0): `meta_indicador` lida pelo
+      snapshot/API e exibida ao lado de cada indicador no painel
+- [x] Depoimentos: fora do escopo por ora — fictícios removidos da página
+      pública, mantendo a tabela `depoimento` sem uso declarado
+- [x] Capa de projeto e foto de perfil: assumido placeholder por decisão de
+      produto e removido `photo` do tipo, schema e rota
+- [x] Caixinhas "Critérios" do matchmaking: rotuladas como "Contexto do
+      candidato" (inclusão no peso do score registrada na pauta da próxima reunião)
+- [x] Período do painel de impacto derivado das datas reais do banco
+- [x] Coluna `certificados`: sem alteração no frontend/schema; mantida na pauta
+      da próxima reunião por decisão de produto
+- [x] Sino de notificações: derivando `kind`/`target` do tipo real (mensagem,
+      interesse, demanda, processo) e formatando tempo com `comoDecorrido`
 
 ## Fase 6 — Acessibilidade e qualidade de uso
 

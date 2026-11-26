@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { Database } from "./db/pool";
 import type { Config } from "./config";
-import { accountFor, requireAccount, requireCuratorFunction, requireVerifiedAccount } from "./security";
+import { requireAccount, requireCuratorFunction, requireVerifiedAccount } from "./security";
 import { ensure } from "./errors";
 import { snapshot } from "./db/snapshot";
 import { contas, demandas, estudantes, interesses, solicitantes } from "./db/repositories";
@@ -42,19 +42,6 @@ import { checkAccountQuota } from "./db/quotas";
 
 export function domainRoutes(app: FastifyInstance, db: Database, config: Config) {
   const estado = async (request: FastifyRequest) => snapshot(db.sql, config, await requireAccount(db, request));
-
-  app.get<{ Params: { id: string } }>("/api/students/:id/photo", async (request, reply) => {
-    const photo = await estudantes.foto(db.sql, request.params.id);
-    const account = await accountFor(db, request);
-    ensure(
-      photo && (account?.id === photo.accountId || (photo.visible && (!config.requireVerifiedEmail || photo.verified))),
-      404,
-      "Foto não encontrada.",
-    );
-    const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(photo.photo ?? "");
-    ensure(match, 404, "Foto não encontrada.");
-    return reply.type(`image/${match[1]}`).send(Buffer.from(match[2], "base64"));
-  });
 
   app.patch<{ Params: { id: string } }>("/api/students/:id", async (request) => {
     const account = await requireAccount(db, request, "student");
@@ -302,6 +289,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
 
       const existente = await interesses.ativoDoPar(tx, demanda.id, estudante.id);
       if (existente) {
+        ensure(data.origin !== "sugestao", 409, "Já existe um interesse ativo para este estudante nesta demanda.");
         ensure(
           account.role !== "requester" || visibleToRequester(existente),
           409,

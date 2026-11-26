@@ -9,16 +9,18 @@ import type { Demand, Student } from "@/types";
 export function ConfirmModal({
   demand,
   student,
+  score: rankedScore,
   onClose,
   onConfirm,
 }: {
   demand: Demand;
   student: Student;
+  score?: number;
   onClose: () => void;
   onConfirm: (justification: string) => void;
 }) {
   const [note, setNote] = useState("");
-  const score = scoreStudent(student, demand);
+  const score = rankedScore ?? scoreStudent(student, demand);
   const matchedSkills = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
 
   return (

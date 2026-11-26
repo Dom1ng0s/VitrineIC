@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Input, Label, Select } from "./ui";
 import type { OnboardingField } from "./Onboarding";
 import { FieldError, invalidProps } from "@/components/app/FieldError";
@@ -34,7 +34,6 @@ export function Step1({
   field: Field;
   email?: string;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const [editingAccount, setEditingAccount] = useState(false);
   const interests = data.interests;
   const unit = findSignupUnit(data.unit);
@@ -93,47 +92,6 @@ export function Step1({
             />
           </div>
         )}
-      </div>
-
-      {/* Foto de perfil (opcional) */}
-      <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          aria-label="Carregar foto de perfil"
-          className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-dashed border-navy/25 text-navy/55 transition-colors hover:border-navy/60"
-        >
-          {data.photo ? (
-            <img src={data.photo} alt="Foto de perfil" className="size-full object-cover" />
-          ) : (
-            <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-              <circle cx="14" cy="11" r="5" stroke="currentColor" strokeWidth="1.3" />
-              <path
-                d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10"
-                stroke="currentColor"
-                strokeWidth="1.3"
-                strokeLinecap="round"
-              />
-            </svg>
-          )}
-        </button>
-        <div>
-          <p className="font-sans text-sm text-navy">Foto de perfil</p>
-          <p className="font-sans text-xs text-navy/55">Opcional. Aparece no seu perfil público.</p>
-        </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => setData({ photo: String(reader.result) });
-            reader.readAsDataURL(file);
-          }}
-        />
       </div>
 
       <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">

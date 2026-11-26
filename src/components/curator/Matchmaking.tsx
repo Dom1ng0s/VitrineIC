@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Label, SkillTag } from "./ui";
 import { LANGUAGE_LEVELS } from "@/data/languages";
+import { api } from "@/lib/api";
 import { ORIGIN_LABEL } from "@/lib/interest";
-import { scoreStudent } from "@/lib/match";
 import { findActiveInterest, useVitrine } from "@/lib/store";
-import { isProfileVisible } from "@/lib/profile";
 import { Avatar } from "@/components/app/Avatar";
+import { DemandExtras } from "@/components/app/DemandExtras";
 import { ArrowIcon, CheckIcon } from "@/components/app/Icons";
 import { InProjectBadge } from "@/components/app/InProjectBadge";
 import { InterestStatusPill } from "@/components/app/InterestStatusPill";
@@ -15,24 +15,35 @@ import { PAGE } from "@/components/public/layout";
 import type { Demand, Interest, Student } from "@/types";
 import { paraExibicao } from "@/lib/datas";
 
-/** Caixinhas de critério do Figma, com o que o algoritmo de fato considera. */
-function Criteria({ student, demand }: { student: Student; demand: Demand }) {
+interface RankedCandidate {
+  student: Student;
+  score: number;
+}
+
+/**
+ * Caixinhas informativas de contexto do candidato.
+ * Decisão de produto: rotuladas como contexto (inclusão no peso do score na pauta da próxima reunião).
+ */
+function CandidateContext({ student, demand }: { student: Student; demand: Demand }) {
   const matched = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
   const lang = student.languages[0];
   const items = [
     { label: "Skills em comum", value: `${matched.length}/${demand.skills.length}` },
-    { label: "Disponibilidade", value: student.availability },
+    { label: "Disponibilidade", value: student.availability || "Não informada" },
     { label: "Idioma", value: lang ? `${lang.name} ${LANGUAGE_LEVELS[lang.level - 1].toLowerCase()}` : "—" },
     { label: "Projetos", value: String(student.projects.length) },
   ];
   return (
-    <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
-      {items.map((c) => (
-        <div key={c.label} className="rounded-[10px] bg-navy/[0.035] px-3 py-2.5">
-          <p className="font-sans text-[12px] text-navy/60">{c.label}</p>
-          <p className="mt-1 truncate font-mono text-[11px] text-moss">{c.value}</p>
-        </div>
-      ))}
+    <div className="flex flex-col gap-2">
+      <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/45">Contexto do candidato</p>
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {items.map((c) => (
+          <div key={c.label} className="rounded-[10px] bg-navy/[0.035] px-3 py-2.5">
+            <p className="font-sans text-[12px] text-navy/60">{c.label}</p>
+            <p className="mt-1 truncate font-mono text-[11px] text-moss">{c.value}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -40,6 +51,7 @@ function Criteria({ student, demand }: { student: Student; demand: Demand }) {
 export function StudentMatchCard({
   student,
   demand,
+  score,
   rank,
   selected,
   onSelect,
@@ -48,6 +60,7 @@ export function StudentMatchCard({
 }: {
   student: Student;
   demand: Demand;
+  score: number;
   rank: number;
   selected: boolean;
   onSelect: () => void;
@@ -55,7 +68,6 @@ export function StudentMatchCard({
   existing?: Interest;
   inProject: boolean;
 }) {
-  const score = scoreStudent(student, demand);
   const matchedSkills = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
 
   return (
@@ -105,8 +117,8 @@ export function StudentMatchCard({
           )}
         </div>
         <div className="text-right">
-          <p className="font-display text-[28px] leading-none font-medium tracking-[-0.02em] text-navy">{score}</p>
-          <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.08em] text-navy/50">pontos</p>
+          <p className="font-display text-[28px] leading-none font-medium tracking-[-0.02em] text-navy">{score}%</p>
+          <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.08em] text-navy/50">compatibilidade</p>
         </div>
         <span
           className={`mt-1.5 grid size-5 shrink-0 place-items-center rounded-full border ${
@@ -118,7 +130,7 @@ export function StudentMatchCard({
       </div>
 
       <div className="mt-5 flex flex-col gap-4 sm:pl-10">
-        <Criteria student={student} demand={demand} />
+        <CandidateContext student={student} demand={demand} />
         <div className="flex flex-wrap items-center gap-1.5">
           {student.skills.map((s) => (
             <SkillTag key={s} highlight={matchedSkills.includes(s)}>
@@ -137,27 +149,51 @@ export function Matchmaking({
   onBack,
 }: {
   demand: Demand;
-  onConfirm: (student: Student) => void;
+  onConfirm: (student: Student, score?: number) => void;
   onBack: () => void;
 }) {
   const { interests, inProject, students } = useVitrine();
   const [filter, setFilter] = useState("");
-  const sorted = students
-    .filter(isProfileVisible)
-    .map((s) => ({ ...s, score: scoreStudent(s, demand) }))
-    .filter((s) => {
-      if (!filter) return true;
-      return (
-        s.skills.some((sk) => sk.toLowerCase().includes(filter.toLowerCase())) ||
-        s.name.toLowerCase().includes(filter.toLowerCase())
-      );
-    })
-    .sort((a, b) => b.score - a.score);
+  const [rankState, setRankState] = useState<{
+    demandId: string;
+    rows: RankedCandidate[];
+    error: string;
+  }>({ demandId: "", rows: [], error: "" });
+
+  useEffect(() => {
+    let active = true;
+    api<RankedCandidate[]>(`/demands/${encodeURIComponent(demand.id)}/ranking`)
+      .then((rows) => {
+        if (active) setRankState({ demandId: demand.id, rows, error: "" });
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setRankState({
+            demandId: demand.id,
+            rows: [],
+            error: err instanceof Error ? err.message : "Não foi possível carregar o ranking.",
+          });
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [demand.id]);
+
+  const loading = rankState.demandId !== demand.id;
+  const rankError = loading ? "" : rankState.error;
+  const ranked = loading ? [] : rankState.rows;
+
+  const sorted = ranked.filter(({ student: s }) => {
+    if (!filter) return true;
+    const q = filter.toLowerCase();
+    return s.skills.some((sk) => sk.toLowerCase().includes(q)) || s.name.toLowerCase().includes(q);
+  });
 
   const [chosenId, setChosenId] = useState<string | null>(null);
   const existingFor = (studentId: string) => findActiveInterest(interests, demand.id, studentId);
-  const available = sorted.filter((s) => !existingFor(s.id));
-  const chosen = available.find((s) => s.id === chosenId) ?? available[0];
+  const available = sorted.filter((item) => !existingFor(item.student.id));
+  const chosen = available.find((item) => item.student.id === chosenId) ?? available[0];
   const demandInterests = interests.filter((i) => i.demandId === demand.id);
 
   return (
@@ -190,19 +226,32 @@ export function Matchmaking({
           </div>
 
           <div role="radiogroup" aria-label="Candidatos" className="flex flex-col gap-4">
-            {sorted.map((s, i) => (
-              <StudentMatchCard
-                key={s.id}
-                student={s}
-                demand={demand}
-                rank={i + 1}
-                selected={chosen?.id === s.id}
-                onSelect={() => setChosenId(s.id)}
-                existing={existingFor(s.id)}
-                inProject={!!inProject[s.id]}
-              />
-            ))}
-            {sorted.length === 0 && (
+            {loading && (
+              <p className="rounded-2xl border border-navy/10 p-10 text-center font-sans text-sm text-navy/55">
+                Calculando ranking de compatibilidade...
+              </p>
+            )}
+            {!loading && rankError && (
+              <p className="rounded-2xl border border-red/25 bg-red/[0.04] p-6 text-center font-sans text-sm text-red">
+                {rankError}
+              </p>
+            )}
+            {!loading &&
+              !rankError &&
+              sorted.map(({ student: s, score }, i) => (
+                <StudentMatchCard
+                  key={s.id}
+                  student={s}
+                  demand={demand}
+                  score={score}
+                  rank={i + 1}
+                  selected={chosen?.student.id === s.id}
+                  onSelect={() => setChosenId(s.id)}
+                  existing={existingFor(s.id)}
+                  inProject={!!inProject[s.id]}
+                />
+              ))}
+            {!loading && !rankError && sorted.length === 0 && (
               <p className="rounded-2xl border border-dashed border-navy/20 p-10 text-center font-sans text-sm text-navy/55">
                 Nenhum estudante encontrado com esse filtro.
               </p>
@@ -215,16 +264,18 @@ export function Matchmaking({
             <div className="vt-stone flex flex-col gap-5 rounded-3xl p-6">
               <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-sky">Seleção</p>
               <div className="flex items-center gap-3">
-                <Avatar name={chosen.name} light />
+                <Avatar name={chosen.student.name} light />
                 <div className="min-w-0">
-                  <p className="truncate font-sans text-[15px] text-offwhite">{chosen.name}</p>
-                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-sky">{chosen.score} pontos</p>
+                  <p className="truncate font-sans text-[15px] text-offwhite">{chosen.student.name}</p>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-sky">
+                    {chosen.score}% compatibilidade
+                  </p>
                 </div>
               </div>
               <p className="font-sans text-[13px] text-offwhite/60">
                 A sugestão vai para o estudante com a sua justificativa. Os demais não são notificados.
               </p>
-              <button onClick={() => onConfirm(chosen)} className="vt-btn vt-btn-cream w-full">
+              <button onClick={() => onConfirm(chosen.student, chosen.score)} className="vt-btn vt-btn-cream w-full">
                 Sugerir estudante <ArrowIcon />
               </button>
             </div>
@@ -254,6 +305,7 @@ export function Matchmaking({
               </div>
             </div>
             <p className="font-sans text-[13px] leading-[1.55] text-navy/65">{demand.description}</p>
+            <DemandExtras demand={demand} compact />
           </div>
 
           <div className="vt-card flex flex-col gap-4 p-6">

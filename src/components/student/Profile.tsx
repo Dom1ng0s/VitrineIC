@@ -12,7 +12,8 @@ import { SIGNUP_UNITS, findSignupUnit } from "@/data/institution";
 import { LANGUAGE_LEVELS } from "@/data/languages";
 import { LEVELS } from "@/data/skills";
 import { BIO_MAX, fromDraft, isProfileVisible, toDraft, type ProfileDraft } from "@/lib/profile";
-import { updateStudent } from "@/lib/store";
+import { useSession } from "@/lib/auth";
+import { updateStudent, useVitrine } from "@/lib/store";
 import { digits, first, maxLength, required, useValidation } from "@/lib/validate";
 import type { Student, StudentSkill, StudentLanguage } from "@/types";
 
@@ -44,6 +45,9 @@ function LevelBar({ name, level, labels }: { name: string; level: number; labels
 }
 
 export function Profile({ student, email, projects }: { student: Student; email: string; projects: MyProject[] }) {
+  const { auth } = useVitrine();
+  const session = useSession();
+  const emailPending = auth.verificationRequired && !session?.account.emailVerifiedAt;
   const [editing, setEditing] = useState(false);
   const [data, setDataState] = useState<ProfileDraft>(() => toDraft(student));
   const setData = (patch: Partial<ProfileDraft>) => setDataState({ ...data, ...patch });
@@ -166,11 +170,7 @@ export function Profile({ student, email, projects }: { student: Student; email:
           </div>
 
           <aside className="vt-card flex flex-col items-center gap-5 p-6 md:p-8">
-            {data.photo ? (
-              <img src={data.photo} alt="Foto de perfil" className="size-28 rounded-[28px] object-cover" />
-            ) : (
-              <Avatar name={data.name || "?"} size="xl" />
-            )}
+            <Avatar name={data.name || "?"} size="xl" />
             <div className="flex w-full flex-col gap-4">
               <Input
                 label="GitHub"
@@ -209,11 +209,7 @@ export function Profile({ student, email, projects }: { student: Student; email:
     <main className={`${PAGE} pt-12 pb-20 md:pt-16`}>
       <div className="grid items-start gap-6 lg:grid-cols-[340px_1fr]">
         <aside className="vt-card flex flex-col p-7">
-          {shown.photo ? (
-            <img src={shown.photo} alt="" className="size-20 rounded-[22px] object-cover" />
-          ) : (
-            <Avatar name={shown.name || "?"} size="xl" />
-          )}
+          <Avatar name={shown.name || "?"} size="xl" />
           <h1 className="mt-6 font-display text-[22px] font-medium tracking-[-0.01em] text-navy">
             {shown.name || "Seu nome"}
           </h1>
@@ -221,9 +217,13 @@ export function Profile({ student, email, projects }: { student: Student; email:
             {[shown.course, shown.semester].filter(Boolean).join(" · ") || "Curso e período"}
           </p>
           {shown.bio && <p className="mt-6 font-sans text-[15px] leading-[1.5] text-navy/80">{shown.bio}</p>}
-          {!isProfileVisible(student) && (
+          {!isProfileVisible(student) ? (
             <p className="mt-6 font-sans text-xs text-ochre">Fora da vitrine até você adicionar uma competência.</p>
-          )}
+          ) : emailPending ? (
+            <p className="mt-6 font-sans text-xs text-ochre">
+              Fora da vitrine até você confirmar seu e-mail institucional.
+            </p>
+          ) : null}
           {shown.skills.length > 0 && (
             <div className="mt-6 flex flex-wrap gap-1.5">
               {shown.skills.slice(0, 3).map((s) => (

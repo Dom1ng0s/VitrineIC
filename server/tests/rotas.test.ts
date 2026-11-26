@@ -105,11 +105,26 @@ test("saúde e indicadores respondem sem sessão", async (t) => {
   const impact = await request(c.app, "GET", "/api/impact");
   assert.equal(impact.statusCode, 200);
   const stats = impact.json<ImpactStats>();
-  assert.deepEqual(Object.keys(stats).sort(), ["byArea", "byCourse", "demands", "projects", "released", "students"]);
+  assert.deepEqual(Object.keys(stats).sort(), [
+    "byArea",
+    "byCourse",
+    "demands",
+    "period",
+    "projects",
+    "released",
+    "students",
+    "targets",
+  ]);
   assert.equal(typeof stats.released, "number");
+  assert.equal(typeof stats.period, "string");
+  assert.deepEqual(stats.targets, {});
   // Indicador é derivado: sem perfil visível, ninguém é contado.
   assert.equal(stats.students, 0);
   assert.ok(!impact.body.includes("@"), "indicador público não leva e-mail");
+
+  await c.db.sql.run("INSERT INTO meta_indicador (chave, rotulo, valor_meta) VALUES ('released', 'Contatos', 15)");
+  const withTargets = (await request(c.app, "GET", "/api/impact")).json<ImpactStats>();
+  assert.equal(withTargets.targets.released, 15);
 });
 
 test("ranking é da curadoria, ordena por aderência e não entrega contato", async (t) => {
@@ -117,7 +132,18 @@ test("ranking é da curadoria, ordena por aderência e não entrega contato", as
   t.after(() => c.app.close());
   const demand = await demandaAprovada(c);
 
-  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React", "SQL"] }, c.studentCookie);
+  await request(
+    c.app,
+    "PATCH",
+    `/api/students/${c.studentId}`,
+    {
+      skills: ["React", "SQL"],
+      skillLevels: { React: 4, SQL: 4 },
+      interests: [demand.area],
+      availability: "20h/sem",
+    },
+    c.studentCookie,
+  );
 
   const semSessao = await request(c.app, "GET", `/api/demands/${demand.id}/ranking`);
   assert.equal(semSessao.statusCode, 401);
@@ -589,26 +615,6 @@ test("login bloqueia tentativas repetidas da mesma conta", async (t) => {
   );
 });
 
-test("foto do perfil sai do estado como URL e respeita visibilidade", async (t) => {
-  const c = await setup();
-  t.after(() => c.app.close());
-  const content = Buffer.from("imagem-de-teste");
-  const photo = `data:image/png;base64,${content.toString("base64")}`;
-  const updated = await request(c.app, "PATCH", `/api/students/${c.studentId}`, { photo }, c.studentCookie);
-  assert.equal(updated.statusCode, 200, updated.body);
-  const own = updated.json<VitrineState>().students.find((student) => student.id === c.studentId)!;
-  assert.equal(own.photo, `/api/students/${c.studentId}/photo`);
-  assert.equal((await request(c.app, "GET", own.photo!, undefined, c.studentCookie)).statusCode, 200);
-  assert.equal(
-    (await request(c.app, "GET", own.photo!, undefined, c.studentCookie)).rawPayload.toString(),
-    "imagem-de-teste",
-  );
-  assert.equal(
-    (await request(c.app, "GET", `/api/students/${c.studentId}/photo`, undefined, c.requesterCookie)).statusCode,
-    404,
-  );
-});
-
 test("estado entrega páginas de demandas sem repetir registros", async (t) => {
   const c = await setup();
   t.after(() => c.app.close());
@@ -773,4 +779,21 @@ test("estudante pode retirar candidatura antes da resposta do solicitante", asyn
   const newAttempt = await request(c.app, "POST", "/api/interests", payload, c.studentCookie);
   assert.equal(newAttempt.statusCode, 201, newAttempt.body);
   assert.notEqual(newAttempt.json<{ interest: { id: string } }>().interest.id, id);
+});
+
+test("sugestão duplicada devolve 409 em vez de aceitar de novo", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const payload = {
+    demandId: demand.id,
+    studentId: c.studentId,
+    origin: "sugestao",
+    justification: "Perfil aderente ao escopo.",
+  };
+  const first = await request(c.app, "POST", "/api/interests", payload, c.curatorCookie);
+  assert.equal(first.statusCode, 201, first.body);
+  const duplicate = await request(c.app, "POST", "/api/interests", payload, c.curatorCookie);
+  assert.equal(duplicate.statusCode, 409);
 });

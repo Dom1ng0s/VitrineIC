@@ -23,7 +23,7 @@ function snapshot(patch: Partial<VitrineState> = {}): VitrineState {
     attachments: [],
     demo: false,
     auth: { emailEnabled: false, verificationRequired: false },
-    impact: { released: 0, projects: 0, demands: 0, students: 0, byArea: [], byCourse: [] },
+    impact: { released: 0, projects: 0, demands: 0, students: 0, period: "", targets: {}, byArea: [], byCourse: [] },
     ...patch,
   };
 }

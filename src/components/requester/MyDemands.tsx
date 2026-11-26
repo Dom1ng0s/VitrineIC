@@ -4,6 +4,7 @@ import { useCurrentRequester } from "@/lib/auth";
 import { visibleToRequester } from "@/lib/interest";
 import { useVitrine } from "@/lib/store";
 import { ArrowIcon, ChevronIcon } from "@/components/app/Icons";
+import { DemandExtras } from "@/components/app/DemandExtras";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import { paraExibicao } from "@/lib/datas";
@@ -96,6 +97,7 @@ export function MyDemands({
                     {d.status === "rejeitada" && rejection && (
                       <p className="mt-2 font-sans text-[13px] text-red">Motivo: {rejection}</p>
                     )}
+                    <DemandExtras demand={d} compact />
                     {d.briefing && (
                       <p className="mt-2 font-sans text-[13px] text-navy/65">
                         Briefing:{" "}

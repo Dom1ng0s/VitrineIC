@@ -1,29 +1,55 @@
 import { useEffect, useRef, useState } from "react";
 import { BellIcon } from "./Icons";
 import type { Update, UpdateKind } from "@/data/updates";
+import { useSession } from "@/lib/auth";
+import { comoDecorrido } from "@/lib/datas";
 import { useVitrine, markRead, markAllRead } from "@/lib/store";
+import type { Notification } from "@/types/api";
+import type { Role } from "@/types";
 
 const KIND_LABEL: Record<UpdateKind, string> = {
   processo: "Processo",
-  vaga: "Nova vaga",
+  vaga: "Demanda",
   estudantes: "Novos estudantes",
   interesse: "Interesse",
+  mensagem: "Mensagem",
 };
 
+function classify(n: Notification, role?: Role): { kind: UpdateKind; target: string } {
+  if (n.type === "MENSAGEM") return { kind: "mensagem", target: "inbox" };
+  if (n.interestId) {
+    return {
+      kind: "interesse",
+      target: role === "requester" ? "matches" : "interests",
+    };
+  }
+  if (n.demandId) {
+    return {
+      kind: "vaga",
+      target: role === "requester" ? "dashboard" : role === "student" ? "opportunities" : "triage",
+    };
+  }
+  return { kind: "processo", target: "inbox" };
+}
+
 /**
- * Sino das áreas logadas: abre uma lista curta de avisos (andamento, vagas
- * novas, interessados). Cada aviso marca-se como lido e leva à tela dele.
+ * Sino das áreas logadas: abre uma lista curta de avisos (andamento, demandas,
+ * interesses e mensagens). Cada aviso marca-se como lido e leva à tela dele.
  */
 export function UpdatesMenu({ onOpen }: { onOpen: (target: string) => void }) {
   const { notifications } = useVitrine();
-  const updates: Update[] = notifications.map((n) => ({
-    id: n.id,
-    kind: "processo",
-    text: n.project,
-    time: n.time,
-    unread: n.unread,
-    target: "inbox",
-  }));
+  const role = useSession()?.account.role;
+  const updates: Update[] = notifications.map((n) => {
+    const { kind, target } = classify(n, role);
+    return {
+      id: n.id,
+      kind,
+      text: n.project || n.content,
+      time: comoDecorrido(n.time),
+      unread: n.unread,
+      target,
+    };
+  });
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

@@ -42,6 +42,7 @@ const TABELAS = [
   "solicitante",
   "token_conta",
   "sessao",
+  "meta_indicador",
   "conta",
 ];
 

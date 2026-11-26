@@ -67,4 +67,18 @@ export async function seedDemo(sql: Sql) {
 
   for (const demanda of DEMANDS) await salvarDemanda(sql, demanda);
   for (const interesse of INTERESTS) await salvarInteresse(sql, interesse);
+
+  const metas: [string, string, number][] = [
+    ["released", "Contatos liberados", 12],
+    ["projects", "Projetos na vitrine", 25],
+    ["demands", "Demandas recebidas", 15],
+    ["students", "Estudantes com perfil público", 30],
+  ];
+  for (const [chave, rotulo, valor] of metas) {
+    await sql.run(
+      `INSERT INTO meta_indicador (chave, rotulo, valor_meta) VALUES ($1, $2, $3)
+       ON CONFLICT (chave) DO NOTHING`,
+      [chave, rotulo, valor],
+    );
+  }
 }

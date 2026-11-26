@@ -97,14 +97,6 @@ export const studentPatchSchema = z
     lattes: link.optional(),
     availability: optionalText(200).optional(),
     inProject: z.boolean().optional(),
-    photo: z
-      .string()
-      .max(1_500_000)
-      .refine(
-        (v) => !v || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(v) || /^https:\/\//.test(v),
-        "Foto inválida.",
-      )
-      .optional(),
     onboardedAt: z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -133,6 +125,7 @@ export const demandSchema = z
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .refine((v) => !Number.isNaN(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v, "Data inválida."),
     skills: skills.refine((v) => v.length > 0, "Informe ao menos uma competência."),
+    desiredSkills: skills.optional(),
     audience: optionalText().optional(),
     academicLevel: optionalText().optional(),
     notes: optionalText(10000).optional(),

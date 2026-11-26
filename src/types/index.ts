@@ -17,6 +17,8 @@ export interface Demand {
   scope: string;
   deadline: string;
   skills: string[];
+  /** Subconjunto de `skills` marcado como desejável (o restante é obrigatório). */
+  desiredSkills?: string[];
   description: string;
   submitted: string;
   status: DemandStatus;
@@ -88,7 +90,6 @@ export interface Student {
    * projeto. É o único dado que o site mantém depois do contato liberado.
    */
   inProject?: boolean;
-  photo?: string;
   linkedin?: string;
   site?: string;
   lattes?: string;
