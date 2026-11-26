@@ -8,7 +8,7 @@ import { ArrowIcon } from "@/components/app/Icons";
 import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
 import { PAGE } from "@/components/public/layout";
-import { UNITS, findUnit } from "@/data/institution";
+import { SIGNUP_UNITS, findSignupUnit } from "@/data/institution";
 import { LANGUAGE_LEVELS } from "@/data/languages";
 import { LEVELS } from "@/data/skills";
 import { BIO_MAX, fromDraft, isProfileVisible, toDraft, type ProfileDraft } from "@/lib/profile";
@@ -17,9 +17,15 @@ import { digits, first, maxLength, required, useValidation } from "@/lib/validat
 import type { Student, StudentSkill, StudentLanguage } from "@/types";
 
 const INTERESTS = [
-  "Inteligência Artificial", "Engenharia de Software", "Redes & Sistemas",
-  "Segurança da Informação", "Banco de Dados", "Computação Gráfica",
-  "Sistemas Embarcados", "Bioinformática", "HCI & Design",
+  "Inteligência Artificial",
+  "Engenharia de Software",
+  "Redes & Sistemas",
+  "Segurança da Informação",
+  "Banco de Dados",
+  "Computação Gráfica",
+  "Sistemas Embarcados",
+  "Bioinformática",
+  "HCI & Design",
 ];
 
 /** Barra de nível do Figma: rótulo à direita e trilho navy a 8%. */
@@ -37,15 +43,7 @@ function LevelBar({ name, level, labels }: { name: string; level: number; labels
   );
 }
 
-export function Profile({
-  student,
-  email,
-  projects,
-}: {
-  student: Student;
-  email: string;
-  projects: MyProject[];
-}) {
+export function Profile({ student, email, projects }: { student: Student; email: string; projects: MyProject[] }) {
   const [editing, setEditing] = useState(false);
   const [data, setDataState] = useState<ProfileDraft>(() => toDraft(student));
   const setData = (patch: Partial<ProfileDraft>) => setDataState({ ...data, ...patch });
@@ -60,7 +58,7 @@ export function Profile({
 
   const skills: StudentSkill[] = data.skills;
   const languages: StudentLanguage[] = data.languages;
-  const unit = findUnit(data.unit);
+  const unit = findSignupUnit(data.unit);
 
   const startEditing = () => {
     setDataState(toDraft(student));
@@ -70,7 +68,7 @@ export function Profile({
 
   const save = async () => {
     if (!validate()) return;
-    if (!await updateStudent(student.id, fromDraft(data))) return;
+    if (!(await updateStudent(student.id, fromDraft(data)))) return;
     setEditing(false);
   };
 
@@ -96,7 +94,12 @@ export function Profile({
             <section className="vt-card flex flex-col gap-5 p-6 md:p-8">
               <Eyebrow>Informações básicas</Eyebrow>
               <div className="grid gap-5 md:grid-cols-2">
-                <Input label="Nome completo" value={data.name} onChange={(v) => setData({ name: v })} {...field("name")} />
+                <Input
+                  label="Nome completo"
+                  value={data.name}
+                  onChange={(v) => setData({ name: v })}
+                  {...field("name")}
+                />
                 <div>
                   <Label>E-mail institucional</Label>
                   <p className="flex h-[41px] items-center font-mono text-[13px] text-navy/80">{email}</p>
@@ -105,7 +108,7 @@ export function Profile({
                 <Select
                   {...field("unit")}
                   label="Instituto ou faculdade"
-                  options={UNITS.map((u) => ({ value: u.short, label: `${u.name} (${u.short})` }))}
+                  options={SIGNUP_UNITS.map((u) => ({ value: u.short, label: `${u.name} (${u.short})` }))}
                   value={data.unit}
                   onChange={(v: string) => setData({ unit: v, course: "" })}
                 />
@@ -150,7 +153,11 @@ export function Profile({
                 value={data.interests}
                 onChange={(v) => setData({ interests: v })}
               />
-              <SkillPicker value={skills} course={data.course} onChange={(s: StudentSkill[]) => setData({ skills: s })} />
+              <SkillPicker
+                value={skills}
+                course={data.course}
+                onChange={(s: StudentSkill[]) => setData({ skills: s })}
+              />
               <div>
                 <Label>Idiomas</Label>
                 <LanguagePicker value={languages} onChange={(l: StudentLanguage[]) => setData({ languages: l })} />
@@ -165,10 +172,30 @@ export function Profile({
               <Avatar name={data.name || "?"} size="xl" />
             )}
             <div className="flex w-full flex-col gap-4">
-              <Input label="GitHub" placeholder="github.com/usuario" value={data.github} onChange={(v) => setData({ github: v })} />
-              <Input label="LinkedIn" placeholder="linkedin.com/in/usuario" value={data.linkedin} onChange={(v) => setData({ linkedin: v })} />
-              <Input label="Site / Portfólio" placeholder="seusite.dev" value={data.site} onChange={(v) => setData({ site: v })} />
-              <Input label="Lattes" placeholder="lattes.cnpq.br/xxxxxxxx" value={data.lattes} onChange={(v) => setData({ lattes: v })} />
+              <Input
+                label="GitHub"
+                placeholder="github.com/usuario"
+                value={data.github}
+                onChange={(v) => setData({ github: v })}
+              />
+              <Input
+                label="LinkedIn"
+                placeholder="linkedin.com/in/usuario"
+                value={data.linkedin}
+                onChange={(v) => setData({ linkedin: v })}
+              />
+              <Input
+                label="Site / Portfólio"
+                placeholder="seusite.dev"
+                value={data.site}
+                onChange={(v) => setData({ site: v })}
+              />
+              <Input
+                label="Lattes"
+                placeholder="lattes.cnpq.br/xxxxxxxx"
+                value={data.lattes}
+                onChange={(v) => setData({ lattes: v })}
+              />
             </div>
           </aside>
         </div>
@@ -252,7 +279,9 @@ export function Profile({
                       VIC · P{String(projects.length - i).padStart(3, "0")}
                     </span>
                   </div>
-                  <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">{p.title}</h3>
+                  <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">
+                    {p.title}
+                  </h3>
                 </article>
               ))}
             </div>

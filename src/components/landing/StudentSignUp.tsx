@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { FormAlert, InputField, SelectField } from "./ui";
 import { ArrowIcon } from "@/components/app/Icons";
-import { INSTITUTION, UNITS, findUnit } from "@/data/institution";
+import { INSTITUTION, SIGNUP_UNITS, findSignupUnit } from "@/data/institution";
 import { signUpStudent } from "@/lib/auth";
 import { first, minLength, required, sameAs, ufalEmail, useValidation } from "@/lib/validate";
 
@@ -11,7 +11,7 @@ type Field = "name" | "email" | "unit" | "course" | "password" | "confirm" | "co
 export function StudentSignUp({ onSignedUp }: { onSignedUp: () => void }) {
   const [v, setV] = useState({ name: "", email: "", unit: "", course: "", password: "", confirm: "", consent: false });
   const [failure, setFailure] = useState<string | null>(null);
-  const unit = findUnit(v.unit);
+  const unit = findSignupUnit(v.unit);
 
   const { validate, field } = useValidation<Field>(() => ({
     name: required(v.name, "Informe seu nome completo."),
@@ -41,7 +41,13 @@ export function StudentSignUp({ onSignedUp }: { onSignedUp: () => void }) {
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       {failure && <FormAlert>{failure}</FormAlert>}
-      <InputField label="Nome completo" autoComplete="name" value={v.name} onChange={(x) => set({ name: x })} {...field("name")} />
+      <InputField
+        label="Nome completo"
+        autoComplete="name"
+        value={v.name}
+        onChange={(x) => set({ name: x })}
+        {...field("name")}
+      />
       <InputField
         label="E-mail institucional"
         type="email"
@@ -55,7 +61,7 @@ export function StudentSignUp({ onSignedUp }: { onSignedUp: () => void }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectField
           label="Instituto ou faculdade"
-          options={UNITS.map((u) => ({ value: u.short, label: `${u.short} · ${u.name}` }))}
+          options={SIGNUP_UNITS.map((u) => ({ value: u.short, label: `${u.short} · ${u.name}` }))}
           value={v.unit}
           onChange={(x) => set({ unit: x, course: "" })}
           {...field("unit")}

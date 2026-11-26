@@ -29,17 +29,21 @@ export interface Unit {
   short: string;
   name: string;
   courses: string[];
+  /** Cursos conferidos em ufal.br. Só unidade conferida entra no cadastro. */
+  coursesVerified?: boolean;
 }
 
 /**
- * Cursos de cada unidade. Os do IC são os reais; os das demais unidades são
- * exemplo e devem ser conferidos em ufal.br antes de publicar.
+ * Cursos de cada unidade. Os do IC são os reais e conferidos; os das demais
+ * unidades são exemplo, ficam fora do cadastro (ver `SIGNUP_UNITS`) e só
+ * entram quando alguém da equipe conferir a lista em ufal.br.
  */
 export const UNITS: Unit[] = [
   {
     short: "IC",
     name: "Instituto de Computação",
     courses: ["Ciência da Computação", "Engenharia da Computação", "Inteligência Artificial"],
+    coursesVerified: true,
   },
   { short: "FAMED", name: "Faculdade de Medicina", courses: ["Medicina"] },
   { short: "FDA", name: "Faculdade de Direito", courses: ["Direito"] },
@@ -61,8 +65,20 @@ export const UNITS: Unit[] = [
 /** Todos os cursos da universidade, na ordem das unidades. */
 export const COURSES: string[] = UNITS.flatMap((u) => u.courses);
 
+/**
+ * Unidades que o cadastro oferece. Enquanto os cursos das outras unidades não
+ * forem conferidos, só o IC entra — assim ninguém escolhe curso inexistente.
+ * O cartão do hero continua girando `UNITS` (nomes e siglas são conferidos).
+ */
+export const SIGNUP_UNITS: Unit[] = UNITS.filter((u) => u.coursesVerified);
+
 export function findUnit(short: string) {
   return UNITS.find((u) => u.short === short);
+}
+
+/** Unidade aceita no cadastro e no perfil. Use esta na validação. */
+export function findSignupUnit(short: string) {
+  return SIGNUP_UNITS.find((u) => u.short === short);
 }
 
 /** Forma curta, para metadados em caixa alta onde o espaço é apertado. */

@@ -2,13 +2,19 @@ import { useRef, useState } from "react";
 import { Input, Label, Select } from "./ui";
 import type { OnboardingField } from "./Onboarding";
 import { FieldError, invalidProps } from "@/components/app/FieldError";
-import { UNITS, findUnit } from "@/data/institution";
+import { SIGNUP_UNITS, findSignupUnit } from "@/data/institution";
 import { BIO_MAX, type ProfileDraft } from "@/lib/profile";
 
 const INTERESTS = [
-  "Inteligência Artificial", "Engenharia de Software", "Redes & Sistemas",
-  "Segurança da Informação", "Banco de Dados", "Computação Gráfica",
-  "Sistemas Embarcados", "Bioinformática", "HCI & Design",
+  "Inteligência Artificial",
+  "Engenharia de Software",
+  "Redes & Sistemas",
+  "Segurança da Informação",
+  "Banco de Dados",
+  "Computação Gráfica",
+  "Sistemas Embarcados",
+  "Bioinformática",
+  "HCI & Design",
 ];
 
 type Field = (name: OnboardingField) => { id: string; error?: string };
@@ -31,7 +37,7 @@ export function Step1({
   const fileRef = useRef<HTMLInputElement>(null);
   const [editingAccount, setEditingAccount] = useState(false);
   const interests = data.interests;
-  const unit = findUnit(data.unit);
+  const unit = findSignupUnit(data.unit);
   const accountError = field("name").error || field("unit").error || field("course").error;
 
   const toggleInterest = (item: string) =>
@@ -64,12 +70,17 @@ export function Step1({
         {(editingAccount || accountError) && (
           <div className="mt-5 grid gap-x-4 gap-y-5 border-t border-navy/8 pt-5 md:grid-cols-2">
             <div className="md:col-span-2">
-              <Input label="Nome completo" value={data.name} onChange={(v) => setData({ name: v })} {...field("name")} />
+              <Input
+                label="Nome completo"
+                value={data.name}
+                onChange={(v) => setData({ name: v })}
+                {...field("name")}
+              />
             </div>
             <Select
               {...field("unit")}
               label="Instituto ou faculdade"
-              options={UNITS.map((u) => ({ value: u.short, label: `${u.name} (${u.short})` }))}
+              options={SIGNUP_UNITS.map((u) => ({ value: u.short, label: `${u.name} (${u.short})` }))}
               value={data.unit}
               onChange={(v: string) => setData({ unit: v, course: "" })}
             />
@@ -97,7 +108,12 @@ export function Step1({
           ) : (
             <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
               <circle cx="14" cy="11" r="5" stroke="currentColor" strokeWidth="1.3" />
-              <path d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+              <path
+                d="M4 24c0-5.523 4.477-10 10-10s10 4.477 10 10"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              />
             </svg>
           )}
         </button>
