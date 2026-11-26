@@ -2,34 +2,20 @@ import { INSTITUTION } from "@/data/institution";
 import { Logo } from "./Logo";
 import { PAGE } from "./layout";
 import type { PublicView } from "./routes";
+import { RouteLink } from "@/components/app/RouteLink";
+import type { AppRoute } from "@/lib/rotas";
 
 /** Rodapé azul das páginas públicas, igual na landing e nas telas internas. */
-export function PublicFooter({
-  onNavigate,
-  onSignIn,
-  onAdmin,
-}: {
-  onNavigate: (view: PublicView) => void;
-  onSignIn: () => void;
-  onAdmin: () => void;
-}) {
-  const columns: { title: string; links: { label: string; onClick: () => void }[] }[] = [
-    {
-      title: "Plataforma",
-      links: [
-        { label: "Projetos", onClick: () => onNavigate("projects") },
-        { label: "Estudantes", onClick: () => onNavigate("students") },
-        { label: "Impacto", onClick: () => onNavigate("impact") },
-      ],
-    },
-    {
-      title: "Acesso",
-      links: [
-        { label: "Estudantes", onClick: onSignIn },
-        { label: "Solicitantes", onClick: onSignIn },
-        { label: "Curadoria", onClick: onAdmin },
-      ],
-    },
+export function PublicFooter({ onRoute, onSignIn }: { onRoute: (route: AppRoute) => void; onSignIn: () => void }) {
+  const secao = (view: PublicView): AppRoute => ({ area: "public", route: { view } });
+  const linkClass = "font-sans text-sm text-offwhite/75 transition-colors hover:text-offwhite";
+
+  // Plataforma leva a páginas, então são âncoras; Acesso abre o modal de login.
+  const navegacao: { label: string; to: AppRoute }[] = [
+    { label: "Projetos", to: secao("projects") },
+    { label: "Estudantes", to: secao("students") },
+    { label: "Impacto", to: secao("impact") },
+    { label: "Curadoria", to: { area: "curator_signin" } },
   ];
 
   return (
@@ -43,23 +29,31 @@ export function PublicFooter({
             </p>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.title}>
-              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">{col.title}</p>
-              <ul className="flex flex-col gap-3">
-                {col.links.map((link) => (
-                  <li key={link.label}>
-                    <button
-                      onClick={link.onClick}
-                      className="font-sans text-sm text-offwhite/75 transition-colors hover:text-offwhite"
-                    >
-                      {link.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">Plataforma</p>
+            <ul className="flex flex-col gap-3">
+              {navegacao.map((link) => (
+                <li key={link.label}>
+                  <RouteLink to={link.to} onNavigate={onRoute} className={linkClass}>
+                    {link.label}
+                  </RouteLink>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">Acesso</p>
+            <ul className="flex flex-col gap-3">
+              {["Estudantes", "Solicitantes"].map((label) => (
+                <li key={label}>
+                  <button onClick={onSignIn} className={linkClass}>
+                    {label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
           <div>
             <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">Contato</p>

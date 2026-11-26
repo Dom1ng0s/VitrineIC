@@ -7,20 +7,21 @@ import { Eyebrow } from "@/components/public/Eyebrow";
 import { PAGE } from "@/components/public/layout";
 import { PublicFooter } from "@/components/public/PublicFooter";
 import { PublicNav } from "@/components/public/PublicNav";
+import type { AppRoute } from "@/lib/rotas";
 import { UnitsCard } from "@/components/landing/UnitsCard";
 import { ArrowIcon } from "@/components/app/Icons";
+import { RouteLink } from "@/components/app/RouteLink";
 
 /** Destaques saem da base única de projetos, para que o card abra a página do projeto. */
 
 export default function LandingPage({
   onSignIn,
-  onAdmin,
-  onNavigate,
+  onRoute,
 }: {
   onSignIn: () => void;
-  onAdmin: () => void;
-  onNavigate: (route: PublicRoute) => void;
+  onRoute: (route: AppRoute) => void;
 }) {
+  const onNavigate = (publica: PublicRoute) => onRoute({ area: "public", route: publica });
   const { students, companies, impact } = useVitrine();
   const stats = [
     { index: "01", value: impact.projects, label: "projetos publicados" },
@@ -31,13 +32,7 @@ export default function LandingPage({
 
   return (
     <div className="min-h-screen bg-offwhite">
-      <PublicNav
-        view="home"
-        onHome={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        onNavigate={(v) => onNavigate({ view: v })}
-        onSignIn={onSignIn}
-        onAdmin={onAdmin}
-      />
+      <PublicNav view="home" onRoute={onRoute} onSignIn={onSignIn} />
 
       {/* ── Hero ── */}
       <section className={`${PAGE} grid items-center gap-14 py-16 md:grid-cols-[591fr_473fr] md:py-24`}>
@@ -54,9 +49,13 @@ export default function LandingPage({
             <button onClick={onSignIn} className="vt-btn vt-btn-primary">
               Acessar plataforma <ArrowIcon />
             </button>
-            <button onClick={() => onNavigate({ view: "projects" })} className="vt-btn vt-btn-secondary">
+            <RouteLink
+              to={{ area: "public", route: { view: "projects" } }}
+              onNavigate={onRoute}
+              className="vt-btn vt-btn-secondary"
+            >
               Explorar projetos
-            </button>
+            </RouteLink>
           </div>
           <div className="md:hidden">
             <UnitsCard variant="compact" />
@@ -95,9 +94,13 @@ export default function LandingPage({
               Projetos que já saíram do papel.
             </h2>
           </div>
-          <button onClick={() => onNavigate({ view: "projects" })} className="vt-btn vt-btn-secondary shrink-0">
+          <RouteLink
+            to={{ area: "public", route: { view: "projects" } }}
+            onNavigate={onRoute}
+            className="vt-btn vt-btn-secondary shrink-0"
+          >
             Ver catálogo <ArrowIcon />
-          </button>
+          </RouteLink>
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -133,7 +136,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      <PublicFooter onNavigate={(v) => onNavigate({ view: v })} onSignIn={onSignIn} onAdmin={onAdmin} />
+      <PublicFooter onRoute={onRoute} onSignIn={onSignIn} />
     </div>
   );
 }

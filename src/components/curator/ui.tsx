@@ -1,8 +1,7 @@
 import type * as React from "react";
 
-export function Label({ children }: { children: React.ReactNode }) {
-  return <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/60">{children}</span>;
-}
+/** O `Label` da curadoria tinha outro tom de navy, sem decisão por trás. */
+export { Label } from "@/components/app/Field";
 
 export function Mono({ children, dim, red }: { children: React.ReactNode; dim?: boolean; red?: boolean }) {
   return (
@@ -14,9 +13,7 @@ export function Mono({ children, dim, red }: { children: React.ReactNode; dim?: 
   );
 }
 
-export function Rule() {
-  return <div className="my-5 h-px bg-navy/8" />;
-}
+export { Rule } from "@/components/app/Field";
 
 /** Tag de skill (.vt-pill). `highlight` marca a skill que cruza com a demanda. */
 export function SkillTag({ children, highlight }: { children: React.ReactNode; highlight?: boolean; small?: boolean }) {
