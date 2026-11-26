@@ -7,7 +7,7 @@ import { ArrowIcon, ChevronIcon } from "@/components/app/Icons";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import { paraExibicao } from "@/lib/datas";
-import { closeDemand } from "@/lib/store";
+import { closeDemand, deleteBriefing, uploadBriefing } from "@/lib/store";
 import { Modal } from "@/components/app/Modal";
 import { Input } from "./ui";
 import type { Demand } from "@/types";
@@ -95,6 +95,42 @@ export function MyDemands({
                     </p>
                     {d.status === "rejeitada" && rejection && (
                       <p className="mt-2 font-sans text-[13px] text-red">Motivo: {rejection}</p>
+                    )}
+                    {d.briefing && (
+                      <p className="mt-2 font-sans text-[13px] text-navy/65">
+                        Briefing:{" "}
+                        <a
+                          className="underline underline-offset-2"
+                          href={`/api/demands/${encodeURIComponent(d.id)}/briefing`}
+                          download
+                        >
+                          {d.briefing.name}
+                        </a>
+                        {d.status === "nova" || d.status === "em_analise" ? (
+                          <button
+                            className="ml-3 text-red underline underline-offset-2"
+                            onClick={() => void deleteBriefing(d.id)}
+                          >
+                            Remover
+                          </button>
+                        ) : null}
+                      </p>
+                    )}
+                    {(d.status === "nova" || d.status === "em_analise") && (
+                      <label htmlFor={`briefing-${d.id}`} className="mt-3 block font-sans text-xs text-navy/60">
+                        Anexar briefing em PDF
+                        <input
+                          id={`briefing-${d.id}`}
+                          aria-label="Anexar briefing em PDF"
+                          type="file"
+                          accept="application/pdf,.pdf"
+                          className="mt-2 block w-full font-sans text-xs"
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (file) void uploadBriefing(d.id, file);
+                          }}
+                        />
+                      </label>
                     )}
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">

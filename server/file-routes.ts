@@ -5,8 +5,82 @@ import type { Config } from "./config";
 import { requireAccount, requireVerifiedAccount } from "./security";
 import { ensure, ensureUuid } from "./errors";
 import { snapshot } from "./db/snapshot";
+import { demandas, estudantes } from "./db/repositories";
+import {
+  demandBriefing,
+  portfolioFiles,
+  removeDemandBriefing,
+  requesterCanViewPortfolio,
+  saveDemandBriefing,
+} from "./db/attachments";
 
 export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
+  app.post<{ Params: { id: string } }>("/api/demands/:id/briefing", async (request, reply) => {
+    const account = await requireVerifiedAccount(db, request, config, "requester");
+    const demand = await demandas.porId(db.sql, request.params.id);
+    ensure(demand, 404, "Demanda não encontrada.");
+    ensure(
+      demand.company === account.profileId && ["nova", "em_analise"].includes(demand.status),
+      403,
+      "O briefing não pode ser alterado.",
+    );
+    const file = await request.file();
+    ensure(file, 400, "Selecione um PDF.");
+    const name = basename(file.filename.replaceAll("\\", "/")).slice(0, 200);
+    ensure(extname(name).toLowerCase() === ".pdf", 400, "Envie um PDF.");
+    const content = await file.toBuffer();
+    ensure(!file.file.truncated && content.length <= 20 * 1024 * 1024, 413, "O limite é 20 MB.");
+    ensure(content.subarray(0, 5).toString() === "%PDF-", 400, "O conteúdo não é um PDF.");
+    await saveDemandBriefing(db.sql, demand.id, name, content);
+    reply.code(201);
+    return snapshot(db.sql, config, account);
+  });
+
+  app.get<{ Params: { id: string } }>("/api/demands/:id/briefing", async (request, reply) => {
+    const account = await requireAccount(db, request);
+    const demand = await demandas.porId(db.sql, request.params.id);
+    ensure(demand, 404, "Demanda não encontrada.");
+    ensure(
+      account.role === "curator" ||
+        (account.role === "requester" && account.profileId === demand.company) ||
+        (account.role === "student" && ["aprovada", "contato_liberado"].includes(demand.status)),
+      403,
+      "Briefing privado.",
+    );
+    const file = await demandBriefing(db.sql, demand.id);
+    ensure(file, 404, "Briefing não encontrado.");
+    return reply
+      .header("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`)
+      .type("application/pdf")
+      .send(file.content);
+  });
+
+  app.delete<{ Params: { id: string } }>("/api/demands/:id/briefing", async (request) => {
+    const account = await requireAccount(db, request, "requester");
+    const demand = await demandas.porId(db.sql, request.params.id);
+    ensure(demand, 404, "Demanda não encontrada.");
+    ensure(
+      demand.company === account.profileId && ["nova", "em_analise"].includes(demand.status),
+      403,
+      "O briefing não pode ser removido.",
+    );
+    ensure((await removeDemandBriefing(db.sql, demand.id)) > 0, 404, "Briefing não encontrado.");
+    return snapshot(db.sql, config, account);
+  });
+
+  app.get<{ Params: { id: string } }>("/api/students/:id/portfolio", async (request) => {
+    const account = await requireAccount(db, request);
+    ensure(await estudantes.porId(db.sql, request.params.id), 404, "Estudante não encontrado.");
+    ensure(
+      (account.role === "student" && account.profileId === request.params.id) ||
+        account.role === "curator" ||
+        (account.role === "requester" &&
+          (await requesterCanViewPortfolio(db.sql, account.profileId, request.params.id))),
+      403,
+      "Portfólio privado.",
+    );
+    return portfolioFiles(db.sql, request.params.id);
+  });
   app.post<{ Params: { category: string } }>("/api/attachments/:category", async (request, reply) => {
     const account = await requireVerifiedAccount(db, request, config, "student");
     const { category } = request.params;
@@ -54,13 +128,17 @@ export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
   app.get<{ Params: { id: string } }>("/api/attachments/:id", async (request, reply) => {
     ensureUuid(request.params.id, "Arquivo");
     const account = await requireAccount(db, request);
-    const arquivo = await db.sql.row<{ estudante_id: string; nome: string; conteudo: Buffer }>(
-      "SELECT estudante_id, nome, conteudo FROM anexo_estudante WHERE id = $1",
+    const arquivo = await db.sql.row<{ estudante_id: string; nome: string; categoria: string; conteudo: Buffer }>(
+      "SELECT estudante_id, nome, categoria, conteudo FROM anexo_estudante WHERE id = $1",
       [request.params.id],
     );
     ensure(arquivo, 404, "Arquivo não encontrado.");
     ensure(
-      account.role === "curator" || (account.role === "student" && arquivo.estudante_id === account.profileId),
+      account.role === "curator" ||
+        (account.role === "student" && arquivo.estudante_id === account.profileId) ||
+        (account.role === "requester" &&
+          arquivo.categoria === "portfolio" &&
+          (await requesterCanViewPortfolio(db.sql, account.profileId, arquivo.estudante_id))),
       403,
       "Arquivo privado.",
     );

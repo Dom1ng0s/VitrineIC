@@ -85,6 +85,7 @@ export const SQL_DEMANDA = `
     d.status, d.prioridade AS priority,
     d.publico_alvo AS audience, d.nivel_academico AS "academicLevel",
     d.observacoes AS notes, d.tamanho_equipe AS "teamSize", d.orcamento AS budget,
+    brief.meta AS briefing,
     COALESCE(hist.lista, '[]'::json) AS "statusHistory",
     COALESCE(sk.lista, '[]'::json) AS skills
   FROM demanda d
@@ -96,6 +97,10 @@ export const SQL_DEMANDA = `
     FROM demanda_competencia dc JOIN competencia c ON c.id = dc.competencia_id
     WHERE dc.demanda_id = d.id
   ) sk ON true
+  LEFT JOIN LATERAL (
+    SELECT json_build_object('id', b.id, 'name', b.nome, 'size', b.tamanho_bytes) AS meta
+    FROM anexo_demanda b WHERE b.demanda_id = d.id
+  ) brief ON true
   LEFT JOIN LATERAL (
     SELECT json_agg(json_build_object(
       'status', h.status, 'observation', h.observacao,

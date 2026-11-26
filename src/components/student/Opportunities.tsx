@@ -138,6 +138,15 @@ export function Opportunities({ student, onGoToInterests }: { student: Student; 
               {selected.title}
             </h1>
             <p className="max-w-[640px] font-sans text-[15px] leading-[1.6] text-offwhite/75">{selected.description}</p>
+            {selected.briefing && (
+              <a
+                className="self-start font-sans text-sm text-offwhite underline underline-offset-4"
+                href={`/api/demands/${encodeURIComponent(selected.id)}/briefing`}
+                download
+              >
+                Baixar briefing: {selected.briefing.name}
+              </a>
+            )}
           </div>
 
           <div className="grid gap-10 px-6 py-8 md:grid-cols-2 md:px-10">

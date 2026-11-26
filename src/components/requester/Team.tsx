@@ -5,6 +5,7 @@ import { PAGE } from "@/components/public/layout";
 import { useVitrine } from "@/lib/store";
 import { useCurrentRequester } from "@/lib/auth";
 import { ContactMessage } from "@/components/app/ContactMessage";
+import { PortfolioFiles } from "./PortfolioFiles";
 
 export function Team({ onInvite }: { onInvite: () => void }) {
   const { interests, demands, students } = useVitrine();
@@ -18,6 +19,7 @@ export function Team({ onInvite }: { onInvite: () => void }) {
         ? [
             {
               id: i.id,
+              studentId: student.id,
               name: student.name,
               email: student.email,
               project: demand.title,
@@ -54,6 +56,7 @@ export function Team({ onInvite }: { onInvite: () => void }) {
               <p className="hidden font-sans text-[13px] text-navy/60 md:block">{member.project}</p>
               <span className="vt-pill">{member.role}</span>
               <ContactMessage interestId={member.id} recipient={member.name} />
+              <PortfolioFiles studentId={member.studentId} studentName={member.name} />
             </li>
           ))}
         </ul>

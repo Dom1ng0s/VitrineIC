@@ -121,6 +121,12 @@ export const updateDemand = (id: string, patch: Partial<Demand>) =>
   mutate(`/demands/${encodeURIComponent(id)}`, "PATCH", patch);
 export const closeDemand = (id: string, reason?: string) =>
   mutate(`/demands/${encodeURIComponent(id)}/close`, "POST", { reason });
+export function uploadBriefing(id: string, file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return mutate(`/demands/${encodeURIComponent(id)}/briefing`, "POST", form);
+}
+export const deleteBriefing = (id: string) => mutate(`/demands/${encodeURIComponent(id)}/briefing`, "DELETE");
 export const removeDemand = (id: string) => mutate(`/demands/${encodeURIComponent(id)}`, "DELETE");
 export function findActiveInterest(interests: Interest[], demandId: string, studentId: string) {
   return interests.find(

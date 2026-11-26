@@ -277,6 +277,7 @@ test("migração é aplicada uma vez e preserva os dados existentes", async (t) 
       "003_parecer.sql",
       "004_login_attempts.sql",
       "005_demanda_encerramento.sql",
+      "006_briefing.sql",
     ],
   );
   assert.equal((await contas.porId(reaberta.db.sql, id))!.email, student.email);

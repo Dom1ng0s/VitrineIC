@@ -159,7 +159,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [x] Tipo do solicitante visível (decisão da fase 0): selo de empresa,
       professor/laboratório ou órgão público no mural, na triagem e no
       cadastro, com filtro por tipo
-- [ ] Anexo de briefing pela demanda; portfólio liberado após o aceite duplo
+- [x] Anexo de briefing pela demanda; portfólio liberado após o aceite duplo
 - [ ] Decidir e, se valer, implementar "retirar candidatura"
 
 ## Fase 5 — Eliminar fachadas

@@ -26,6 +26,7 @@ export interface Demand {
   notes?: string;
   teamSize?: string;
   budget?: string;
+  briefing?: { id: string; name: string; size: number };
   statusHistory?: { status: DemandStatus; observation?: string; changedAt: string; changedBy?: string }[];
 }
 

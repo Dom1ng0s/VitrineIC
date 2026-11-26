@@ -69,6 +69,15 @@ export function TriageCard({
       {open && (
         <div className="border-t border-navy/8 bg-navy/[0.02] p-3">
           <p className="mb-3 px-1 font-sans text-[12px] leading-[1.55] text-navy/65">{demand.description}</p>
+          {demand.briefing && (
+            <a
+              className="mb-3 block px-1 font-sans text-xs text-navy underline underline-offset-2"
+              href={`/api/demands/${encodeURIComponent(demand.id)}/briefing`}
+              download
+            >
+              Baixar briefing: {demand.briefing.name}
+            </a>
+          )}
           <div className="flex flex-col gap-1.5">
             {(["em_analise", "aprovada", "rejeitada"] as DemandStatus[]).map((s) => {
               const current = demand.status === s;
