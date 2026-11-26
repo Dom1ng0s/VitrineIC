@@ -10,6 +10,7 @@ import { Team } from "./Team";
 import { Inbox } from "./Inbox";
 import { useCurrentRequester } from "@/lib/auth";
 import { useVitrine } from "@/lib/store";
+import type { Demand } from "@/types";
 
 export default function RequesterArea({ onBack }: { onBack: () => void }) {
   const [view, setView] = useState<
@@ -17,6 +18,7 @@ export default function RequesterArea({ onBack }: { onBack: () => void }) {
   >("available_students");
   const [protocol, setProtocol] = useState("");
   const [matchDemand, setMatchDemand] = useState<string | null>(null);
+  const [editingDemand, setEditingDemand] = useState<Demand | null>(null);
   const { demands, interests, notifications } = useVitrine();
   const requester = useCurrentRequester();
 
@@ -43,7 +45,14 @@ export default function RequesterArea({ onBack }: { onBack: () => void }) {
 
       {view === "dashboard" && (
         <MyDemands
-          onNew={() => handleSetView("new")}
+          onNew={() => {
+            setEditingDemand(null);
+            handleSetView("new");
+          }}
+          onEdit={(demand) => {
+            setEditingDemand(demand);
+            handleSetView("new");
+          }}
           onViewMatch={(id) => {
             setMatchDemand(id);
             setView("matches");
@@ -54,8 +63,18 @@ export default function RequesterArea({ onBack }: { onBack: () => void }) {
 
       {view === "new" && (
         <NewDemandWizard
-          onCancel={() => handleSetView("dashboard")}
+          key={editingDemand?.id ?? "new"}
+          initialDemand={editingDemand ?? undefined}
+          onCancel={() => {
+            setEditingDemand(null);
+            handleSetView("dashboard");
+          }}
           onSuccess={(p) => {
+            if (editingDemand) {
+              setEditingDemand(null);
+              handleSetView("dashboard");
+              return;
+            }
             setProtocol(p);
             handleSetView("success");
           }}

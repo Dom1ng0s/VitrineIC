@@ -9,6 +9,8 @@ export const STATUS_MAP: Record<DemandStatus, { label: string; color: string }> 
   aprovada: { label: "Recebendo interesses", color: RED },
   rejeitada: { label: "Rejeitada", color: TERRACOTTA },
   contato_liberado: { label: "Contato liberado", color: MOSS },
+  cancelada: { label: "Cancelada", color: TERRACOTTA },
+  encerrada: { label: "Encerrada", color: MOSS },
 };
 
 export function StatusBadge({ status }: { status: DemandStatus }) {

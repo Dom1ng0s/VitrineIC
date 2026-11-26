@@ -145,10 +145,10 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 
 ## Fase 4 — Buracos de fluxo
 
-- [ ] Editar e encerrar/cancelar demanda (solicitante)
+- [x] Editar e encerrar/cancelar demanda (solicitante)
 - [ ] Editar e excluir projeto, mudar etapa (estudante)
 - [ ] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
-- [ ] Motivo da rejeição visível ao solicitante
+- [x] Motivo da rejeição visível ao solicitante
 - [ ] Histórico de decisões visível à curadoria
 - [ ] Mensagem iniciável (hoje só responde a notificação)
 - [ ] Transições do kanban derivadas da mesma tabela do servidor, com alvo

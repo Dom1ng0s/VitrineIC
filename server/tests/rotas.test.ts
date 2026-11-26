@@ -633,3 +633,42 @@ test("estado entrega páginas de demandas sem repetir registros", async (t) => {
   assert.equal(new Set([...firstPage.demands, ...secondPage.demands].map((d) => d.id)).size, 20);
   assert.equal((await request(c.app, "GET", "/api/state?limit=1000", undefined, c.requesterCookie)).statusCode, 400);
 });
+
+test("solicitante cancela demanda sem interesse ativo e não reabre pela triagem", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const created = await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie);
+  const id = created.json<{ demand: Demand }>().demand.id;
+  const url = `/api/demands/${id}/close`;
+  assert.equal((await request(c.app, "POST", url, {}, c.studentCookie)).statusCode, 403);
+  assert.equal((await request(c.app, "POST", url, {}, c.curatorCookie)).statusCode, 403);
+  const closed = await request(c.app, "POST", url, { reason: "Mudança de escopo" }, c.requesterCookie);
+  assert.equal(closed.statusCode, 200, closed.body);
+  const demand = closed.json<VitrineState>().demands.find((entry) => entry.id === id)!;
+  assert.equal(demand.status, "cancelada");
+  assert.equal(demand.statusHistory?.at(-1)?.observation, "Mudança de escopo");
+  assert.equal((await request(c.app, "POST", url, {}, c.requesterCookie)).statusCode, 409);
+  assert.equal(
+    (await request(c.app, "PATCH", `/api/demands/${id}/status`, { status: "nova" }, c.curatorCookie)).statusCode,
+    409,
+  );
+});
+
+test("solicitante encerra demanda depois de liberar contato", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const created = await request(
+    c.app,
+    "POST",
+    "/api/interests",
+    { demandId: demand.id, studentId: c.studentId, origin: "candidatura" },
+    c.studentCookie,
+  );
+  const interestId = created.json<{ interest: { id: string } }>().interest.id;
+  await request(c.app, "POST", `/api/interests/${interestId}/respond`, { accept: true }, c.requesterCookie);
+  const closed = await request(c.app, "POST", `/api/demands/${demand.id}/close`, {}, c.requesterCookie);
+  assert.equal(closed.statusCode, 200, closed.body);
+  assert.equal(closed.json<VitrineState>().demands.find((entry) => entry.id === demand.id)?.status, "encerrada");
+});

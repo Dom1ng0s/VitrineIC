@@ -9,6 +9,8 @@ export const DEMAND_STATUS: Record<DemandStatus, { label: string; color: string 
   aprovada: { label: "Aprovada", color: MOSS },
   rejeitada: { label: "Rejeitada", color: TERRACOTTA },
   contato_liberado: { label: "Contato liberado", color: NAVY },
+  cancelada: { label: "Cancelada", color: TERRACOTTA },
+  encerrada: { label: "Encerrada", color: MOSS },
 };
 
 export const KANBAN_COLS: DemandStatus[] = ["nova", "em_analise", "aprovada", "rejeitada", "contato_liberado"];

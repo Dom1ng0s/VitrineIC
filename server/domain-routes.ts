@@ -21,6 +21,7 @@ import {
 } from "./db/mutations";
 import {
   companyPatchSchema,
+  closeDemandSchema,
   courseValid,
   demandSchema,
   interestSchema,
@@ -175,6 +176,23 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
     return estado(request);
   });
 
+  app.post<{ Params: { id: string } }>("/api/demands/:id/close", async (request) => {
+    const account = await requireVerifiedAccount(db, request, config, "requester");
+    const body = request.body === undefined ? {} : request.body;
+    const { reason } = closeDemandSchema.parse(body);
+    await db.transaction(async (tx) => {
+      const demand = await demandas.porId(tx, request.params.id);
+      ensure(demand, 404, "Demanda não encontrada.");
+      ensure(demand.company === account.profileId, 403, "Você não pode encerrar esta demanda.");
+      ensure(!["cancelada", "encerrada"].includes(demand.status), 409, "A demanda já foi encerrada.");
+      const closed = demand.status === "contato_liberado";
+      if (!closed)
+        ensure(!(await interesses.existeAtivoNaDemanda(tx, demand.id)), 409, "A demanda tem interesses ativos.");
+      await mudarStatusDaDemanda(tx, demand.id, closed ? "encerrada" : "cancelada", account.id, reason);
+    });
+    return estado(request);
+  });
+
   app.patch<{ Params: { id: string } }>("/api/demands/:id/status", async (request) => {
     const { status, observation } = statusSchema.parse(request.body);
     const account = await requireCuratorFunction(
@@ -194,7 +212,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
         rejeitada: ["nova", "em_analise"],
       };
       if (demanda.status === status) return;
-      ensure(transicoes[demanda.status].includes(status), 409, "Transição de status inválida.");
+      ensure(transicoes[demanda.status]?.includes(status), 409, "Transição de status inválida.");
       ensure(
         !(await interesses.existeAtivoNaDemanda(tx, demanda.id)),
         409,

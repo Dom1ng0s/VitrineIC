@@ -5,7 +5,8 @@
  * rótulo que mostra). A demanda não tem etapa de "concluída": depois que um
  * contato é liberado, o site não acompanha o que acontece fora dele.
  */
-export type DemandStatus = "nova" | "em_analise" | "aprovada" | "rejeitada" | "contato_liberado";
+export type DemandStatus =
+  "nova" | "em_analise" | "aprovada" | "rejeitada" | "contato_liberado" | "cancelada" | "encerrada";
 
 export interface Demand {
   id: string;

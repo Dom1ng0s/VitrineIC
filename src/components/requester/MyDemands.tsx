@@ -7,11 +7,25 @@ import { ArrowIcon, ChevronIcon } from "@/components/app/Icons";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import { paraExibicao } from "@/lib/datas";
+import { closeDemand } from "@/lib/store";
+import { Modal } from "@/components/app/Modal";
+import { Input } from "./ui";
+import type { Demand } from "@/types";
 
-export function MyDemands({ onNew, onViewMatch }: { onNew: () => void; onViewMatch: (demandId: string) => void }) {
+export function MyDemands({
+  onNew,
+  onEdit,
+  onViewMatch,
+}: {
+  onNew: () => void;
+  onEdit: (demand: Demand) => void;
+  onViewMatch: (demandId: string) => void;
+}) {
   const { demands, interests } = useVitrine();
   const requester = useCurrentRequester();
   const [selected, setSelected] = useState<string | null>(null);
+  const [closing, setClosing] = useState<Demand | null>(null);
+  const [closeReason, setCloseReason] = useState("");
 
   const mine = demands.filter((d) => d.company === requester);
   const openCount = mine.filter((d) => d.status === "aprovada" || d.status === "contato_liberado").length;
@@ -36,6 +50,12 @@ export function MyDemands({ onNew, onViewMatch }: { onNew: () => void; onViewMat
           const published = d.status === "aprovada" || d.status === "contato_liberado";
           const visible = interests.filter((i) => i.demandId === d.id && visibleToRequester(i));
           const awaiting = visible.filter((i) => i.status === "aguardando_solicitante").length;
+          const active = visible.some((i) => !i.status.startsWith("recusado_"));
+          const canClose =
+            !["cancelada", "encerrada"].includes(d.status) && (!active || d.status === "contato_liberado");
+          const rejection = [...(d.statusHistory ?? [])]
+            .reverse()
+            .find((entry) => entry.status === "rejeitada")?.observation;
           return (
             <li key={d.id}>
               <button
@@ -61,26 +81,72 @@ export function MyDemands({ onNew, onViewMatch }: { onNew: () => void; onViewMat
 
               {open && (
                 <div className="flex flex-col gap-4 border-t border-navy/8 bg-navy/[0.02] px-5 py-5 md:flex-row md:items-center md:justify-between md:px-6 md:pl-[166px]">
-                  <p className="max-w-[560px] font-sans text-[13px] leading-[1.6] text-navy/65">
-                    {published
-                      ? d.description
-                      : "A curadoria está validando o escopo. Depois de aprovada, a demanda aparece para os estudantes e recebe candidaturas e sugestões."}
-                  </p>
-                  {published ? (
-                    <button onClick={() => onViewMatch(d.id)} className="vt-btn vt-btn-secondary shrink-0">
-                      {visible.length > 0 ? `Ver interessados (${visible.length})` : "Ver interessados"} <ArrowIcon />
-                    </button>
-                  ) : (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
-                      Aguardando curadoria
-                    </span>
-                  )}
+                  <div className="max-w-[560px]">
+                    <p className="font-sans text-[13px] leading-[1.6] text-navy/65">
+                      {published || d.status === "cancelada" || d.status === "encerrada"
+                        ? d.description
+                        : "A curadoria está validando o escopo. Depois de aprovada, a demanda aparece para os estudantes e recebe candidaturas e sugestões."}
+                    </p>
+                    {d.status === "rejeitada" && rejection && (
+                      <p className="mt-2 font-sans text-[13px] text-red">Motivo: {rejection}</p>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {d.status === "nova" && (
+                      <button onClick={() => onEdit(d)} className="vt-btn vt-btn-secondary">
+                        Editar
+                      </button>
+                    )}
+                    {canClose && (
+                      <button
+                        onClick={() => {
+                          setClosing(d);
+                          setCloseReason("");
+                        }}
+                        className="vt-btn vt-btn-secondary"
+                      >
+                        {d.status === "contato_liberado" ? "Encerrar" : "Cancelar"}
+                      </button>
+                    )}
+                    {published ? (
+                      <button onClick={() => onViewMatch(d.id)} className="vt-btn vt-btn-secondary shrink-0">
+                        {visible.length > 0 ? `Ver interessados (${visible.length})` : "Ver interessados"} <ArrowIcon />
+                      </button>
+                    ) : d.status === "nova" || d.status === "em_analise" ? (
+                      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
+                        Aguardando curadoria
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               )}
             </li>
           );
         })}
       </ul>
+      {closing && (
+        <Modal
+          eyebrow="Demanda"
+          title={closing.status === "contato_liberado" ? "Encerrar demanda?" : "Cancelar demanda?"}
+          onClose={() => setClosing(null)}
+        >
+          <p className="mb-5 font-sans text-sm text-navy/65">Esta ação tira a demanda das oportunidades abertas.</p>
+          <Input label="Motivo (opcional)" value={closeReason} onChange={setCloseReason} textarea rows={3} />
+          <div className="mt-6 flex justify-end gap-3">
+            <button onClick={() => setClosing(null)} className="vt-btn vt-btn-secondary">
+              Voltar
+            </button>
+            <button
+              onClick={async () => {
+                if (await closeDemand(closing.id, closeReason)) setClosing(null);
+              }}
+              className="vt-btn vt-btn-primary"
+            >
+              Confirmar
+            </button>
+          </div>
+        </Modal>
+      )}
     </main>
   );
 }

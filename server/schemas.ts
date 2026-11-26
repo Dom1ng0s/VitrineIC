@@ -147,6 +147,7 @@ export const statusSchema = z
   })
   .strict();
 export const prioritySchema = z.object({ priority: z.enum(["alta", "normal", "baixa"]) }).strict();
+export const closeDemandSchema = z.object({ reason: optionalText(3000).optional() }).strict();
 export const interestSchema = z
   .object({
     demandId: text(),

@@ -117,6 +117,10 @@ export function addDemand(demand: Omit<Demand, "id" | "company" | "status" | "pr
 }
 export const setDemandStatus = (id: string, status: DemandStatus) =>
   mutate(`/demands/${encodeURIComponent(id)}/status`, "PATCH", { status });
+export const updateDemand = (id: string, patch: Partial<Demand>) =>
+  mutate(`/demands/${encodeURIComponent(id)}`, "PATCH", patch);
+export const closeDemand = (id: string, reason?: string) =>
+  mutate(`/demands/${encodeURIComponent(id)}/close`, "POST", { reason });
 export const removeDemand = (id: string) => mutate(`/demands/${encodeURIComponent(id)}`, "DELETE");
 export function findActiveInterest(interests: Interest[], demandId: string, studentId: string) {
   return interests.find(

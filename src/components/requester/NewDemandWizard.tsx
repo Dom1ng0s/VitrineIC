@@ -5,7 +5,8 @@ import { StepIndicator } from "@/components/app/StepIndicator";
 import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
 import { PAGE } from "@/components/public/layout";
-import { addDemand } from "@/lib/store";
+import { addDemand, updateDemand } from "@/lib/store";
+import type { Demand } from "@/types";
 import { required, useValidation } from "@/lib/validate";
 import { AREA_OPTIONS, SCOPE_LABELS } from "@/data/demand-options";
 
@@ -20,24 +21,26 @@ export { AREA_OPTIONS };
 export function NewDemandWizard({
   onSuccess,
   onCancel,
+  initialDemand,
 }: {
   onSuccess: (protocol: string) => void;
   onCancel: () => void;
+  initialDemand?: Demand;
 }) {
   const [step, setStep] = useState(0);
-  const [form, setForm] = useState({
-    title: "",
-    problem: "",
-    audience: "",
-    academicLevel: "",
-    area: "",
-    scope: "",
-    deadline: "",
-    budget: "",
-    skills: "",
-    teamSize: "",
-    notes: "",
-  });
+  const [form, setForm] = useState(() => ({
+    title: initialDemand?.title ?? "",
+    problem: initialDemand?.description ?? "",
+    audience: initialDemand?.audience ?? "",
+    academicLevel: initialDemand?.academicLevel ?? "",
+    area: initialDemand?.area ?? "",
+    scope: initialDemand?.scope ?? "",
+    deadline: initialDemand?.deadline ?? "",
+    budget: initialDemand?.budget ?? "",
+    skills: initialDemand?.skills.join(", ") ?? "",
+    teamSize: initialDemand?.teamSize ?? "",
+    notes: initialDemand?.notes ?? "",
+  }));
 
   const update = (k: string, v: string) => setForm({ ...form, [k]: v });
   const skillList = form.skills
@@ -66,7 +69,7 @@ export function NewDemandWizard({
     if (!validate()) return;
     if (step < 3) goTo(step + 1);
     else {
-      const demand = await addDemand({
+      const payload = {
         title: form.title.trim(),
         area: form.area || "Outra área",
         scope: form.scope || "A definir",
@@ -78,8 +81,13 @@ export function NewDemandWizard({
         notes: form.notes,
         teamSize: form.teamSize,
         budget: form.budget,
-      });
-      if (demand) onSuccess(demand.id);
+      };
+      if (initialDemand) {
+        if (await updateDemand(initialDemand.id, payload)) onSuccess(initialDemand.id);
+      } else {
+        const demand = await addDemand(payload);
+        if (demand) onSuccess(demand.id);
+      }
     }
   };
 
@@ -240,7 +248,7 @@ export function NewDemandWizard({
             Voltar
           </button>
           <button onClick={next} className="vt-btn vt-btn-primary">
-            {step === 3 ? "Enviar demanda" : "Continuar"} <ArrowIcon />
+            {step === 3 ? (initialDemand ? "Salvar alterações" : "Enviar demanda") : "Continuar"} <ArrowIcon />
           </button>
         </div>
       </section>
