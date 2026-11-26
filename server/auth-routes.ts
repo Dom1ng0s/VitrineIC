@@ -12,6 +12,7 @@ import { ensure } from "./errors";
 import { REQUESTER_KIND_LABEL } from "@/data/companies";
 import type { MailQueue } from "./mail";
 import { requestAccountMail } from "./account-tokens";
+import { clearLoginAttempts, loginIsBlocked, recordFailedLogin } from "./db/login-attempts";
 
 export async function authRoutes(app: FastifyInstance, db: Database, config: Config, mail: MailQueue) {
   // Mesmo custo de hash para e-mail inexistente, sem revelar se a conta existe.
@@ -26,7 +27,13 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     const data = loginSchema.parse(request.body);
     const account = await contas.porEmail(db.sql, data.email);
     const valid = await verifyPassword(data.password, account?.passwordHash ?? dummyHash);
-    ensure(account && valid && (!data.role || account.role === data.role), 401, "E-mail ou senha incorretos.");
+    if (account && (await loginIsBlocked(db.sql, account.id))) {
+      ensure(false, 429, "Muitas tentativas. Tente novamente em 15 minutos.");
+    }
+    if (!account || !valid || (data.role && account.role !== data.role)) {
+      if (account) await recordFailedLogin(db.sql, account.id);
+      ensure(false, 401, "E-mail ou senha incorretos.");
+    }
     if (account.role === "curator") {
       ensure(
         await db.sql.row("SELECT 1 FROM curador WHERE conta_id = $1 AND ativo", [account.id]),
@@ -37,6 +44,7 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     // Não cria sessão com credenciais que mudaram enquanto o scrypt estava em andamento.
     const latest = (await contas.porId(db.sql, account.id))!;
     ensure(latest.passwordHash === account.passwordHash, 401, "E-mail ou senha incorretos.");
+    await clearLoginAttempts(db.sql, account.id);
     await createSession(db, config, request, reply, latest);
     return snapshot(db.sql, config, latest);
   });

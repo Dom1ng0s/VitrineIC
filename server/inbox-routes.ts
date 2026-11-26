@@ -3,13 +3,15 @@ import type { Database } from "./db/pool";
 import type { Config } from "./config";
 import { requireAccount } from "./security";
 import { snapshot } from "./db/snapshot";
-import { ensure } from "./errors";
+import { ensure, ensureUuid } from "./errors";
 import { messageSchema } from "./schemas";
 import { contas, demandas, interesses } from "./db/repositories";
 import { criarMensagem, criarNotificacao, marcarNotificacaoLida, marcarTodasLidas } from "./db/mutations";
+import { checkAccountQuota } from "./db/quotas";
 
 export function inboxRoutes(app: FastifyInstance, db: Database, config: Config) {
   app.post<{ Params: { id: string } }>("/api/notifications/:id/read", async (request) => {
+    ensureUuid(request.params.id, "Notificação");
     const account = await requireAccount(db, request);
     const existe = await db.sql.row("SELECT 1 FROM notificacao WHERE id = $1 AND destinatario_conta_id = $2", [
       request.params.id,
@@ -27,6 +29,7 @@ export function inboxRoutes(app: FastifyInstance, db: Database, config: Config) 
   });
 
   app.post<{ Params: { id: string } }>("/api/notifications/:id/reply", async (request) => {
+    ensureUuid(request.params.id, "Notificação");
     const account = await requireAccount(db, request);
     const data = messageSchema.parse(request.body);
     await db.transaction(async (tx) => {
@@ -56,6 +59,7 @@ export function inboxRoutes(app: FastifyInstance, db: Database, config: Config) 
           : await contas.doEstudante(tx, interesse.studentId);
       ensure(destino, 409, "O destinatário ainda não tem conta na plataforma.");
 
+      await checkAccountQuota(tx, account.id, "messages");
       const mensagemId = await criarMensagem(tx, interesse.id, account.id, data.content);
       await criarNotificacao(tx, {
         destinatarioContaId: destino.id,

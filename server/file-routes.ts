@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { Database } from "./db/pool";
 import type { Config } from "./config";
 import { requireAccount, requireVerifiedAccount } from "./security";
-import { ensure } from "./errors";
+import { ensure, ensureUuid } from "./errors";
 import { snapshot } from "./db/snapshot";
 
 export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
@@ -52,6 +52,7 @@ export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
   });
 
   app.get<{ Params: { id: string } }>("/api/attachments/:id", async (request, reply) => {
+    ensureUuid(request.params.id, "Arquivo");
     const account = await requireAccount(db, request);
     const arquivo = await db.sql.row<{ estudante_id: string; nome: string; conteudo: Buffer }>(
       "SELECT estudante_id, nome, conteudo FROM anexo_estudante WHERE id = $1",
@@ -70,6 +71,7 @@ export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
   });
 
   app.delete<{ Params: { id: string } }>("/api/attachments/:id", async (request) => {
+    ensureUuid(request.params.id, "Arquivo");
     const account = await requireAccount(db, request, "student");
     const removidos = await db.sql.run("DELETE FROM anexo_estudante WHERE id = $1 AND estudante_id = $2", [
       request.params.id,

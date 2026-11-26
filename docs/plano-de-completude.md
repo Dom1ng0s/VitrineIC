@@ -120,9 +120,9 @@ cliques não surtiam efeito até a sincronização terminar.
 - [x] Rotas de gestão da equipe de curadoria: listar, convidar, trocar papel,
       desativar (hoje só existe o script `curator:create`)
 - [x] Parecer do comitê: tabela e rota de escrita, sem poder de decisão
-- [ ] Validação uuid nos `params` de notificações e anexos (hoje 500, não 404)
-- [ ] Cota por conta em demandas, interesses e mensagens
-- [ ] Bloqueio de força bruta por conta no login
+- [x] Validação uuid nos `params` de notificações e anexos (agora 404)
+- [x] Cota por conta em demandas, interesses e mensagens
+- [x] Bloqueio de força bruta por conta no login
 - [x] Índices nas FKs sem índice (`notificacao.*`,
       `mensagem.remetente_conta_id`, `projeto_competencia`, `estudante_idioma`,
       `estudante_topico`)

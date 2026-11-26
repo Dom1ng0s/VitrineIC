@@ -468,3 +468,123 @@ test("coordenação convida integrante por link sem expor senha", async (t) => {
   assert.equal(sent.length, 1);
   assert.match(sent[0], /reset-password/);
 });
+
+test("parâmetros UUID inválidos devolvem 404", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  assert.equal(
+    (await request(c.app, "POST", "/api/notifications/invalido/read", undefined, c.studentCookie)).statusCode,
+    404,
+  );
+  assert.equal(
+    (await request(c.app, "POST", "/api/notifications/invalido/reply", { content: "Oi" }, c.studentCookie)).statusCode,
+    404,
+  );
+  assert.equal((await request(c.app, "GET", "/api/attachments/invalido", undefined, c.studentCookie)).statusCode, 404);
+  assert.equal(
+    (await request(c.app, "DELETE", "/api/attachments/invalido", undefined, c.studentCookie)).statusCode,
+    404,
+  );
+});
+
+test("cota de demandas é por conta e bloqueia a próxima criação", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const first = await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie);
+  assert.equal(first.statusCode, 201);
+  await c.db.sql.run(
+    `INSERT INTO demanda (id, solicitante_id, titulo, descricao, prazo)
+     SELECT 'VIC-COTA-' || n, solicitante_id, titulo, descricao, prazo
+     FROM demanda CROSS JOIN generate_series(1,49) AS seq(n) WHERE id = $1`,
+    [first.json<{ demand: Demand }>().demand.id],
+  );
+  assert.equal((await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie)).statusCode, 429);
+});
+
+test("cota de interesses bloqueia criação após o limite por conta", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  assert.equal(
+    (await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie)).statusCode,
+    200,
+  );
+  const accountId = (await c.db.sql.row<{ conta_id: string }>("SELECT conta_id FROM estudante WHERE id = $1", [
+    c.studentId,
+  ]))!.conta_id;
+  await c.db.sql.run(
+    `INSERT INTO interesse (id, demanda_id, estudante_id, origem, status, criado_por_conta_id)
+     SELECT 'INT-COTA-' || n, $1, $2, 'candidatura', 'recusado_estudante', $3
+     FROM generate_series(1,500) AS seq(n)`,
+    [demand.id, c.studentId, accountId],
+  );
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "POST",
+        "/api/interests",
+        { demandId: demand.id, studentId: c.studentId, origin: "candidatura" },
+        c.studentCookie,
+      )
+    ).statusCode,
+    429,
+  );
+});
+
+test("cota de mensagens bloqueia resposta após o limite por conta", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const created = await request(
+    c.app,
+    "POST",
+    "/api/interests",
+    { demandId: demand.id, studentId: c.studentId, origin: "candidatura" },
+    c.studentCookie,
+  );
+  assert.equal(created.statusCode, 201, created.body);
+  const interestId = created.json<{ interest: { id: string } }>().interest.id;
+  assert.equal(
+    (await request(c.app, "POST", `/api/interests/${interestId}/respond`, { accept: true }, c.requesterCookie))
+      .statusCode,
+    200,
+  );
+  const accountId = (await c.db.sql.row<{ conta_id: string }>("SELECT conta_id FROM solicitante WHERE nome = $1", [
+    requesterData.organization,
+  ]))!.conta_id;
+  await c.db.sql.run(
+    `INSERT INTO mensagem (interesse_id, remetente_conta_id, conteudo)
+     SELECT $1, $2, 'Mensagem de teste' FROM generate_series(1,2000)`,
+    [interestId, accountId],
+  );
+  const state = await request(c.app, "GET", "/api/state", undefined, c.requesterCookie);
+  const notice = state.json<VitrineState>().notifications.find((n) => n.interestId === interestId)!;
+  assert.ok(notice);
+  assert.equal(
+    (await request(c.app, "POST", `/api/notifications/${notice.id}/reply`, { content: "Oi" }, c.requesterCookie))
+      .statusCode,
+    429,
+  );
+});
+
+test("login bloqueia tentativas repetidas da mesma conta", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const credentials = { email: "curador-rotas@example.com", password: "errada123" };
+  for (let n = 0; n < 5; n++) {
+    assert.equal((await request(c.app, "POST", "/api/auth/login", credentials)).statusCode, 401);
+  }
+  assert.equal(
+    (await request(c.app, "POST", "/api/auth/login", { ...credentials, password: "curator12345" })).statusCode,
+    429,
+  );
+  await c.db.sql.run(
+    "UPDATE tentativa_login SET bloqueado_ate = now() - interval '1 second', primeira_falha_em = now() - interval '16 minutes'",
+  );
+  assert.equal(
+    (await request(c.app, "POST", "/api/auth/login", { ...credentials, password: "curator12345" })).statusCode,
+    200,
+  );
+});

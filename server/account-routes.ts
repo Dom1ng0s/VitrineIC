@@ -9,6 +9,7 @@ import { readActionToken, RECOVERY_MESSAGE, requestAccountMail } from "./account
 import { snapshot } from "./db/snapshot";
 import { contas } from "./db/repositories";
 import { salvarConta } from "./db/mutations";
+import { clearLoginAttempts } from "./db/login-attempts";
 import { notificar } from "./notifications";
 
 export function accountRoutes(app: FastifyInstance, db: Database, config: Config, mail: MailQueue) {
@@ -47,6 +48,7 @@ export function accountRoutes(app: FastifyInstance, db: Database, config: Config
       });
       await tx.run("DELETE FROM sessao WHERE conta_id = $1", [conta.id]);
       await tx.run("DELETE FROM token_conta WHERE conta_id = $1", [conta.id]);
+      await clearLoginAttempts(tx, conta.id);
       await notificar(
         tx,
         conta.id,
@@ -104,6 +106,7 @@ export function accountRoutes(app: FastifyInstance, db: Database, config: Config
       await salvarConta(tx, nova);
       await tx.run("DELETE FROM sessao WHERE conta_id = $1", [account.id]);
       await tx.run("DELETE FROM token_conta WHERE conta_id = $1", [account.id]);
+      await clearLoginAttempts(tx, account.id);
       await notificar(tx, account.id, "Senha alterada", "Sua senha foi alterada. As demais sessões foram encerradas.");
       return nova;
     });

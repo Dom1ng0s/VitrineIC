@@ -36,6 +36,7 @@ import { scoreStudent } from "@/lib/match";
 import { REQUESTER_KIND_LABEL } from "@/data/companies";
 import { notificar, notificarInteresse } from "./notifications";
 import type { Demand, Interest } from "@/types";
+import { checkAccountQuota } from "./db/quotas";
 
 export function domainRoutes(app: FastifyInstance, db: Database, config: Config) {
   const estado = async (request: FastifyRequest) => snapshot(db.sql, config, await requireAccount(db, request));
@@ -121,6 +122,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
       priority: "normal",
     };
     await db.transaction(async (tx) => {
+      await checkAccountQuota(tx, account.id, "demands");
       await salvarDemanda(tx, demand);
       await notificar(
         tx,
@@ -273,6 +275,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
         );
         return existente;
       }
+      await checkAccountQuota(tx, account.id, "interests");
       const criado: Interest = {
         ...data,
         id: `INT-${randomUUID()}`,
