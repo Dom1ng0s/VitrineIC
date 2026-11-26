@@ -18,8 +18,8 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | ---- | --------------------------------- | ------ |
 | 0    | Decisões de produto               | [x]    |
 | 1    | Rede de segurança                 | [x]    |
-| 2    | Fundações estruturais             | [~]    |
-| 3    | Backend abre o que a UI consome   | [ ]    |
+| 2    | Fundações estruturais             | [x]    |
+| 3    | Backend abre o que a UI consome   | [~]    |
 | 4    | Buracos de fluxo                  | [ ]    |
 | 5    | Fachadas                          | [ ]    |
 | 6    | Acessibilidade e qualidade de uso | [ ]    |
@@ -83,18 +83,30 @@ Decidido com a equipe. Estas respostas são a fonte para as fases 3, 4 e 5.
 - [x] `pnpm test` passou a ser a suíte inteira; `test:web` e `test:api`
       rodam as metades.
 
-## Fase 2 — Fundações estruturais
+## Fase 2 — Fundações estruturais · fechada em 25/11/2026
 
-- [ ] Rotas por URL: deep link, botão voltar, 404, `document.title` por página,
-      âncoras reais em vez de `<button>` na navegação
-- [ ] Menu mobile na nav pública (hoje "Projetos", "Estudantes" e "Impacto"
-      ficam em `hidden md:flex`)
-- [ ] Extrair `Label`/`Input`/`Select`/`StatusPill` para `components/app/` e
-      unificar os quatro `ui.tsx` e os três `StatusBadge`
-- [ ] Apagar código morto: `src/data/{notifications,projects,showcase}.ts`,
-      arrays `*_UPDATES`, `student/StatusBadge.tsx`, `LevelMeter`, `Rule`/`Tag`
-      não usados, `TARGETS`, parâmetro `_side` de `respondInterest`,
-      `Arrow()` duplicado, `MONO`/`SANS` da nav
+- [x] Rotas por URL em `src/lib/rotas.ts`: `/projetos`, `/projetos/:id`,
+      `/estudantes`, `/estudantes/:id`, `/impacto` e `/curadoria`, com título
+      por página, 404 (`public/NotFound.tsx`) e âncoras de verdade
+      (`app/RouteLink.tsx`), que preservam Ctrl/Cmd/Shift e botão do meio.
+      Sem roteador de biblioteca. Enquanto há sessão, o endereço volta à raiz:
+      as áreas logadas não têm rota própria — dar URL às abas delas continua
+      em aberto, e só vale a pena se alguém precisar linkar uma aba.
+- [x] Menu no celular na nav pública; "Admin" virou "Curadoria", como no
+      rodapé (item que era da fase 6, feito aqui porque a nav foi reescrita).
+- [x] `Label`, `Input`, `Select`, `SelectField` e `Rule` extraídos para
+      `components/app/Field.tsx`; os `ui.tsx` das três áreas reexportam.
+      `StatusPill` passou a ser usado pelos dois `StatusBadge` que o
+      remontavam à mão. O `ui.tsx` da landing ficou de fora: o `InputField`
+      dele exige `id` e tem variante escura, e é o único já correto.
+- [x] Código morto apagado: `data/{notifications,projects,showcase}.ts`,
+      arrays `*_UPDATES`, `student/StatusBadge.tsx`, `LevelMeter`,
+      `Rule`/`Tag` do estudante, `TARGETS`, o parâmetro de lado em
+      `respondInterest`, `Arrow()` duplicado e `MONO`/`SANS` da nav.
+
+Observação para a fase 6: o `fieldset disabled` global do `ApiBoundary`
+engole cliques durante a sincronização. Apareceu na verificação — vários
+cliques não surtiam efeito até a sincronização terminar.
 
 ## Fase 3 — Backend abre o que a UI consome
 
@@ -114,7 +126,12 @@ Decidido com a equipe. Estas respostas são a fonte para as fases 3, 4 e 5.
 - [ ] Índices nas FKs sem índice (`notificacao.*`,
       `mensagem.remetente_conta_id`, `projeto_competencia`, `estudante_idioma`,
       `estudante_topico`)
-- [ ] Congelar `001` com checksum em `schema_migration` e evoluir por `002_*.sql`
+- [x] Congelar `001` com checksum em `schema_migration` e evoluir por
+      `002_*.sql` — feito em 25/11/2026: `migrate` guarda o hash de cada
+      arquivo aplicado e interrompe a subida se um deles mudar; linha antiga
+      sem hash é completada na primeira execução. Teste em
+      `server/tests/migracao.test.ts`. **Daqui em diante, mudança de esquema é
+      arquivo novo.**
 - [ ] `/api/state` sem foto embutida e paginado
 
 ## Fase 4 — Buracos de fluxo
