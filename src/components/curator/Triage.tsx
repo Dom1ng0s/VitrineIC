@@ -5,7 +5,12 @@ import { ClockIcon } from "@/components/app/Icons";
 import { StatusPill } from "@/components/app/StatusPill";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
+import { Modal } from "@/components/app/Modal";
+import { Input } from "@/components/app/Field";
 import { removeDemand, setDemandStatus } from "@/lib/store";
+import { useSession } from "@/lib/auth";
+import { canTriageTransition } from "@/lib/demand-status";
+import { paraExibicao } from "@/lib/datas";
 import { TERRACOTTA } from "@/styles/tokens";
 import type { Demand, DemandStatus } from "@/types";
 
@@ -15,18 +20,20 @@ export function TriageCard({
   onStatus,
   onDragStart,
   onDelete,
+  curatorFunction,
 }: {
   demand: Demand;
   onStatus: (s: DemandStatus) => void;
   onDragStart: (id: string) => void;
   onDelete?: () => void;
+  curatorFunction: "curador" | "coordenacao" | "comite";
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <div
       className="vt-card cursor-grab overflow-hidden active:cursor-grabbing"
-      draggable
+      draggable={curatorFunction !== "comite"}
       onDragStart={() => onDragStart(demand.id)}
     >
       <div className="flex cursor-pointer flex-col gap-3 p-4" onClick={() => setOpen(!open)}>
@@ -58,9 +65,11 @@ export function TriageCard({
           <div className="flex flex-col gap-1.5">
             {(["em_analise", "aprovada", "rejeitada"] as DemandStatus[]).map((s) => {
               const current = demand.status === s;
+              const enabled = canTriageTransition(demand.status, s, curatorFunction);
               return (
                 <button
                   key={s}
+                  disabled={!enabled}
                   onClick={(e) => {
                     e.stopPropagation();
                     onStatus(s);
@@ -79,6 +88,18 @@ export function TriageCard({
                 </button>
               );
             })}
+
+            {(demand.statusHistory ?? []).length > 0 && (
+              <div className="mt-3 border-t border-navy/10 pt-3">
+                <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">Histórico</p>
+                {demand.statusHistory?.map((entry, index) => (
+                  <p key={`${entry.changedAt}-${index}`} className="font-sans text-xs leading-6 text-navy/65">
+                    {DEMAND_STATUS[entry.status]?.label ?? entry.status} · {paraExibicao(entry.changedAt)}
+                    {entry.observation ? ` · ${entry.observation}` : ""}
+                  </p>
+                ))}
+              </div>
+            )}
 
             {demand.status === "rejeitada" && onDelete && (
               <button
@@ -103,8 +124,20 @@ export function TriageCard({
 
 export function Triage({ demands }: { demands: Demand[] }) {
   const [draggedId, setDraggedId] = useState<string | null>(null);
+  const curatorFunction = useSession()?.account.curatorFunction ?? "comite";
+  const [pendingRejection, setPendingRejection] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
 
-  const updateStatus = (id: string, status: DemandStatus) => setDemandStatus(id, status);
+  const updateStatus = (id: string, status: DemandStatus) => {
+    const demand = demands.find((item) => item.id === id);
+    if (!demand || !canTriageTransition(demand.status, status, curatorFunction)) return;
+    if (status === "rejeitada") {
+      setPendingRejection(id);
+      setReason("");
+      return;
+    }
+    void setDemandStatus(id, status);
+  };
   const deleteDemand = (id: string) => removeDemand(id);
 
   const handleDrop = (e: React.DragEvent, status: DemandStatus) => {
@@ -145,7 +178,10 @@ export function Triage({ demands }: { demands: Demand[] }) {
                 setDropTarget(null);
               }}
               onDragOver={handleDragOver}
-              onDragEnter={() => setDropTarget(col)}
+              onDragEnter={() => {
+                const dragged = demands.find((item) => item.id === draggedId);
+                setDropTarget(dragged && canTriageTransition(dragged.status, col, curatorFunction) ? col : null);
+              }}
               onDragLeave={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropTarget(null);
               }}
@@ -165,7 +201,8 @@ export function Triage({ demands }: { demands: Demand[] }) {
                     demand={d}
                     onStatus={(s) => updateStatus(d.id, s)}
                     onDragStart={(id) => setDraggedId(id)}
-                    onDelete={() => deleteDemand(d.id)}
+                    onDelete={curatorFunction === "coordenacao" ? () => deleteDemand(d.id) : undefined}
+                    curatorFunction={curatorFunction}
                   />
                 ))}
               {count(col) === 0 && (
@@ -177,6 +214,26 @@ export function Triage({ demands }: { demands: Demand[] }) {
           ))}
         </div>
       </div>
+      {pendingRejection && (
+        <Modal eyebrow="Triagem" title="Rejeitar demanda?" onClose={() => setPendingRejection(null)}>
+          <Input label="Motivo da rejeição" textarea rows={3} value={reason} onChange={setReason} />
+          <p className="mt-2 font-sans text-xs text-navy/55">O solicitante verá este motivo.</p>
+          <div className="mt-6 flex justify-end gap-3">
+            <button onClick={() => setPendingRejection(null)} className="vt-btn vt-btn-secondary">
+              Voltar
+            </button>
+            <button
+              disabled={!reason.trim()}
+              onClick={async () => {
+                if (await setDemandStatus(pendingRejection, "rejeitada", reason.trim())) setPendingRejection(null);
+              }}
+              className="vt-btn vt-btn-primary"
+            >
+              Rejeitar
+            </button>
+          </div>
+        </Modal>
+      )}
     </main>
   );
 }

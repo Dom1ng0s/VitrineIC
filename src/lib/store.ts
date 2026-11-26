@@ -115,8 +115,8 @@ export function addDemand(demand: Omit<Demand, "id" | "company" | "status" | "pr
     return result.demand;
   });
 }
-export const setDemandStatus = (id: string, status: DemandStatus) =>
-  mutate(`/demands/${encodeURIComponent(id)}/status`, "PATCH", { status });
+export const setDemandStatus = (id: string, status: DemandStatus, observation?: string) =>
+  mutate(`/demands/${encodeURIComponent(id)}/status`, "PATCH", { status, observation });
 export const updateDemand = (id: string, patch: Partial<Demand>) =>
   mutate(`/demands/${encodeURIComponent(id)}`, "PATCH", patch);
 export const closeDemand = (id: string, reason?: string) =>

@@ -149,9 +149,9 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [x] Editar e excluir projeto, mudar etapa (estudante)
 - [x] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
 - [x] Motivo da rejeição visível ao solicitante
-- [ ] Histórico de decisões visível à curadoria
+- [x] Histórico de decisões visível à curadoria
 - [ ] Mensagem iniciável (hoje só responde a notificação)
-- [ ] Transições do kanban derivadas da mesma tabela do servidor, com alvo
+- [x] Transições do kanban derivadas da mesma tabela do servidor, com alvo
       inválido desabilitado e motivo no card
 - [ ] Tela de equipe da curadoria: quem é o quê, convidar, trocar papel,
       desativar; ações escondidas conforme o papel

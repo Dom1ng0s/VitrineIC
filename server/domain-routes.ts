@@ -34,6 +34,7 @@ import {
 import { initialStatus, nextStatus, turnOf, visibleToRequester } from "@/lib/interest";
 import { isProfileVisible } from "@/lib/profile";
 import { scoreStudent } from "@/lib/match";
+import { canTriageTransition } from "@/lib/demand-status";
 import { REQUESTER_KIND_LABEL } from "@/data/companies";
 import { notificar, notificarInteresse } from "./notifications";
 import type { Demand, Interest } from "@/types";
@@ -205,14 +206,12 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
       const demanda = await demandas.porId(tx, request.params.id);
       ensure(demanda, 404, "Demanda não encontrada.");
       ensure(demanda.status !== "contato_liberado", 409, "Uma demanda com contato liberado não volta à triagem.");
-      const transicoes: Record<string, string[]> = {
-        nova: ["em_analise", "aprovada", "rejeitada"],
-        em_analise: ["nova", "aprovada", "rejeitada"],
-        aprovada: ["em_analise", "rejeitada"],
-        rejeitada: ["nova", "em_analise"],
-      };
       if (demanda.status === status) return;
-      ensure(transicoes[demanda.status]?.includes(status), 409, "Transição de status inválida.");
+      ensure(
+        canTriageTransition(demanda.status, status, account.curatorFunction ?? "comite"),
+        409,
+        "Transição de status inválida.",
+      );
       ensure(
         !(await interesses.existeAtivoNaDemanda(tx, demanda.id)),
         409,
