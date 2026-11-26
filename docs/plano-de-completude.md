@@ -146,7 +146,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 ## Fase 4 — Buracos de fluxo
 
 - [x] Editar e encerrar/cancelar demanda (solicitante)
-- [ ] Editar e excluir projeto, mudar etapa (estudante)
+- [x] Editar e excluir projeto, mudar etapa (estudante)
 - [ ] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
 - [x] Motivo da rejeição visível ao solicitante
 - [ ] Histórico de decisões visível à curadoria

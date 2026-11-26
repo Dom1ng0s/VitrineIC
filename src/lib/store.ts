@@ -154,6 +154,9 @@ export function addProject(project: Omit<StudentProject, "id">) {
     return result.project;
   });
 }
+export const updateProject = (id: string, project: Omit<StudentProject, "id">) =>
+  mutate(`/projects/${encodeURIComponent(id)}`, "PUT", project);
+export const deleteProject = (id: string) => mutate(`/projects/${encodeURIComponent(id)}`, "DELETE");
 export const markRead = (id: string) => mutate(`/notifications/${encodeURIComponent(id)}/read`, "POST");
 export const markAllRead = () => mutate("/notifications/read-all", "POST");
 export const replyNotification = (id: string, content: string) =>

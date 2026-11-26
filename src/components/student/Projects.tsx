@@ -6,7 +6,7 @@ import { Modal } from "@/components/app/Modal";
 import { StatusPill } from "@/components/app/StatusPill";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
-import { addProject, setInProject, useVitrine } from "@/lib/store";
+import { addProject, deleteProject, setInProject, updateProject, useVitrine } from "@/lib/store";
 import { required, useValidation } from "@/lib/validate";
 import { MOSS, OCHRE, SLATE } from "@/styles/tokens";
 
@@ -17,6 +17,8 @@ export interface MyProject {
   phase: string;
   link?: string;
   tools?: string;
+  year?: string;
+  area?: string;
 }
 
 const PHASES = ["Idealização", "Codificação", "Revisão", "Publicado"];
@@ -43,6 +45,8 @@ export function toMyProject(project: import("@/types").StudentProject): MyProjec
     phase: Object.keys(PHASE_STATUS).find((k) => PHASE_STATUS[k] === project.status) ?? "Idealização",
     tools: project.stack.join(", "),
     link: project.link,
+    year: project.year,
+    area: project.area,
   };
 }
 
@@ -81,6 +85,8 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<Partial<MyProject>>({});
   const [opened, setOpened] = useState<MyProject | null>(null);
+  const [editing, setEditing] = useState<MyProject | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { validate, field, reset } = useValidation<"title" | "phase" | "description">(() => ({
     title: required(form.title ?? "", "Dê um nome ao projeto."),
@@ -91,12 +97,13 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
   const close = () => {
     setIsAdding(false);
     setForm({});
+    setEditing(null);
     reset();
   };
 
   const saveProject = async () => {
     if (!validate()) return;
-    const project = await addProject({
+    const payload = {
       title: form.title!,
       description: form.description!,
       status: PHASE_STATUS[form.phase!],
@@ -104,11 +111,22 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
-      year: String(new Date().getFullYear()),
-      area: "",
+      year: editing?.year ?? String(new Date().getFullYear()),
+      area: editing?.area ?? "",
       link: form.link ?? "",
-    });
-    if (project) close();
+    };
+    if (editing) {
+      if (await updateProject(editing.id, payload)) close();
+    } else {
+      if (await addProject(payload)) close();
+    }
+  };
+
+  const startEdit = (project: MyProject) => {
+    setForm(project);
+    setEditing(project);
+    setOpened(null);
+    setIsAdding(true);
   };
 
   return (
@@ -173,8 +191,39 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
             )}
           </div>
           <div className="mt-8 flex items-center justify-end gap-3">
+            {confirmDelete ? (
+              <>
+                <span className="font-sans text-sm text-red">Excluir este projeto?</span>
+                <button onClick={() => setConfirmDelete(false)} className="vt-btn vt-btn-secondary">
+                  Voltar
+                </button>
+                <button
+                  onClick={async () => {
+                    if (await deleteProject(opened.id)) {
+                      setOpened(null);
+                      setConfirmDelete(false);
+                    }
+                  }}
+                  className="vt-btn vt-btn-primary"
+                >
+                  Confirmar exclusão
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setConfirmDelete(true)} className="vt-btn vt-btn-secondary">
+                  Excluir
+                </button>
+                <button onClick={() => startEdit(opened)} className="vt-btn vt-btn-secondary">
+                  Editar e mudar etapa
+                </button>
+              </>
+            )}
             <button
-              onClick={() => setOpened(null)}
+              onClick={() => {
+                setOpened(null);
+                setConfirmDelete(false);
+              }}
               className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
             >
               Fechar
@@ -189,7 +238,11 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
       )}
 
       {isAdding && (
-        <Modal eyebrow="Cadastro" title="Novo projeto." onClose={close}>
+        <Modal
+          eyebrow={editing ? "Edição" : "Cadastro"}
+          title={editing ? "Editar projeto." : "Novo projeto."}
+          onClose={close}
+        >
           <div className="flex flex-col gap-5">
             <Input
               label="Título"
@@ -238,7 +291,7 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
               Cancelar
             </button>
             <button onClick={saveProject} className="vt-btn vt-btn-primary">
-              Publicar projeto <ArrowIcon />
+              {editing ? "Salvar projeto" : "Publicar projeto"} <ArrowIcon />
             </button>
           </div>
         </Modal>
