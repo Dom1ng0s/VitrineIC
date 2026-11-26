@@ -1,19 +1,28 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readConfig } from "../config";
-import { Database } from "../db/pool";
 import { snapshot } from "../db/snapshot";
 import { contas } from "../db/repositories";
+import { seedDemo } from "../db/seed";
+import { prepararBanco, TEST_DATABASE_URL } from "./apoio";
 
 /**
- * Roda sobre a carga de demonstração (`pnpm db:migrate && pnpm db:seed`).
- * Só lê: nada aqui altera o banco.
+ * Roda sobre a carga de demonstração, que o próprio caso aplica no banco de
+ * teste: ler o banco de desenvolvimento fazia o resultado depender de um
+ * `pnpm db:seed` anterior, e no CI, com banco limpo, as contas de exemplo
+ * não existiam. Só lê depois da carga: nada aqui altera o esquema.
  */
-const config = { ...readConfig(), requireVerifiedEmail: false, demo: true };
+const config = {
+  ...readConfig(),
+  databaseUrl: TEST_DATABASE_URL,
+  requireVerifiedEmail: false,
+  demo: true,
+};
 
 test("snapshot filtra por conta e nunca vaza contato antes do aceite duplo", async (t) => {
-  const db = new Database(config.databaseUrl);
+  const db = await prepararBanco();
   t.after(() => db.close());
+  await db.transaction(seedDemo);
 
   const anonimo = await snapshot(db.sql, config);
   assert.equal(anonimo.session, null);
