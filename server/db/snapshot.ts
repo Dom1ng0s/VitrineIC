@@ -115,7 +115,12 @@ async function lerNotificacoes(sql: Sql, conta: StoredAccount): Promise<Notifica
   );
 }
 
-export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount): Promise<VitrineState> {
+export async function snapshot(
+  sql: Sql,
+  config: Config,
+  conta?: StoredAccount,
+  page?: { offset: number; limit: number },
+): Promise<VitrineState> {
   const interesses = await lerInteressesVisiveis(sql, conta);
   const idsDeEstudantes = [...new Set(interesses.map((i) => i.studentId))];
   const idsDeDemandas = [...new Set(interesses.map((i) => i.demandId))];
@@ -123,7 +128,8 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
   const proprioEstudante = conta?.role === "student" ? conta.profileId : null;
   const proprioSolicitante = conta?.role === "requester" ? conta.profileId : null;
 
-  const estudantes = (
+  const pageClause = page ? ` LIMIT ${page.limit + 1} OFFSET ${page.offset}` : "";
+  const estudantesBrutos = (
     await sql.rows<Student>(
       `
     ${SQL_ESTUDANTE}
@@ -133,12 +139,12 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
       OR e.id = $1
       OR e.id = ANY($2::text[])
     )
-    ORDER BY e.id`,
+    ORDER BY e.id${pageClause}`,
       [proprioEstudante, idsDeEstudantes],
     )
   ).map(comoEstudante);
 
-  const demandas = (
+  const demandasBrutas = (
     await sql.rows<Demand>(
       `
     ${SQL_DEMANDA}
@@ -146,26 +152,41 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
        OR s.nome = $2
        OR d.status IN ('aprovada', 'contato_liberado')
        OR d.id = ANY($3::text[])
-    ORDER BY d.enviada_em DESC`,
+    ORDER BY d.enviada_em DESC, d.id${pageClause}`,
       [curador, proprioSolicitante, idsDeDemandas],
     )
   ).map(limpar);
+  const estudantes = page ? estudantesBrutos.slice(0, page.limit) : estudantesBrutos;
+  const demandas = page ? demandasBrutas.slice(0, page.limit) : demandasBrutas;
 
   // Contato só aparece depois do aceite dos dois lados — nem para a curadoria.
   const liberados = new Set(interesses.filter((i) => i.status === "contato_liberado").map((i) => i.studentId));
   const empresasLiberadas = new Set(
-    demandas
-      .filter((d) => interesses.some((i) => i.demandId === d.id && i.status === "contato_liberado"))
-      .map((d) => d.company),
+    (
+      await sql.rows<{ nome: string }>(
+        `SELECT DISTINCT s.nome FROM interesse i JOIN demanda d ON d.id = i.demanda_id
+       JOIN solicitante s ON s.id = d.solicitante_id
+       WHERE i.id = ANY($1::text[]) AND i.status = 'contato_liberado'`,
+        [interesses.map((i) => i.id)],
+      )
+    ).map((row) => row.nome),
   );
 
-  const empresas = (await solicitantes.todos(sql)).map((empresa: Company) => ({
+  const empresasBrutas = (await solicitantes.todos(sql)).map((empresa: Company) => ({
     ...empresa,
     contactEmail:
       proprioSolicitante === empresa.name || (proprioEstudante && empresasLiberadas.has(empresa.name))
         ? empresa.contactEmail
         : "",
   }));
+  const empresas = page ? empresasBrutas.slice(page.offset, page.offset + page.limit) : empresasBrutas;
+  const interessesDaPagina = page ? interesses.slice(page.offset, page.offset + page.limit) : interesses;
+  const hasNext =
+    !!page &&
+    (estudantesBrutos.length > page.limit ||
+      demandasBrutas.length > page.limit ||
+      empresasBrutas.length > page.offset + page.limit ||
+      interesses.length > page.offset + page.limit);
 
   const anexos: Attachment[] =
     conta?.role === "student"
@@ -195,7 +216,7 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
       const { statusHistory: _history, ...publica } = demanda;
       return publica;
     }),
-    interests: interesses.map((interesse) => {
+    interests: interessesDaPagina.map((interesse) => {
       if (conta?.role !== "student") return interesse;
       const { refusalReason: _motivo, responseHistory: _history, ...semMotivo } = interesse;
       return semMotivo as Interest;
@@ -206,5 +227,6 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
     impact: await lerIndicadores(sql, config.requireVerifiedEmail),
     demo: config.demo,
     auth: { emailEnabled: config.mail.mode !== "disabled", verificationRequired: config.requireVerifiedEmail },
+    ...(page ? { pagination: { nextOffset: hasNext ? page.offset + page.limit : null } } : {}),
   };
 }

@@ -5,7 +5,7 @@ import multipart from "@fastify/multipart";
 import staticFiles from "@fastify/static";
 import { resolve } from "node:path";
 import { existsSync } from "node:fs";
-import { ZodError } from "zod";
+import { ZodError, z } from "zod";
 import { Database } from "./db/pool";
 import { readConfig, type Config } from "./config";
 import { accountFor } from "./security";
@@ -94,7 +94,16 @@ export async function buildApp(overrides: Partial<Config> = {}, services: { mail
     await db.sql.row("SELECT 1");
     return { status: "ok" };
   });
-  app.get("/api/state", async (request) => snapshot(db.sql, config, await accountFor(db, request)));
+  app.get<{ Querystring: { offset?: string; limit?: string } }>("/api/state", async (request) => {
+    const query = z
+      .object({
+        offset: z.coerce.number().int().min(0).default(0),
+        limit: z.coerce.number().int().min(1).max(100).default(50),
+      })
+      .strict()
+      .parse(request.query);
+    return snapshot(db.sql, config, await accountFor(db, request), query);
+  });
   app.get("/api/impact", async () => (await snapshot(db.sql, config)).impact);
   await authRoutes(app, db, config, mail);
   accountRoutes(app, db, config, mail);

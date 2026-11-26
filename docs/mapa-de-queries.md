@@ -113,19 +113,16 @@ consulta real do inventário acima.
 Levantado na auditoria de 25/11/2026; as correções são as fases 3 e 7 de
 [plano-de-completude.md](plano-de-completude.md).
 
-1. **Chaves estrangeiras sem índice.** `notificacao.demanda_id`,
-   `notificacao.interesse_id`, `notificacao.mensagem_id`,
-   `mensagem.remetente_conta_id`, `projeto_competencia.competencia_id`,
-   `estudante_idioma.idioma_id` e `estudante_topico.topico_id`. Consequência
-   prática: `DELETE FROM demanda` varre `notificacao` para checar o cascade.
-2. **`/api/state` devolve tudo.** Sem paginação, com `e.foto` embutida como
-   data URI de até 1,5 MB por estudante, a cada 30 s de polling. É o maior
-   custo de banda do sistema e cresce com a base.
-3. **Toda mutação devolve o estado inteiro.** Enquanto for assim, o custo do
+1. **`GET /api/state` pagina o transporte, mas ainda repete leituras.**
+   Estudantes e demandas usam `LIMIT`/`OFFSET`; interesses visíveis e
+   solicitantes ainda são consultados por inteiro em cada página para manter
+   os filtros de contato. Fotos usam uma rota separada. Cursors por coleção
+   podem reduzir o custo quando a base crescer.
+2. **Toda mutação devolve o estado inteiro.** Enquanto for assim, o custo do
    snapshot multiplica por ação do usuário.
-4. **`solicitantes.todos` no snapshot** é a única leitura sem recorte que
+3. **`solicitantes.todos` no snapshot** é a única leitura sem recorte que
    sobrou. Hoje é pequena; cresce com o número de organizações.
-5. **Pool de 10 conexões** (`server/db/pool.ts:35`) com 6+ consultas por
+4. **Pool de 10 conexões** (`server/db/pool.ts:35`) com 6+ consultas por
    snapshot: dimensionar junto com o provedor de produção.
-6. **Código de leitura sem consumidor:** `estudantes.todos`, `demandas.todas`,
+5. **Código de leitura sem consumidor:** `estudantes.todos`, `demandas.todas`,
    `interesses.todos` e parte de `solicitantes` existem e não são chamados.

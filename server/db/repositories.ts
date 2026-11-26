@@ -25,7 +25,8 @@ export const SQL_ESTUDANTE = `
     COALESCE(e.bio, '')                       AS bio,
     COALESCE(e.github, '')                    AS github,
     COALESCE(e.disponibilidade, '')           AS availability,
-    e.linkedin, e.site, e.lattes, e.foto      AS photo,
+    e.linkedin, e.site, e.lattes,
+    CASE WHEN e.foto LIKE 'data:%' THEN '/api/students/' || e.id || '/photo' ELSE e.foto END AS photo,
     e.certificados,
     e.em_projeto                              AS "inProject",
     to_char(e.onboarding_em, 'YYYY-MM-DD')    AS "onboardedAt",
@@ -163,6 +164,14 @@ export function limpar<T extends object>(linha: T): T {
 }
 
 export const estudantes = {
+  foto: (sql: Sql, id: string) =>
+    sql.row<{ photo: string | null; visible: boolean; verified: boolean; accountId: string }>(
+      `SELECT e.foto AS photo, e.conta_id AS "accountId",
+            (c.email_confirmado_em IS NOT NULL) AS verified,
+            EXISTS (SELECT 1 FROM estudante_competencia ec WHERE ec.estudante_id = e.id) AS visible
+     FROM estudante e JOIN conta c ON c.id = e.conta_id WHERE e.id = $1`,
+      [id],
+    ),
   todos: async (sql: Sql) => (await sql.rows<Student>(`${SQL_ESTUDANTE} ORDER BY e.id`)).map(comoEstudante),
   porId: async (sql: Sql, id: string) =>
     (await sql.rows<Student>(`${SQL_ESTUDANTE} WHERE e.id = $1`, [id])).map(comoEstudante)[0],

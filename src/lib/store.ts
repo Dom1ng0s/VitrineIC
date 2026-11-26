@@ -66,7 +66,24 @@ export function runAction<T>(action: () => Promise<T>): Promise<T | undefined> {
 }
 export function refreshState() {
   return runAction(async () => {
-    replaceState(await api<VitrineState>("/state"));
+    let offset = 0;
+    let combined: VitrineState | undefined;
+    do {
+      const page = await api<VitrineState>(`/state?offset=${offset}&limit=100`);
+      combined = combined
+        ? {
+            ...combined,
+            students: [...combined.students, ...page.students],
+            companies: [...combined.companies, ...page.companies],
+            demands: [...combined.demands, ...page.demands],
+            interests: [...combined.interests, ...page.interests],
+            inProject: { ...combined.inProject, ...page.inProject },
+            pagination: page.pagination,
+          }
+        : page;
+      offset = page.pagination?.nextOffset ?? 0;
+    } while (offset > 0);
+    if (combined) replaceState(combined);
     connection = { ...connection, ready: true };
   });
 }

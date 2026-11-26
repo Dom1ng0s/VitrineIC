@@ -48,6 +48,21 @@ describe("refreshState", () => {
     expect(store.getConnection().error).toBe("");
   });
 
+  it("reúne páginas antes de publicar o estado completo", async () => {
+    const store = await loadStore();
+    const first = snapshot({ demands: [{ id: "d1" } as never], pagination: { nextOffset: 100 } });
+    const second = snapshot({ demands: [{ id: "d2" } as never], pagination: { nextOffset: null } });
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => first } as Response)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => second } as Response);
+
+    await store.refreshState();
+
+    expect(store.getState().demands.map((d) => d.id)).toEqual(["d1", "d2"]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(store.getConnection().ready).toBe(true);
+  });
+
   it("não marca como pronta quando a API falha, e guarda o erro", async () => {
     const store = await loadStore();
     fetchMock.mockRejectedValue(new TypeError("Failed to fetch"));

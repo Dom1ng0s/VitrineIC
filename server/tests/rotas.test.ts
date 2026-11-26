@@ -588,3 +588,48 @@ test("login bloqueia tentativas repetidas da mesma conta", async (t) => {
     200,
   );
 });
+
+test("foto do perfil sai do estado como URL e respeita visibilidade", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const content = Buffer.from("imagem-de-teste");
+  const photo = `data:image/png;base64,${content.toString("base64")}`;
+  const updated = await request(c.app, "PATCH", `/api/students/${c.studentId}`, { photo }, c.studentCookie);
+  assert.equal(updated.statusCode, 200, updated.body);
+  const own = updated.json<VitrineState>().students.find((student) => student.id === c.studentId)!;
+  assert.equal(own.photo, `/api/students/${c.studentId}/photo`);
+  assert.equal((await request(c.app, "GET", own.photo!, undefined, c.studentCookie)).statusCode, 200);
+  assert.equal(
+    (await request(c.app, "GET", own.photo!, undefined, c.studentCookie)).rawPayload.toString(),
+    "imagem-de-teste",
+  );
+  assert.equal(
+    (await request(c.app, "GET", `/api/students/${c.studentId}/photo`, undefined, c.requesterCookie)).statusCode,
+    404,
+  );
+});
+
+test("estado entrega páginas de demandas sem repetir registros", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const first = await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie);
+  const id = first.json<{ demand: Demand }>().demand.id;
+  await c.db.sql.run(
+    `INSERT INTO demanda (id, solicitante_id, titulo, descricao, prazo)
+     SELECT 'VIC-PAG-' || n, solicitante_id, titulo, descricao, prazo
+     FROM demanda CROSS JOIN generate_series(1,19) AS seq(n) WHERE id = $1`,
+    [id],
+  );
+  const firstPage = (
+    await request(c.app, "GET", "/api/state?limit=10", undefined, c.requesterCookie)
+  ).json<VitrineState>();
+  assert.equal(firstPage.demands.length, 10);
+  assert.equal(firstPage.pagination?.nextOffset, 10);
+  const secondPage = (
+    await request(c.app, "GET", "/api/state?offset=10&limit=10", undefined, c.requesterCookie)
+  ).json<VitrineState>();
+  assert.equal(secondPage.demands.length, 10);
+  assert.equal(secondPage.pagination?.nextOffset, null);
+  assert.equal(new Set([...firstPage.demands, ...secondPage.demands].map((d) => d.id)).size, 20);
+  assert.equal((await request(c.app, "GET", "/api/state?limit=1000", undefined, c.requesterCookie)).statusCode, 400);
+});

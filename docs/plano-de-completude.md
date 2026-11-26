@@ -19,8 +19,8 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | 0    | Decisões de produto               | [x]    |
 | 1    | Rede de segurança                 | [x]    |
 | 2    | Fundações estruturais             | [x]    |
-| 3    | Backend abre o que a UI consome   | [~]    |
-| 4    | Buracos de fluxo                  | [ ]    |
+| 3    | Backend abre o que a UI consome   | [x]    |
+| 4    | Buracos de fluxo                  | [~]    |
 | 5    | Fachadas                          | [ ]    |
 | 6    | Acessibilidade e qualidade de uso | [ ]    |
 | 7    | Deploy e operação                 | [ ]    |
@@ -108,7 +108,7 @@ Observação para a fase 6: o `fieldset disabled` global do `ApiBoundary`
 engole cliques durante a sincronização. Apareceu na verificação — vários
 cliques não surtiam efeito até a sincronização terminar.
 
-## Fase 3 — Backend abre o que a UI consome
+## Fase 3 — Backend abre o que a UI consome · fechada em 25/11/2026
 
 - [x] `PATCH /api/demands/:id` (editar demanda em `nova`, pelo dono)
 - [x] Observação do histórico de status no snapshot (motivo da rejeição)
@@ -132,7 +132,16 @@ cliques não surtiam efeito até a sincronização terminar.
       sem hash é completada na primeira execução. Teste em
       `server/tests/migracao.test.ts`. **Daqui em diante, mudança de esquema é
       arquivo novo.**
-- [ ] `/api/state` sem foto embutida e paginado
+- [x] `/api/state` sem foto embutida e paginado: `offset`/`limit` (até 100),
+      com recomposição das páginas no cliente; fotos em rota própria.
+
+As migrações `002` a `004` acrescentaram funções da curadoria, pareceres,
+índices e bloqueio de login. As rotas novas verificam função e incluem casos
+negativos de autorização. Cotas por conta são serializadas por transação.
+Verificação ao fechar: `typecheck`, 56 testes web, 39 testes API e os dois
+builds passaram; lint sem erros, com os 50 avisos de acessibilidade previstos
+para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
+`GET /api/state` entrega páginas e o cliente as reúne.
 
 ## Fase 4 — Buracos de fluxo
 

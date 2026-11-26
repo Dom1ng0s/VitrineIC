@@ -30,6 +30,7 @@ export interface ImpactStats {
 }
 
 export interface VitrineState {
+  pagination?: { nextOffset: number | null };
   students: Student[];
   companies: Company[];
   accounts: Account[];
