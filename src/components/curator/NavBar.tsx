@@ -2,7 +2,7 @@ import { AreaNav } from "@/components/app/AreaNav";
 import { useSession } from "@/lib/auth";
 import type { Demand } from "@/types";
 
-export type CuratorTab = "triage" | "matchmaking_hub" | "interests";
+export type CuratorTab = "triage" | "matchmaking_hub" | "interests" | "team";
 
 /**
  * Barra da curadoria, no modelo do Figma. O matchmaking fica sob "Análise de
@@ -21,7 +21,7 @@ export function NavBar({
 }) {
   const session = useSession();
   const newCount = demands.filter((d) => d.status === "nova").length;
-  const active = view === "triage" || view === "interests" ? view : "matchmaking_hub";
+  const active = view === "triage" || view === "interests" || view === "team" ? view : "matchmaking_hub";
 
   return (
     <AreaNav
@@ -29,6 +29,7 @@ export function NavBar({
         { id: "triage", label: "Análise de projetos", badge: newCount },
         { id: "matchmaking_hub", label: "Análise de matches" },
         { id: "interests", label: "Acompanhamento" },
+        { id: "team", label: "Equipe" },
       ]}
       active={active}
       onSelect={(id) => setView(id as CuratorTab)}

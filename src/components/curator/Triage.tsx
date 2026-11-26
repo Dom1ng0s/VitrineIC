@@ -7,6 +7,7 @@ import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import { Modal } from "@/components/app/Modal";
 import { Input } from "@/components/app/Field";
+import { CommitteeOpinions } from "./CommitteeOpinions";
 import { removeDemand, setDemandStatus } from "@/lib/store";
 import { useSession } from "@/lib/auth";
 import { canTriageTransition } from "@/lib/demand-status";
@@ -100,6 +101,8 @@ export function TriageCard({
                 ))}
               </div>
             )}
+
+            <CommitteeOpinions demandId={demand.id} />
 
             {demand.status === "rejeitada" && onDelete && (
               <button

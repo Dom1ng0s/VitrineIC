@@ -153,9 +153,9 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [ ] Mensagem iniciável (hoje só responde a notificação)
 - [x] Transições do kanban derivadas da mesma tabela do servidor, com alvo
       inválido desabilitado e motivo no card
-- [ ] Tela de equipe da curadoria: quem é o quê, convidar, trocar papel,
+- [x] Tela de equipe da curadoria: quem é o quê, convidar, trocar papel,
       desativar; ações escondidas conforme o papel
-- [ ] Parecer do comitê na tela da demanda, visível à coordenação
+- [x] Parecer do comitê na tela da demanda, visível à coordenação
 - [ ] Tipo do solicitante visível (decisão da fase 0): selo de empresa,
       professor/laboratório ou órgão público no mural, na triagem e no
       cadastro, com filtro por tipo

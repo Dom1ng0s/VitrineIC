@@ -6,6 +6,7 @@ import { Matchmaking } from "./Matchmaking";
 import { MatchmakingHub } from "./MatchmakingHub";
 import { NavBar, type CuratorTab } from "./NavBar";
 import { Triage } from "./Triage";
+import { CuratorTeam } from "./CuratorTeam";
 import { createInterest, useVitrine } from "@/lib/store";
 import type { Demand, Interest, Student } from "@/types";
 
@@ -51,6 +52,8 @@ export default function CuratorArea({ onBack }: { onBack: () => void }) {
       {view === "matchmaking_hub" && <MatchmakingHub demands={demands} onSelect={goToMatch} />}
 
       {view === "interests" && <InterestsOverview />}
+
+      {view === "team" && <CuratorTeam />}
 
       {(view === "matchmaking" || view === "confirm") && selectedDemand && (
         <Matchmaking demand={selectedDemand} onConfirm={goToConfirm} onBack={() => go("matchmaking_hub")} />
