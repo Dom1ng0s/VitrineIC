@@ -167,7 +167,7 @@ export function MatchScreen({ demandId, onBack }: { demandId?: string | null; on
           card(
             i,
             <>
-              <button onClick={() => respondInterest(i.id, "solicitante", true)} className="vt-btn vt-btn-primary">
+              <button onClick={() => respondInterest(i.id, true)} className="vt-btn vt-btn-primary">
                 Aceitar
               </button>
               <button onClick={() => setRefusing(i)} className="vt-btn vt-btn-danger">
@@ -200,7 +200,7 @@ export function MatchScreen({ demandId, onBack }: { demandId?: string | null; on
           title={`Recusar ${findStudent(refusing.studentId)?.name ?? "estudante"}?`}
           onClose={() => setRefusing(null)}
           onConfirm={async (reason) => {
-            if (!(await respondInterest(refusing.id, "solicitante", false, reason))) return;
+            if (!(await respondInterest(refusing.id, false, reason))) return;
             setRefusing(null);
           }}
         />

@@ -8,16 +8,9 @@ import { PAGE } from "@/components/public/layout";
 import { PublicFooter } from "@/components/public/PublicFooter";
 import { PublicNav } from "@/components/public/PublicNav";
 import { UnitsCard } from "@/components/landing/UnitsCard";
+import { ArrowIcon } from "@/components/app/Icons";
 
 /** Destaques saem da base única de projetos, para que o card abra a página do projeto. */
-
-function Arrow() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 export default function LandingPage({
   onSignIn,
@@ -59,7 +52,7 @@ export default function LandingPage({
           </p>
           <div className="flex flex-wrap gap-3">
             <button onClick={onSignIn} className="vt-btn vt-btn-primary">
-              Acessar plataforma <Arrow />
+              Acessar plataforma <ArrowIcon />
             </button>
             <button onClick={() => onNavigate({ view: "projects" })} className="vt-btn vt-btn-secondary">
               Explorar projetos
@@ -103,7 +96,7 @@ export default function LandingPage({
             </h2>
           </div>
           <button onClick={() => onNavigate({ view: "projects" })} className="vt-btn vt-btn-secondary shrink-0">
-            Ver catálogo <Arrow />
+            Ver catálogo <ArrowIcon />
           </button>
         </div>
 
@@ -134,7 +127,7 @@ export default function LandingPage({
               Cadastre seu portfólio ou publique uma demanda. A curadoria faz o resto.
             </p>
             <button onClick={onSignIn} className="vt-btn vt-btn-cream mt-6">
-              Acessar plataforma <Arrow />
+              Acessar plataforma <ArrowIcon />
             </button>
           </div>
         </div>

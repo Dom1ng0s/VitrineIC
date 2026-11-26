@@ -1,6 +1,6 @@
 import { FieldError, FieldHint, invalidProps } from "@/components/app/FieldError";
 import * as React from "react";
-import { NAVY, OFFWHITE, RED, WHITE } from "@/styles/tokens";
+import { NAVY, OFFWHITE, WHITE } from "@/styles/tokens";
 
 export function Label({ children }: { children: React.ReactNode }) {
   return <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">{children}</span>;
@@ -283,38 +283,5 @@ export function MultiSelect({
         </div>
       )}
     </div>
-  );
-}
-
-export function Rule() {
-  return <div style={{ height: "1px", background: `${NAVY}30`, margin: "24px 0" }} />;
-}
-
-export function Tag({
-  children,
-  active,
-  accent,
-  onClick,
-}: {
-  children: React.ReactNode;
-  active?: boolean;
-  accent?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-3 py-1.5 text-[10px] tracking-[0.14em] uppercase transition-all font-medium"
-      style={{
-        fontFamily: "Geist Mono, ui-monospace, monospace",
-        border: `1px solid ${active ? (accent ? RED : NAVY) : `${NAVY}60`}`,
-        background: active ? (accent ? RED : NAVY) : "transparent",
-        color: active ? OFFWHITE : NAVY,
-        opacity: 1,
-        borderRadius: "6px",
-      }}
-    >
-      {children}
-    </button>
   );
 }

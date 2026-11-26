@@ -149,7 +149,7 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
         <div className="mt-2 flex flex-wrap items-center gap-3">
           {myTurn ? (
             <>
-              <button onClick={() => respondInterest(interest.id, "estudante", true)} className="vt-btn vt-btn-primary">
+              <button onClick={() => respondInterest(interest.id, true)} className="vt-btn vt-btn-primary">
                 Aceitar <ArrowIcon />
               </button>
               <button onClick={() => setRefusing(true)} className="vt-btn vt-btn-danger">
@@ -169,7 +169,7 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
           title={`Recusar ${interest.origin === "convite" ? "o convite" : "a sugestão"}?`}
           onClose={() => setRefusing(false)}
           onConfirm={async (reason) => {
-            if (!(await respondInterest(interest.id, "estudante", false, reason))) return;
+            if (!(await respondInterest(interest.id, false, reason))) return;
             setRefusing(false);
           }}
         />

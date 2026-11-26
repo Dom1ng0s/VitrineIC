@@ -31,11 +31,3 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Sócio · Sururu Labs",
   },
 ];
-
-/** Metas declaradas para o período, usadas como denominador no painel. */
-export const TARGETS = {
-  students: 8,
-  projects: 10,
-  demands: 6,
-  matches: 3,
-};

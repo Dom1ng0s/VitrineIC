@@ -2,7 +2,7 @@
 import { useSyncExternalStore } from "react";
 import { api } from "./api";
 import type { Company } from "@/data/companies";
-import type { Demand, DemandStatus, Interest, InterestOrigin, InterestSide, Student, StudentProject } from "@/types";
+import type { Demand, DemandStatus, Interest, InterestOrigin, Student, StudentProject } from "@/types";
 import type { VitrineState } from "@/types/api";
 export type { VitrineState } from "@/types/api";
 
@@ -120,7 +120,7 @@ export function createInterest(demandId: string, studentId: string, origin: Inte
     return result.interest;
   });
 }
-export const respondInterest = (id: string, _side: InterestSide, accept: boolean, refusalReason?: string) =>
+export const respondInterest = (id: string, accept: boolean, refusalReason?: string) =>
   mutate(`/interests/${encodeURIComponent(id)}/respond`, "POST", { accept, refusalReason });
 export const setInProject = (id: string, value: boolean) => updateStudent(id, { inProject: value });
 export function addProject(project: Omit<StudentProject, "id">) {

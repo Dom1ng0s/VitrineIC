@@ -1,9 +1,6 @@
 import { Logo } from "./Logo";
 import type { PublicView } from "./routes";
 
-const MONO = "Geist Mono, ui-monospace, monospace";
-const SANS = "Geist, Inter, system-ui, sans-serif";
-
 /** Navegação das páginas públicas, unificada com a Landing Page. */
 export function PublicNav({
   view,
@@ -62,5 +59,3 @@ export function PublicNav({
     </nav>
   );
 }
-
-export { MONO, SANS };

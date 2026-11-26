@@ -1,17 +1,7 @@
 import { LEVELS } from "@/data/skills";
-import { MOSS, NAVY, TERRACOTTA } from "@/styles/tokens";
 import type { SkillLevel } from "@/types";
 
-const MONO = "Geist Mono, ui-monospace, monospace";
-
 const STEPS: SkillLevel[] = [1, 2, 3, 4];
-
-const LEVEL_COLORS: Record<SkillLevel, string> = {
-  1: MOSS, // Verde
-  2: "#c0672b", // Laranja
-  3: TERRACOTTA, // Vermelho
-  4: "#7e22ce", // Roxo
-};
 
 /**
  * Seletor de proficiência: quatro pílulas, a escolhida em navy sólido.
@@ -60,34 +50,6 @@ export function LevelPicker({
           </button>
         );
       })}
-    </div>
-  );
-}
-
-/** Indicador somente leitura, para exibir nível fora do formulário. */
-export function LevelMeter({ level, labels = LEVELS }: { level: SkillLevel; labels?: readonly string[] }) {
-  const activeColor = LEVEL_COLORS[level];
-  return (
-    <div className="flex items-center gap-2">
-      <span className="inline-flex items-end gap-[2px]" style={{ height: "12px" }}>
-        {STEPS.map((step) => (
-          <span
-            key={step}
-            style={{
-              width: "4px",
-              height: `${step * 2.5 + 2}px`,
-              background: step <= level ? LEVEL_COLORS[step] : `${NAVY}20`,
-              borderRadius: "1px",
-            }}
-          />
-        ))}
-      </span>
-      <span
-        className="text-[10px] tracking-[0.1em] uppercase font-bold"
-        style={{ fontFamily: MONO, color: activeColor }}
-      >
-        {labels[level - 1]}
-      </span>
     </div>
   );
 }

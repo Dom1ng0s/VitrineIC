@@ -4,14 +4,7 @@ import { BackButton } from "./BackButton";
 import { Eyebrow } from "./Eyebrow";
 import { ProjectStatusPill } from "./ProjectStatusPill";
 import { PAGE } from "./layout";
-
-function Arrow() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-    </svg>
-  );
-}
+import { ArrowIcon } from "@/components/app/Icons";
 
 /** Página pública de um projeto: capa, descrição, stack, autoria e chamada para parceria. */
 export function ProjectDetail({
@@ -68,7 +61,7 @@ export function ProjectDetail({
           <p className="mt-4 max-w-[740px] font-sans text-[17px] leading-[1.6] text-navy/65">{project.description}</p>
           {project.link && (
             <a href={project.link} target="_blank" rel="noreferrer" className="vt-btn vt-btn-secondary mt-5">
-              Abrir projeto <Arrow />
+              Abrir projeto <ArrowIcon />
             </a>
           )}
 
@@ -112,7 +105,7 @@ export function ProjectDetail({
               Publique a demanda e a curadoria indica o estudante mais compatível.
             </p>
             <button onClick={onSignIn} className="vt-btn vt-btn-cream mt-5">
-              Publicar demanda <Arrow />
+              Publicar demanda <ArrowIcon />
             </button>
           </section>
         </aside>
