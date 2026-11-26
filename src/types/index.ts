@@ -12,6 +12,7 @@ export interface Demand {
   id: string;
   title: string;
   company: string;
+  requesterKind?: RequesterKind;
   area: string;
   scope: string;
   deadline: string;

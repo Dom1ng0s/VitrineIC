@@ -12,8 +12,9 @@ import { removeDemand, setDemandStatus } from "@/lib/store";
 import { useSession } from "@/lib/auth";
 import { canTriageTransition } from "@/lib/demand-status";
 import { paraExibicao } from "@/lib/datas";
+import { REQUESTER_KIND_LABEL } from "@/data/companies";
 import { TERRACOTTA } from "@/styles/tokens";
-import type { Demand, DemandStatus } from "@/types";
+import type { Demand, DemandStatus, RequesterKind } from "@/types";
 
 /** Card do kanban: id, prioridade, título, empresa, skills e escopo. Clique abre as ações. */
 export function TriageCard({
@@ -46,6 +47,11 @@ export function TriageCard({
         </div>
         <p className="font-sans text-[15px] leading-[1.3] text-navy">{demand.title}</p>
         <p className="font-sans text-[13px] text-navy/55">{demand.company}</p>
+        {demand.requesterKind && (
+          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/55">
+            {REQUESTER_KIND_LABEL[demand.requesterKind]}
+          </span>
+        )}
         <div className="flex flex-wrap gap-1.5">
           {demand.skills.slice(0, 2).map((s) => (
             <SkillTag key={s}>{s}</SkillTag>
@@ -130,6 +136,8 @@ export function Triage({ demands }: { demands: Demand[] }) {
   const curatorFunction = useSession()?.account.curatorFunction ?? "comite";
   const [pendingRejection, setPendingRejection] = useState<string | null>(null);
   const [reason, setReason] = useState("");
+  const [kind, setKind] = useState<RequesterKind | "todos">("todos");
+  const shown = kind === "todos" ? demands : demands.filter((demand) => demand.requesterKind === kind);
 
   const updateStatus = (id: string, status: DemandStatus) => {
     const demand = demands.find((item) => item.id === id);
@@ -156,11 +164,31 @@ export function Triage({ demands }: { demands: Demand[] }) {
   };
 
   const [dropTarget, setDropTarget] = useState<DemandStatus | null>(null);
-  const count = (col: DemandStatus) => demands.filter((d) => d.status === col).length;
+  const count = (col: DemandStatus) => shown.filter((d) => d.status === col).length;
 
   return (
     <main className={`${PAGE} pb-20`}>
       <PageHead eyebrow="Curadoria" title="Triagem de demandas." />
+
+      <div className="mb-6 flex flex-wrap gap-2" aria-label="Filtrar pelo tipo de solicitante">
+        <button
+          className={`vt-pill ${kind === "todos" ? "vt-pill-selected" : ""}`}
+          aria-pressed={kind === "todos"}
+          onClick={() => setKind("todos")}
+        >
+          Todos
+        </button>
+        {(Object.entries(REQUESTER_KIND_LABEL) as [RequesterKind, string][]).map(([code, label]) => (
+          <button
+            key={code}
+            className={`vt-pill ${kind === code ? "vt-pill-selected" : ""}`}
+            aria-pressed={kind === code}
+            onClick={() => setKind(code)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <div className="-mx-5 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
         <div className="grid min-w-[1100px] grid-cols-5 gap-3">
@@ -196,7 +224,7 @@ export function Triage({ demands }: { demands: Demand[] }) {
                 <span>{DEMAND_STATUS[col].label}</span>
                 <span>{count(col)}</span>
               </div>
-              {demands
+              {shown
                 .filter((d) => d.status === col)
                 .map((d) => (
                   <TriageCard

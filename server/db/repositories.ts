@@ -76,7 +76,7 @@ export const SQL_ESTUDANTE = `
 
 export const SQL_DEMANDA = `
   SELECT
-    d.id, d.titulo AS title, s.nome AS company,
+    d.id, d.titulo AS title, s.nome AS company, s.tipo_codigo AS "requesterKind",
     COALESCE(a.nome, '')  AS area,
     COALESCE(es.rotulo, '') AS scope,
     to_char(d.prazo, 'YYYY-MM-DD') AS deadline,

@@ -714,3 +714,21 @@ test("solicitante pode convidar outro estudante após liberar um contato", async
     409,
   );
 });
+
+test("tipo do solicitante acompanha a demanda no estado", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const signup = await request(c.app, "POST", "/api/auth/requesters", {
+    ...requesterData,
+    organization: "Laboratório de Pesquisa",
+    email: "laboratorio@example.com",
+    kind: "professor",
+  });
+  assert.equal(signup.statusCode, 201, signup.body);
+  const created = await request(c.app, "POST", "/api/demands", demandData, cookieOf(signup));
+  assert.equal(created.statusCode, 201, created.body);
+  const demand = created
+    .json<{ state: VitrineState }>()
+    .state.demands.find((entry) => entry.company === "Laboratório de Pesquisa");
+  assert.equal(demand?.requesterKind, "professor");
+});

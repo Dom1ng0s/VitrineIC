@@ -11,6 +11,7 @@ import { closeDemand } from "@/lib/store";
 import { Modal } from "@/components/app/Modal";
 import { Input } from "./ui";
 import type { Demand } from "@/types";
+import { REQUESTER_KIND_LABEL } from "@/data/companies";
 
 export function MyDemands({
   onNew,
@@ -68,6 +69,11 @@ export function MyDemands({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block font-sans text-[15px] text-navy">{d.title}</span>
+                  {d.requesterKind && (
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
+                      {REQUESTER_KIND_LABEL[d.requesterKind]}
+                    </span>
+                  )}
                   <span className="block font-sans text-[13px] text-navy/55">
                     Prazo {paraExibicao(d.deadline)} · {d.area}
                     {awaiting > 0 && <span className="text-red"> · {awaiting} aguardando você</span>}

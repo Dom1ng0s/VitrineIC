@@ -156,7 +156,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [x] Tela de equipe da curadoria: quem é o quê, convidar, trocar papel,
       desativar; ações escondidas conforme o papel
 - [x] Parecer do comitê na tela da demanda, visível à coordenação
-- [ ] Tipo do solicitante visível (decisão da fase 0): selo de empresa,
+- [x] Tipo do solicitante visível (decisão da fase 0): selo de empresa,
       professor/laboratório ou órgão público no mural, na triagem e no
       cadastro, com filtro por tipo
 - [ ] Anexo de briefing pela demanda; portfólio liberado após o aceite duplo

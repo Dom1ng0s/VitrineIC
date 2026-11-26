@@ -8,8 +8,9 @@ import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
-import type { Demand, Student } from "@/types";
+import type { Demand, RequesterKind, Student } from "@/types";
 import { paraExibicao } from "@/lib/datas";
+import { REQUESTER_KIND_LABEL } from "@/data/companies";
 
 function Meta({ demand }: { demand: Demand }) {
   return (
@@ -18,6 +19,7 @@ function Meta({ demand }: { demand: Demand }) {
         <BuildingIcon />
         {demand.company}
       </span>
+      {demand.requesterKind && <span className="vt-pill">{REQUESTER_KIND_LABEL[demand.requesterKind]}</span>}
       <span aria-hidden="true">·</span>
       <span className="flex items-center gap-1.5">
         <ClockIcon />
@@ -80,14 +82,18 @@ function Apply({
 
   return (
     <div className="mt-6 flex flex-col gap-3">
-      <label className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">Por que você? (opcional)</label>
-      <textarea
-        rows={3}
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Um projeto seu que tenha a ver, uma tecnologia que você domina..."
-        className="vt-input"
-      />
+      <label htmlFor={`apply-note-${demand.id}`} className="block">
+        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">Por que você? (opcional)</span>
+        <textarea
+          id={`apply-note-${demand.id}`}
+          aria-label="Por que você? (opcional)"
+          rows={3}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Um projeto seu que tenha a ver, uma tecnologia que você domina..."
+          className="vt-input mt-2"
+        />
+      </label>
       <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => createInterest(demand.id, studentId, "candidatura", note)}
@@ -113,6 +119,7 @@ function Apply({
 export function Opportunities({ student, onGoToInterests }: { student: Student; onGoToInterests: () => void }) {
   const { demands } = useVitrine();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [kind, setKind] = useState<RequesterKind | "todos">("todos");
   const firstName = student.name.trim().split(" ")[0];
   const selected = demands.find((d) => d.id === selectedId);
 
@@ -137,6 +144,10 @@ export function Opportunities({ student, onGoToInterests }: { student: Student; 
             <dl className="flex flex-col gap-5">
               {[
                 ["Quem pede", selected.company],
+                [
+                  "Tipo de solicitante",
+                  selected.requesterKind ? REQUESTER_KIND_LABEL[selected.requesterKind] : "Não informado",
+                ],
                 ["Duração prevista", selected.scope],
                 ["Prazo", paraExibicao(selected.deadline)],
               ].map(([label, value]) => (
@@ -165,7 +176,7 @@ export function Opportunities({ student, onGoToInterests }: { student: Student; 
   }
 
   const open = demands
-    .filter((d) => d.status === "aprovada")
+    .filter((d) => d.status === "aprovada" && (kind === "todos" || d.requesterKind === kind))
     .map((d) => ({ demand: d, score: scoreStudent(student, d) }))
     .sort((a, b) => b.score - a.score);
 
@@ -176,6 +187,26 @@ export function Opportunities({ student, onGoToInterests }: { student: Student; 
         title="Oportunidades abertas."
         lead="Demandas aprovadas pela curadoria. Candidate-se às que combinam com você, ou espere um convite do solicitante ou uma sugestão da curadoria."
       />
+
+      <div className="mb-6 flex flex-wrap gap-2" aria-label="Filtrar pelo tipo de solicitante">
+        <button
+          className={`vt-pill ${kind === "todos" ? "vt-pill-selected" : ""}`}
+          aria-pressed={kind === "todos"}
+          onClick={() => setKind("todos")}
+        >
+          Todos
+        </button>
+        {(Object.entries(REQUESTER_KIND_LABEL) as [RequesterKind, string][]).map(([code, label]) => (
+          <button
+            key={code}
+            className={`vt-pill ${kind === code ? "vt-pill-selected" : ""}`}
+            aria-pressed={kind === code}
+            onClick={() => setKind(code)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <div className="grid gap-5 md:grid-cols-2">
         {open.map(({ demand, score }) => (
