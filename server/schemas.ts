@@ -140,7 +140,13 @@ export const demandSchema = z
     budget: optionalText().optional(),
   })
   .strict();
-export const statusSchema = z.object({ status: z.enum(["nova", "em_analise", "aprovada", "rejeitada"]) }).strict();
+export const statusSchema = z
+  .object({
+    status: z.enum(["nova", "em_analise", "aprovada", "rejeitada"]),
+    observation: optionalText(3000).optional(),
+  })
+  .strict();
+export const prioritySchema = z.object({ priority: z.enum(["alta", "normal", "baixa"]) }).strict();
 export const interestSchema = z
   .object({
     demandId: text(),

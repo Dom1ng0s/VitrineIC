@@ -24,6 +24,7 @@ export interface Demand {
   notes?: string;
   teamSize?: string;
   budget?: string;
+  statusHistory?: { status: DemandStatus; observation?: string; changedAt: string; changedBy?: string }[];
 }
 
 /** Curso de qualquer unidade da UFAL. A lista vive em `UNITS`, de `@/data/institution`. */
@@ -103,6 +104,7 @@ export interface Account {
   emailVerifiedAt?: string;
   id: string;
   role: Role;
+  curatorFunction?: "curador" | "coordenacao" | "comite";
   /** Sempre em minúsculas. */
   email: string;
   /** Pessoa: estudante, responsável pela organização ou curador. */
@@ -151,4 +153,5 @@ export interface Interest {
   /** Visível ao solicitante e à curadoria, nunca ao estudante. */
   refusalReason?: string;
   createdAt: string;
+  responseHistory?: { side: InterestSide; accepted: boolean; refusalReason?: string; respondedAt: string }[];
 }

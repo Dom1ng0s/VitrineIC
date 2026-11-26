@@ -311,3 +311,40 @@ test("funções da curadoria separam triagem, decisão e leitura", async (t) => 
     200,
   );
 });
+
+test("edição, prioridade e histórico da demanda respeitam autoria e função", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = (await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie)).json<{
+    demand: Demand;
+  }>().demand;
+  const url = `/api/demands/${demand.id}`;
+  assert.equal((await request(c.app, "PATCH", url, { title: "Alterada" }, c.studentCookie)).statusCode, 403);
+  assert.equal((await request(c.app, "PATCH", url, { title: "Alterada" }, c.requesterCookie)).statusCode, 200);
+  assert.equal(
+    (await request(c.app, "PATCH", `${url}/priority`, { priority: "alta" }, c.requesterCookie)).statusCode,
+    403,
+  );
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'curador' WHERE conta_id = 'curator-rotas'");
+  assert.equal(
+    (await request(c.app, "PATCH", `${url}/priority`, { priority: "alta" }, c.curatorCookie)).statusCode,
+    403,
+  );
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'coordenacao' WHERE conta_id = 'curator-rotas'");
+  assert.equal(
+    (await request(c.app, "PATCH", `${url}/priority`, { priority: "alta" }, c.curatorCookie)).statusCode,
+    200,
+  );
+  const updated = await request(
+    c.app,
+    "PATCH",
+    `${url}/status`,
+    { status: "rejeitada", observation: "Escopo incompleto" },
+    c.curatorCookie,
+  );
+  assert.equal(updated.statusCode, 200, updated.body);
+  const visible = updated.json<VitrineState>().demands.find((entry) => entry.id === demand.id)!;
+  assert.equal(visible.priority, "alta");
+  assert.equal(visible.statusHistory?.at(-1)?.observation, "Escopo incompleto");
+  assert.equal((await request(c.app, "PATCH", url, { title: "Tarde" }, c.requesterCookie)).statusCode, 403);
+});

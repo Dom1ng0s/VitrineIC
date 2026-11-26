@@ -110,10 +110,10 @@ cliques não surtiam efeito até a sincronização terminar.
 
 ## Fase 3 — Backend abre o que a UI consome
 
-- [ ] `PATCH /api/demands/:id` (editar demanda)
-- [ ] Observação do histórico de status no snapshot (motivo da rejeição)
-- [ ] Histórico de interesse (quem respondeu o quê, quando)
-- [ ] Prioridade da demanda (`PATCH /api/demands/:id/priority`, só curador)
+- [x] `PATCH /api/demands/:id` (editar demanda em `nova`, pelo dono)
+- [x] Observação do histórico de status no snapshot (motivo da rejeição)
+- [x] Histórico de interesse (quem respondeu o quê, quando)
+- [x] Prioridade da demanda (`PATCH /api/demands/:id/priority`, só coordenação)
 - [ ] Três papéis da curadoria (decisão da fase 0): `curador`, `coordenacao` e
       `comite` no banco, com checagem por rota — curador tria e sugere;
       coordenação aprova, rejeita e exclui; comitê só lê e registra parecer
@@ -123,7 +123,7 @@ cliques não surtiam efeito até a sincronização terminar.
 - [ ] Validação uuid nos `params` de notificações e anexos (hoje 500, não 404)
 - [ ] Cota por conta em demandas, interesses e mensagens
 - [ ] Bloqueio de força bruta por conta no login
-- [ ] Índices nas FKs sem índice (`notificacao.*`,
+- [x] Índices nas FKs sem índice (`notificacao.*`,
       `mensagem.remetente_conta_id`, `projeto_competencia`, `estudante_idioma`,
       `estudante_topico`)
 - [x] Congelar `001` com checksum em `schema_migration` e evoluir por

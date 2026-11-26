@@ -190,10 +190,14 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
       } as Student;
     }),
     companies: empresas,
-    demands: demandas,
+    demands: demandas.map((demanda) => {
+      if (curador || proprioSolicitante === demanda.company) return demanda;
+      const { statusHistory: _history, ...publica } = demanda;
+      return publica;
+    }),
     interests: interesses.map((interesse) => {
       if (conta?.role !== "student") return interesse;
-      const { refusalReason: _motivo, ...semMotivo } = interesse;
+      const { refusalReason: _motivo, responseHistory: _history, ...semMotivo } = interesse;
       return semMotivo as Interest;
     }),
     inProject: Object.fromEntries(estudantes.map((e) => [e.id, !!e.inProject])),

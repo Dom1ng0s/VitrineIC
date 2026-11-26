@@ -84,6 +84,7 @@ export const SQL_DEMANDA = `
     d.status, d.prioridade AS priority,
     d.publico_alvo AS audience, d.nivel_academico AS "academicLevel",
     d.observacoes AS notes, d.tamanho_equipe AS "teamSize", d.orcamento AS budget,
+    COALESCE(hist.lista, '[]'::json) AS "statusHistory",
     COALESCE(sk.lista, '[]'::json) AS skills
   FROM demanda d
   JOIN solicitante s        ON s.id = d.solicitante_id
@@ -94,6 +95,13 @@ export const SQL_DEMANDA = `
     FROM demanda_competencia dc JOIN competencia c ON c.id = dc.competencia_id
     WHERE dc.demanda_id = d.id
   ) sk ON true
+  LEFT JOIN LATERAL (
+    SELECT json_agg(json_build_object(
+      'status', h.status, 'observation', h.observacao,
+      'changedAt', h.alterado_em, 'changedBy', h.alterado_por_conta_id
+    ) ORDER BY h.alterado_em) AS lista
+    FROM demanda_historico_status h WHERE h.demanda_id = d.id
+  ) hist ON true
 `;
 
 export const SQL_INTERESSE = `
@@ -101,6 +109,10 @@ export const SQL_INTERESSE = `
     i.id, i.demanda_id AS "demandId", i.estudante_id AS "studentId",
     i.origem AS origin, i.justificativa AS justification, i.status,
     to_char(i.criado_em, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS "createdAt",
+    COALESCE((SELECT json_agg(json_build_object(
+      'side', r.lado, 'accepted', r.aceito, 'refusalReason', r.motivo_recusa,
+      'respondedAt', r.respondido_em
+    ) ORDER BY r.respondido_em) FROM interesse_resposta r WHERE r.interesse_id = i.id), '[]'::json) AS "responseHistory",
     (SELECT r.motivo_recusa FROM interesse_resposta r
       WHERE r.interesse_id = i.id AND NOT r.aceito AND r.motivo_recusa IS NOT NULL
       ORDER BY r.respondido_em DESC LIMIT 1) AS "refusalReason"
@@ -125,10 +137,12 @@ const CONTA = `
     COALESCE(e.id, s.nome, '') AS "profileId",
     to_char(c.criada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS "createdAt",
     to_char(c.email_confirmado_em, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ') AS "emailVerifiedAt",
-    c.senha_hash AS "passwordHash", c.versao_credencial AS "credentialVersion"
+    c.senha_hash AS "passwordHash", c.versao_credencial AS "credentialVersion",
+    cur.funcao_codigo AS "curatorFunction"
   FROM conta c
   LEFT JOIN estudante e   ON e.conta_id = c.id
   LEFT JOIN solicitante s ON s.conta_id = c.id
+  LEFT JOIN curador cur ON cur.conta_id = c.id
 `;
 
 /** Derivado do nome; não é coluna, para não guardar o que dá para calcular. */

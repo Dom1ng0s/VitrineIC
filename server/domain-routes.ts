@@ -25,6 +25,7 @@ import {
   demandSchema,
   interestSchema,
   projectSchema,
+  prioritySchema,
   responseSchema,
   statusSchema,
   studentPatchSchema,
@@ -133,8 +134,34 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
     return { state: await estado(request), demand };
   });
 
+  app.patch<{ Params: { id: string } }>("/api/demands/:id", async (request) => {
+    const account = await requireVerifiedAccount(db, request, config, "requester");
+    const patch = demandSchema.partial().parse(request.body);
+    ensure(Object.keys(patch).length > 0, 400, "Informe ao menos um campo para alterar.");
+    await db.transaction(async (tx) => {
+      const current = await demandas.porId(tx, request.params.id);
+      ensure(current, 404, "Demanda não encontrada.");
+      ensure(
+        current.company === account.profileId && current.status === "nova",
+        403,
+        "Esta demanda não pode ser editada.",
+      );
+      await salvarDemanda(tx, { ...current, ...patch });
+    });
+    return estado(request);
+  });
+
+  app.patch<{ Params: { id: string } }>("/api/demands/:id/priority", async (request) => {
+    await requireCuratorFunction(db, request, ["coordenacao"], config);
+    const { priority } = prioritySchema.parse(request.body);
+    const current = await demandas.porId(db.sql, request.params.id);
+    ensure(current, 404, "Demanda não encontrada.");
+    await db.sql.run("UPDATE demanda SET prioridade = $2 WHERE id = $1", [current.id, priority]);
+    return estado(request);
+  });
+
   app.patch<{ Params: { id: string } }>("/api/demands/:id/status", async (request) => {
-    const { status } = statusSchema.parse(request.body);
+    const { status, observation } = statusSchema.parse(request.body);
     const account = await requireCuratorFunction(
       db,
       request,
@@ -158,7 +185,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
         409,
         "A demanda tem interesses ativos e não pode voltar à triagem.",
       );
-      await mudarStatusDaDemanda(tx, demanda.id, status, account.id);
+      await mudarStatusDaDemanda(tx, demanda.id, status, account.id, observation);
       const dono = await contas.doSolicitante(tx, demanda.company);
       if (dono) {
         await notificar(
