@@ -31,7 +31,7 @@ Obrigatórias:
 | `MAIL_FROM`      | remetente em domínio verificado no Resend                        |
 
 Com valor já embutido no `Dockerfile`, não precisam ser definidas: `HOST=::`,
-`PORT=3001`, `TRUST_PROXY=1`, `PG_POOL_MAX=10`.
+`PORT=8080`, `TRUST_PROXY=1`, `PG_POOL_MAX=10`.
 
 **Não defina `HOST` no painel.** A imagem escuta em `::`, que é o que a rede
 privada do Railway exige: ela fala com o contêiner por IPv6, e um `0.0.0.0`
@@ -39,10 +39,12 @@ atende só IPv4 — a sonda de saúde recebe _connection refused_. Se copiar o
 endereço de algum painel, note que `[::]`, com colchetes, viraria nome de host
 (o código tolera, mas o valor certo é `::`).
 
-**Porta:** a imagem declara `EXPOSE 3001` e escuta em 3001. Se o healthcheck
-do Railway sondar outra porta (8080, por exemplo), alinhe os dois: ou aponte a
-porta do domínio em Settings → Networking para 3001, ou defina `PORT` igual à
-que ele sonda. O `index.ts` respeita `PORT`.
+**Não defina `PORT` no painel.** A imagem escuta em **8080**, que é a porta que
+o roteador do Railway sonda por padrão — e é só por isso que ela é 8080 aqui;
+em desenvolvimento a API continua em 3001. Se o domínio tiver uma _target
+port_ fixada em Settings → Networking, confira que é 8080: quando as duas
+divergem, o deploy fica saudável e o domínio devolve 502 _Application failed
+to respond_, porque o proxy bate numa porta onde ninguém escuta.
 
 Opcionais:
 

@@ -9,7 +9,9 @@ RUN pnpm build
 FROM node:24-bookworm-slim
 # HOST=:: escuta em IPv6 e, em pilha dupla, também atende IPv4. O Railway fala
 # com o contêiner pela rede privada em IPv6, onde 0.0.0.0 recusaria a conexão.
-ENV NODE_ENV=production HOST=:: PORT=3001 TRUST_PROXY=1 PG_POOL_MAX=10
+# PORT=8080 e EXPOSE 8080 acompanham a porta que o roteador do Railway sonda
+# por padrão. Em desenvolvimento a API segue em 3001, o padrão do index.ts.
+ENV NODE_ENV=production HOST=:: PORT=8080 TRUST_PROXY=1 PG_POOL_MAX=10
 WORKDIR /app
 RUN corepack enable && chown node:node /app
 COPY --from=build --chown=node:node /app/package.json /app/pnpm-lock.yaml ./
@@ -22,5 +24,5 @@ COPY --from=build --chown=node:node /app/build ./build
 COPY --from=build --chown=node:node /app/server/db/migrations ./build/migrations
 COPY --from=build --chown=node:node /app/scripts/pg-backup.mjs ./scripts/pg-backup.mjs
 USER node
-EXPOSE 3001
+EXPOSE 8080
 CMD ["node", "build/server.mjs"]
