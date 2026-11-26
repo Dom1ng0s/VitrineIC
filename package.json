@@ -24,6 +24,8 @@
     "db:down": "node scripts/pg-dev.mjs stop",
     "db:migrate": "tsx --env-file-if-exists=.env server/db/setup.ts",
     "db:seed": "tsx --env-file-if-exists=.env server/db/seed-cli.ts",
+    "db:backup": "node --env-file-if-exists=.env scripts/pg-backup.mjs backup",
+    "db:restore": "node --env-file-if-exists=.env scripts/pg-backup.mjs restore",
     "curator:create": "tsx --env-file-if-exists=.env server/create-curator.ts",
     "prepare": "husky"
   },

@@ -1,25 +1,33 @@
-# Ambiente gratuito de TESTES: SQLite é descartável. Leia docs/render.md.
-# Não declara discos, bancos gerenciados ou outros recursos pagos.
+# Produção em Render com PostgreSQL gerenciado.
+# Configure DATABASE_URL, APP_ORIGIN, RESEND_API_KEY e MAIL_FROM no painel do serviço.
 services:
   - type: web
     name: vitrineic
     runtime: node
-    plan: free
+    plan: starter
     buildCommand: pnpm install --frozen-lockfile --prod=false && pnpm build
     startCommand: node build/server.mjs
-    healthCheckPath: /api/health
+    healthCheckPath: /api/ready
     envVars:
       - key: NODE_ENV
         value: production
       - key: HOST
         value: 0.0.0.0
-      - key: DATABASE_PATH
-        value: /tmp/vitrineic/vitrineic.sqlite
+      - key: TRUST_PROXY
+        value: "1"
+      - key: PG_POOL_MAX
+        value: "10"
+      - key: DATABASE_URL
+        sync: false
+      - key: APP_ORIGIN
+        sync: false
       - key: DEMO_MODE
         value: "false"
-      # Sem provedor externo, confirmação e recuperação de e-mail ficam indisponíveis.
-      # Ao configurar Resend, atualize estes dois valores aqui também.
       - key: MAIL_MODE
-        value: disabled
+        value: resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM
+        sync: false
       - key: REQUIRE_VERIFIED_EMAIL
-        value: "false"
+        value: "true"

@@ -23,7 +23,7 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | 4    | Buracos de fluxo                  | [x]    |
 | 5    | Fachadas                          | [x]    |
 | 6    | Acessibilidade e qualidade de uso | [x]    |
-| 7    | Deploy e operação                 | [~]    |
+| 7    | Deploy e operação                 | [x]    |
 
 ---
 
@@ -221,16 +221,21 @@ erros (47 avisos de acessibilidade da fase 6) e builds do frontend e servidor.
 - [x] `style={{}}` estáticos migrados para utilities Tailwind (`eslint.config.js`
       elevado para `a11ySeverity = "error"` com zero erros de `jsx-a11y`)
 
-## Fase 7 — Deploy e operação
+## Fase 7 — Deploy e operação · fechada em 26/11/2026
 
-- [ ] `Dockerfile`: remover o `COPY` de `scripts/backup-database.mjs`
-      (inexistente, quebra o build) e o `DATABASE_PATH` de SQLite
-- [ ] `render.yaml`: `DATABASE_URL`, `APP_ORIGIN`, `MAIL_MODE` real; remover
-      `DATABASE_PATH`
-- [ ] `trustProxy` e rate limit com store externo (hoje, atrás do proxy, a cota
-      é compartilhada por todos)
-- [ ] Trava de concorrência na migração do boot (`pg_advisory_lock`)
-- [ ] CSP e `Permissions-Policy`
-- [ ] Backup automatizado, retenção e restauração ensaiada
-- [ ] Observabilidade: request-id, métricas, relatório de erro, `health` x `ready`
-- [ ] Dimensionar `pool.max` com o provedor
+- [x] `Dockerfile`: removidos `COPY` de `scripts/backup-database.mjs` e
+      `DATABASE_PATH` de SQLite; copiadas as migrações para `build/migrations`
+      e o script `scripts/pg-backup.mjs`
+- [x] `render.yaml`: configurado para PostgreSQL (`DATABASE_URL`, `APP_ORIGIN`,
+      `MAIL_MODE=resend`, `TRUST_PROXY`, `PG_POOL_MAX`, `healthCheckPath=/api/ready`),
+      sem `DATABASE_PATH`
+- [x] `trustProxy` configurável (`TRUST_PROXY`) e rate limit com store
+      distribuído em PostgreSQL (`008_rate_limit.sql`, `server/rate-limit-store.ts`)
+- [x] Trava de concorrência na migração do boot (`pg_advisory_lock`)
+- [x] `Content-Security-Policy` e `Permissions-Policy` em todas as respostas
+- [x] Backup automatizado (`scripts/pg-backup.mjs` com `pg_dump`, retenção e
+      `pg_restore`, scripts `db:backup` e `db:restore`)
+- [x] Observabilidade: `X-Request-Id`, métricas operacionais (`/api/metrics`
+      restrito à coordenação), erro estruturado com `requestId`, `/api/health`
+      (liveness) x `/api/ready` (readiness)
+- [x] `pool.max` parametrizado por `PG_POOL_MAX` (`server/config.ts` / `pool.ts`)

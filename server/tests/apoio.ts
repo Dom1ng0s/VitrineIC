@@ -43,6 +43,7 @@ const TABELAS = [
   "token_conta",
   "sessao",
   "meta_indicador",
+  "rate_limit_bucket",
   "conta",
 ];
 

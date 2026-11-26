@@ -101,6 +101,18 @@ test("saúde e indicadores respondem sem sessão", async (t) => {
   const health = await request(c.app, "GET", "/api/health");
   assert.equal(health.statusCode, 200);
   assert.deepEqual(health.json(), { status: "ok" });
+  assert.ok(health.headers["x-request-id"], "toda resposta devolve X-Request-Id");
+  assert.ok(health.headers["content-security-policy"], "resposta inclui CSP");
+  assert.ok(health.headers["permissions-policy"], "resposta inclui Permissions-Policy");
+
+  const ready = await request(c.app, "GET", "/api/ready");
+  assert.equal(ready.statusCode, 200);
+  assert.deepEqual(ready.json(), { status: "ready" });
+
+  assert.equal((await request(c.app, "GET", "/api/metrics", undefined, c.studentCookie)).statusCode, 403);
+  const metrics = await request(c.app, "GET", "/api/metrics", undefined, c.curatorCookie);
+  assert.equal(metrics.statusCode, 200);
+  assert.ok(typeof metrics.json<{ requests: number }>().requests === "number");
 
   const impact = await request(c.app, "GET", "/api/impact");
   assert.equal(impact.statusCode, 200);

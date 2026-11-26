@@ -31,10 +31,10 @@ export class Database {
   readonly pool: Pool;
   readonly sql: Sql;
 
-  constructor(connectionString: string) {
+  constructor(connectionString: string, max = 10) {
     this.pool = new Pool({
       connectionString,
-      max: 10,
+      max,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,
     });

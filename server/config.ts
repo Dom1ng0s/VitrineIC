@@ -16,6 +16,10 @@ export interface MailConfig {
 export interface Config {
   /** Conexão PostgreSQL. */
   databaseUrl: string;
+  /** Tamanho máximo do pool PostgreSQL, dimensionado ao provedor. */
+  pgPoolMax: number;
+  /** Política de proxy reverso do Fastify (`TRUST_PROXY`). */
+  trustProxy: boolean | number;
   origin: string;
   production: boolean;
   demo: boolean;
@@ -70,8 +74,27 @@ export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
     .min(1)
     .max(65535)
     .parse(env.SMTP_PORT ?? 587);
+  const pgPoolMax = z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .parse(env.PG_POOL_MAX ?? 10);
+  const rawTrustProxy = env.TRUST_PROXY?.trim();
+  const trustProxy: boolean | number =
+    rawTrustProxy === undefined
+      ? production
+        ? 1
+        : false
+      : rawTrustProxy === "true"
+        ? true
+        : rawTrustProxy === "false"
+          ? false
+          : z.coerce.number().int().min(0).max(10).parse(rawTrustProxy);
   return {
     databaseUrl: readDatabaseUrl(env, production),
+    pgPoolMax,
+    trustProxy,
     origin: new URL(origin).origin,
     production,
     demo: !production && env.DEMO_MODE === "true",
