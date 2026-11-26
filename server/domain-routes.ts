@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { Database } from "./db/pool";
 import type { Config } from "./config";
-import { requireAccount, requireVerifiedAccount } from "./security";
+import { requireAccount, requireCuratorFunction, requireVerifiedAccount } from "./security";
 import { ensure } from "./errors";
 import { snapshot } from "./db/snapshot";
 import { contas, demandas, estudantes, interesses, solicitantes } from "./db/repositories";
@@ -134,8 +134,13 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
   });
 
   app.patch<{ Params: { id: string } }>("/api/demands/:id/status", async (request) => {
-    const account = await requireVerifiedAccount(db, request, config, "curator");
     const { status } = statusSchema.parse(request.body);
+    const account = await requireCuratorFunction(
+      db,
+      request,
+      status === "aprovada" || status === "rejeitada" ? ["coordenacao"] : ["curador", "coordenacao"],
+      config,
+    );
     await db.transaction(async (tx) => {
       const demanda = await demandas.porId(tx, request.params.id);
       ensure(demanda, 404, "Demanda não encontrada.");
@@ -173,8 +178,14 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
     await db.transaction(async (tx) => {
       const demanda = await demandas.porId(tx, request.params.id);
       ensure(demanda, 404, "Demanda não encontrada.");
+      const isCoordinator =
+        account.role === "curator"
+          ? !!(await tx.row("SELECT 1 FROM curador WHERE conta_id = $1 AND funcao_codigo = 'coordenacao' AND ativo", [
+              account.id,
+            ]))
+          : false;
       ensure(
-        account.role === "curator" ||
+        isCoordinator ||
           (account.role === "requester" && account.profileId === demanda.company && demanda.status === "nova"),
         403,
         "Você não pode excluir esta demanda.",
@@ -190,7 +201,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
   });
 
   app.get<{ Params: { id: string } }>("/api/demands/:id/ranking", async (request) => {
-    await requireAccount(db, request, "curator");
+    await requireCuratorFunction(db, request, ["curador", "coordenacao", "comite"]);
     const demanda = await demandas.porId(db.sql, request.params.id);
     ensure(demanda, 404, "Demanda não encontrada.");
     // Só o que o ranking precisa: nada de montar o estado inteiro para descartá-lo.
@@ -216,7 +227,12 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
       ensure(
         (data.origin === "candidatura" && account.role === "student" && account.profileId === estudante.id) ||
           (data.origin === "convite" && account.role === "requester" && account.profileId === demanda.company) ||
-          (data.origin === "sugestao" && account.role === "curator"),
+          (data.origin === "sugestao" &&
+            account.role === "curator" &&
+            !!(await tx.row(
+              "SELECT 1 FROM curador WHERE conta_id = $1 AND funcao_codigo IN ('curador', 'coordenacao') AND ativo",
+              [account.id],
+            ))),
         403,
         "Você não pode criar este interesse.",
       );

@@ -95,6 +95,13 @@ export async function salvarConta(sql: Sql, conta: StoredAccount) {
       paraTimestamp(conta.createdAt) || null,
     ],
   );
+  if (conta.role === "curator") {
+    await sql.run(
+      `INSERT INTO curador (conta_id, funcao_codigo) VALUES ($1, 'coordenacao')
+       ON CONFLICT (conta_id) DO NOTHING`,
+      [conta.id],
+    );
+  }
 }
 
 /** Grava o perfil e repõe as coleções. O nome fica em `conta`, não aqui. */

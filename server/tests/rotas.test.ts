@@ -275,3 +275,39 @@ test("transições de status recusadas", async (t) => {
   );
   assert.equal(inexistente.statusCode, 404);
 });
+
+test("funções da curadoria separam triagem, decisão e leitura", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = (await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie)).json<{
+    demand: Demand;
+  }>().demand;
+  const status = (valor: string) =>
+    request(c.app, "PATCH", `/api/demands/${demand.id}/status`, { status: valor }, c.curatorCookie);
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'comite' WHERE conta_id = 'curator-rotas'");
+  assert.equal((await status("em_analise")).statusCode, 403);
+  assert.equal((await status("aprovada")).statusCode, 403);
+  assert.equal(
+    (await request(c.app, "GET", `/api/demands/${demand.id}/ranking`, undefined, c.curatorCookie)).statusCode,
+    200,
+  );
+  assert.equal(
+    (await request(c.app, "DELETE", `/api/demands/${demand.id}`, undefined, c.curatorCookie)).statusCode,
+    403,
+  );
+
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'curador' WHERE conta_id = 'curator-rotas'");
+  assert.equal((await status("em_analise")).statusCode, 200);
+  assert.equal((await status("aprovada")).statusCode, 403);
+  assert.equal(
+    (await request(c.app, "DELETE", `/api/demands/${demand.id}`, undefined, c.curatorCookie)).statusCode,
+    403,
+  );
+
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'coordenacao' WHERE conta_id = 'curator-rotas'");
+  assert.equal((await status("aprovada")).statusCode, 200);
+  assert.equal(
+    (await request(c.app, "DELETE", `/api/demands/${demand.id}`, undefined, c.curatorCookie)).statusCode,
+    200,
+  );
+});

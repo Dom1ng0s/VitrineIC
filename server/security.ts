@@ -55,6 +55,25 @@ export async function requireVerifiedAccount(db: Database, request: FastifyReque
   return account;
 }
 
+export type CuratorFunction = "curador" | "coordenacao" | "comite";
+
+export async function requireCuratorFunction(
+  db: Database,
+  request: FastifyRequest,
+  allowed: readonly CuratorFunction[],
+  config?: Config,
+) {
+  const account = config
+    ? await requireVerifiedAccount(db, request, config, "curator")
+    : await requireAccount(db, request, "curator");
+  const functionRow = await db.sql.row<{ funcao_codigo: CuratorFunction; ativo: boolean }>(
+    "SELECT funcao_codigo, ativo FROM curador WHERE conta_id = $1",
+    [account.id],
+  );
+  ensure(functionRow?.ativo && allowed.includes(functionRow.funcao_codigo), 403, "Sua função não permite esta ação.");
+  return account;
+}
+
 export async function clearSession(db: Database, request: FastifyRequest, reply: FastifyReply) {
   const token = request.cookies[COOKIE];
   if (token) await db.sql.run("DELETE FROM sessao WHERE token_hash = $1", [tokenHash(token)]);
