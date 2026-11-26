@@ -31,7 +31,7 @@ export const STUDENTS: Student[] = [
         description:
           "Pipeline de ML para identificação de comportamentos suspeitos em tráfego de rede, usando autoencoders e análise estatística de séries temporais.",
         year: "2026",
-        area: "Redes & Sistemas",
+        area: "Redes & Segurança",
       },
       {
         id: "PRJ-002",
@@ -41,7 +41,7 @@ export const STUDENTS: Student[] = [
         description:
           "Linguagem de domínio específico para expressão de pipelines bioinformáticos, com compilação para bytecode executável.",
         year: "2026",
-        area: "Linguagens",
+        area: "Engenharia de Software",
       },
     ],
     github: "github.com/rafaelms",
@@ -74,7 +74,7 @@ export const STUDENTS: Student[] = [
         description:
           "Ferramenta de coleta e visualização de métricas de sustentabilidade adaptada à realidade de pequenas e médias empresas brasileiras.",
         year: "2025",
-        area: "Sistemas Web",
+        area: "Sistemas Web / Mobile",
       },
     ],
     github: "github.com/isadoralc",
@@ -107,7 +107,7 @@ export const STUDENTS: Student[] = [
         description:
           "Compilador de linguagem projetada para ensino introdutório, com diagnósticos de erro voltados a quem está aprendendo a programar.",
         year: "2025",
-        area: "Linguagens",
+        area: "Engenharia de Software",
       },
     ],
     github: "github.com/brunoty",
@@ -140,7 +140,7 @@ export const STUDENTS: Student[] = [
         description:
           "Sistema de acompanhamento de exercícios de reabilitação por visão computacional, com feedback em tempo real para o paciente.",
         year: "2026",
-        area: "Robótica",
+        area: "Robótica / Embarcados",
       },
     ],
     github: "github.com/fernandaob",
@@ -171,7 +171,7 @@ export const STUDENTS: Student[] = [
         description:
           "Modelo de previsão de falhas em equipamentos de rede a partir de histórico de logs e métricas de desempenho.",
         year: "2025",
-        area: "Redes & Sistemas",
+        area: "Redes & Segurança",
       },
     ],
     github: "github.com/lucashp",

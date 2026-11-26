@@ -67,6 +67,9 @@ export function AvailableStudents() {
   const [selectedDemand, setSelectedDemand] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 9;
 
   const myOpenDemands = demands.filter(
     (d) => d.company === requester && (d.status === "aprovada" || d.status === "contato_liberado"),
@@ -285,22 +288,76 @@ export function AvailableStudents() {
     );
   }
 
+  const visibleStudents = students.filter(isProfileVisible);
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? visibleStudents.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.course.toLowerCase().includes(q) ||
+          s.skills.some((sk) => sk.toLowerCase().includes(q)),
+      )
+    : visibleStudents;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <main className={`${PAGE} pb-20`}>
       <PageHead
         eyebrow="Talentos"
         title="Estudantes disponíveis."
         lead="Consulte os perfis e convide quem combina com as suas demandas. O contato é liberado quando o estudante aceitar."
+        aside={
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
+            placeholder="Buscar por nome, curso ou tecnologia"
+            aria-label="Buscar estudantes por nome, curso ou tecnologia"
+            className="vt-input h-11! w-full md:w-[288px]"
+          />
+        }
       />
 
-      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {students
-          .filter(isProfileVisible)
-          .slice(0, 10)
-          .map((s) => (
+      {paged.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-navy/20 p-12 text-center font-sans text-sm text-navy/55">
+          Nenhum estudante encontrado com esse filtro.
+        </p>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {paged.map((s) => (
             <StudentCard key={s.id} student={s} inProject={!!inProject[s.id]} onClick={() => setSelectedStudent(s)} />
           ))}
-      </div>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <nav aria-label="Paginação de estudantes" className="mt-10 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            disabled={safePage <= 1}
+            onClick={() => setPage(safePage - 1)}
+            className="vt-btn vt-btn-secondary disabled:opacity-40"
+          >
+            Anterior
+          </button>
+          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-navy/65">
+            Página {safePage} de {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={safePage >= totalPages}
+            onClick={() => setPage(safePage + 1)}
+            className="vt-btn vt-btn-secondary disabled:opacity-40"
+          >
+            Próxima
+          </button>
+        </nav>
+      )}
     </main>
   );
 }

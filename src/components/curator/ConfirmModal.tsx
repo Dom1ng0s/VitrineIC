@@ -87,8 +87,11 @@ export function ConfirmModal({
       )}
 
       <div className="mt-6">
-        <Label>Justificativa (obrigatória)</Label>
+        <label htmlFor="confirm-justification">
+          <Label>Justificativa (obrigatória)</Label>
+        </label>
         <textarea
+          id="confirm-justification"
           rows={3}
           value={note}
           onChange={(e) => setNote(e.target.value)}

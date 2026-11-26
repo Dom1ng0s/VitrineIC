@@ -20,7 +20,11 @@ let state: VitrineState = {
   auth: { emailEnabled: false, verificationRequired: false },
   impact: { released: 0, projects: 0, demands: 0, students: 0, period: "", targets: {}, byArea: [], byCourse: [] },
 };
-let connection = { ready: false, pending: 0, error: "" };
+let connection: { ready: boolean; pending: number; error: string; errorAction?: string } = {
+  ready: false,
+  pending: 0,
+  error: "",
+};
 const listeners = new Set<() => void>();
 const subscribe = (listener: () => void) => {
   listeners.add(listener);
@@ -39,59 +43,84 @@ export function replaceState(next: VitrineState) {
   emit();
 }
 export function clearError() {
-  connection = { ...connection, error: "" };
+  connection = { ...connection, error: "", errorAction: undefined };
   emit();
 }
 
-let queue: Promise<unknown> = Promise.resolve();
-/** Serializa respostas para impedir que uma leitura antiga sobrescreva uma alteração. */
-export function runAction<T>(action: () => Promise<T>): Promise<T | undefined> {
-  connection = { ...connection, pending: connection.pending + 1, error: "" };
+const queues = new Map<string, Promise<unknown>>();
+export interface ActionOptions {
+  /** Chave de recurso para serializar apenas operações concorrentes no mesmo recurso. */
+  key?: string;
+  /** Nome legível da ação para identificar o erro exibido ao usuário. */
+  label?: string;
+  /** Permite cancelar a atualização de erro/estado no unmount. */
+  signal?: AbortSignal;
+}
+
+/** Serializa respostas por recurso para impedir que uma leitura antiga sobrescreva uma alteração. */
+export function runAction<T>(action: () => Promise<T>, options: ActionOptions = {}): Promise<T | undefined> {
+  const queueKey = options.key ?? "global";
+  connection = { ...connection, pending: connection.pending + 1, error: "", errorAction: undefined };
   emit();
-  const task = queue
-    .then(action)
+  const prev = queues.get(queueKey) ?? Promise.resolve();
+  const task = prev
+    .then(() => {
+      if (options.signal?.aborted) return undefined;
+      return action();
+    })
     .catch((error: unknown) => {
+      if (options.signal?.aborted) return undefined;
+      const msg = error instanceof Error ? error.message : "Não foi possível salvar. Tente novamente.";
       connection = {
         ...connection,
-        error: error instanceof Error ? error.message : "Não foi possível salvar. Tente novamente.",
+        error: options.label ? `${options.label}: ${msg}` : msg,
+        errorAction: options.label,
       };
       return undefined;
     })
     .finally(() => {
-      connection = { ...connection, pending: connection.pending - 1 };
+      connection = { ...connection, pending: Math.max(0, connection.pending - 1) };
+      if (queues.get(queueKey) === task) queues.delete(queueKey);
       emit();
     });
-  queue = task;
+  queues.set(queueKey, task);
   return task;
 }
-export function refreshState() {
-  return runAction(async () => {
-    let offset = 0;
-    let combined: VitrineState | undefined;
-    do {
-      const page = await api<VitrineState>(`/state?offset=${offset}&limit=100`);
-      combined = combined
-        ? {
-            ...combined,
-            students: [...combined.students, ...page.students],
-            companies: [...combined.companies, ...page.companies],
-            demands: [...combined.demands, ...page.demands],
-            interests: [...combined.interests, ...page.interests],
-            inProject: { ...combined.inProject, ...page.inProject },
-            pagination: page.pagination,
-          }
-        : page;
-      offset = page.pagination?.nextOffset ?? 0;
-    } while (offset > 0);
-    if (combined) replaceState(combined);
-    connection = { ...connection, ready: true };
-  });
+export function refreshState(signal?: AbortSignal) {
+  return runAction(
+    async () => {
+      let offset = 0;
+      let combined: VitrineState | undefined;
+      do {
+        const page = await api<VitrineState>(`/state?offset=${offset}&limit=100`, { signal });
+        combined = combined
+          ? {
+              ...combined,
+              students: [...combined.students, ...page.students],
+              companies: [...combined.companies, ...page.companies],
+              demands: [...combined.demands, ...page.demands],
+              interests: [...combined.interests, ...page.interests],
+              inProject: { ...combined.inProject, ...page.inProject },
+              pagination: page.pagination,
+            }
+          : page;
+        offset = page.pagination?.nextOffset ?? 0;
+      } while (offset > 0);
+      if (combined && !signal?.aborted) replaceState(combined);
+      connection = { ...connection, ready: true };
+    },
+    { key: "state", signal },
+  );
 }
-export async function mutate(path: string, method: string, body?: unknown) {
-  return runAction(async () => {
-    replaceState(await api<VitrineState>(path, { method, body }));
-    return true;
-  });
+export async function mutate(path: string, method: string, body?: unknown, label?: string) {
+  const resource = path.split("/").slice(0, 3).join("/") || "global";
+  return runAction(
+    async () => {
+      replaceState(await api<VitrineState>(path, { method, body }));
+      return true;
+    },
+    { key: resource, label },
+  );
 }
 export const findStudent = (id: string) => state.students.find((s) => s.id === id);
 export function allProjects(students: Student[] = state.students) {

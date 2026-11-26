@@ -47,7 +47,7 @@ export function CuratorSignIn({ onSignedIn, onBack }: { onSignedIn: () => void; 
             Entrar como curador.
           </h2>
           <SignInForm
-            role="curator"
+            accountRole="curator"
             emailLabel="E-mail"
             emailPlaceholder={`curadoria@${INSTITUTION.domain}`}
             submitLabel="Acessar curadoria"

@@ -16,11 +16,13 @@ import prettier from "eslint-config-prettier";
  * erro agora deixaria o CI vermelho desde o primeiro dia. Ao fechar a fase 6,
  * troque `a11ySeverity` para "error" e o lint passa a barrar regressão.
  */
-const a11ySeverity = "warn";
+const a11ySeverity = "error";
 
-/** Recommended do jsx-a11y com a severidade acima no lugar da original. */
+/** Recommended do jsx-a11y com a severidade acima (preservando regras desativadas como label-has-for). */
 const a11yRules = Object.fromEntries(
-  Object.keys(jsxA11y.flatConfigs.recommended.rules ?? {}).map((rule) => [rule, a11ySeverity]),
+  Object.entries(jsxA11y.flatConfigs.recommended.rules ?? {})
+    .filter(([, cfg]) => cfg !== "off" && cfg !== 0)
+    .map(([rule, cfg]) => [rule, Array.isArray(cfg) ? [a11ySeverity, ...cfg.slice(1)] : a11ySeverity]),
 );
 
 export default tseslint.config(

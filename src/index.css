@@ -89,6 +89,29 @@ body.modal-open {
   overflow: hidden;
 }
 
+:focus-visible {
+  outline: 2px solid #0b2545;
+  outline-offset: 2px;
+}
+
+.vt-skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #0b2545;
+  color: #f3f1ec;
+  font-size: 13px;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.vt-skip-link:focus {
+  top: 16px;
+}
+
 /* =========================================
    Tipografia
    Títulos: Inter Tight, peso médio e tracking negativo.

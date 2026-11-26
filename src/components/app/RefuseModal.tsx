@@ -18,10 +18,14 @@ export function RefuseModal({
 
   return (
     <Modal eyebrow="Recusar" title={title} onClose={onClose}>
-      <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
+      <label
+        htmlFor="refuse-reason"
+        className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65"
+      >
         Motivo (opcional)
       </label>
       <textarea
+        id="refuse-reason"
         rows={3}
         value={reason}
         onChange={(e) => setReason(e.target.value)}

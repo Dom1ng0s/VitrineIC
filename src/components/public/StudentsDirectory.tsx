@@ -22,9 +22,12 @@ function SearchIcon() {
   );
 }
 
+const PAGE_SIZE = 9;
+
 /** Diretório público de estudantes, com busca por nome, curso ou tecnologia. */
 export function StudentsDirectory({ onOpenProfile }: { onOpenProfile: (id: string) => void }) {
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const { inProject, students } = useVitrine();
   const visible = students.filter(isProfileVisible);
 
@@ -37,6 +40,9 @@ export function StudentsDirectory({ onOpenProfile }: { onOpenProfile: (id: strin
           s.skills.some((sk) => sk.toLowerCase().includes(q)),
       )
     : visible;
+  const totalPages = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paged = shown.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
     <main className={`${PAGE} pb-20 md:pb-28`}>
@@ -50,7 +56,10 @@ export function StudentsDirectory({ onOpenProfile }: { onOpenProfile: (id: strin
             <input
               type="search"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
               placeholder="Buscar por nome ou tecnologia"
               aria-label="Buscar estudantes por nome, curso ou tecnologia"
               className="h-11 w-full rounded-[10px] border border-navy/15 bg-white pr-4 pl-10 font-sans text-sm text-navy outline-none transition-colors placeholder:text-navy/55 focus:border-navy"
@@ -59,13 +68,13 @@ export function StudentsDirectory({ onOpenProfile }: { onOpenProfile: (id: strin
         }
       />
 
-      {shown.length === 0 ? (
+      {paged.length === 0 ? (
         <p className="py-20 text-center font-mono text-[11px] uppercase tracking-[0.08em] text-navy/65">
           Nenhum estudante encontrado
         </p>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {shown.map((student) => (
+          {paged.map((student) => (
             <button
               key={student.id}
               onClick={() => onOpenProfile(student.id)}
@@ -103,6 +112,30 @@ export function StudentsDirectory({ onOpenProfile }: { onOpenProfile: (id: strin
             </button>
           ))}
         </div>
+      )}
+
+      {totalPages > 1 && (
+        <nav aria-label="Paginação do diretório" className="mt-10 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            disabled={safePage <= 1}
+            onClick={() => setPage(safePage - 1)}
+            className="vt-btn vt-btn-secondary disabled:opacity-40"
+          >
+            Anterior
+          </button>
+          <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-navy/65">
+            Página {safePage} de {totalPages}
+          </span>
+          <button
+            type="button"
+            disabled={safePage >= totalPages}
+            onClick={() => setPage(safePage + 1)}
+            className="vt-btn vt-btn-secondary disabled:opacity-40"
+          >
+            Próxima
+          </button>
+        </nav>
       )}
     </main>
   );

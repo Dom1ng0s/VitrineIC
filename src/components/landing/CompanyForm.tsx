@@ -5,7 +5,7 @@ import type { Role } from "@/types";
 export function CompanyForm({ onSignedIn }: { onSignedIn: (role: Role) => void }) {
   return (
     <SignInForm
-      role="requester"
+      accountRole="requester"
       emailLabel="E-mail de contato"
       emailPlaceholder="nome@organizacao.com.br"
       onSignedIn={onSignedIn}

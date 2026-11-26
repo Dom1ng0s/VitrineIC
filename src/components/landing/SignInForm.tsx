@@ -11,7 +11,7 @@ import type { Role } from "@/types";
  * curadoria. `checkEmail` é a regra do e-mail do papel (UFAL ou qualquer um).
  */
 export function SignInForm({
-  role,
+  accountRole,
   emailLabel,
   emailPlaceholder,
   checkEmail = emailRule,
@@ -19,7 +19,7 @@ export function SignInForm({
   onSignedIn,
   dark = false,
 }: {
-  role: Role;
+  accountRole: Role;
   emailLabel: string;
   emailPlaceholder: string;
   checkEmail?: (v: string) => string | null;
@@ -51,9 +51,9 @@ export function SignInForm({
       if (result) setMessage(result.message);
       return;
     }
-    const result = await signIn(values.email, values.password, role);
+    const result = await signIn(values.email, values.password, accountRole);
     if (result.ok) onSignedIn(result.account.role);
-    else setFailure(`${result.error} Confira os dados${role === "curator" ? "." : " ou crie uma conta."}`);
+    else setFailure(`${result.error} Confira os dados${accountRole === "curator" ? "." : " ou crie uma conta."}`);
   };
 
   return (

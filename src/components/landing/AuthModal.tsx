@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CompanyForm } from "./CompanyForm";
 import { RequesterSignUp } from "./RequesterSignUp";
 import { StudentForm } from "./StudentForm";
@@ -8,6 +8,9 @@ import { Eyebrow } from "@/components/public/Eyebrow";
 import { signInDemo } from "@/lib/auth";
 import { useVitrine } from "@/lib/store";
 import type { Role } from "@/types";
+
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 type Tab = "student" | "requester";
 
@@ -38,16 +41,37 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
   const [demoError, setDemoError] = useState("");
   const [tab, setTab] = useState<Tab>("student");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const previous = document.activeElement as HTMLElement | null;
     document.body.classList.add("modal-open");
+    const first = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+    (first ?? dialogRef.current)?.focus();
+
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !dialogRef.current) return;
+      const items = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (items.length === 0) return;
+      const firstEl = items[0];
+      const lastEl = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === firstEl) {
+        e.preventDefault();
+        lastEl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastEl) {
+        e.preventDefault();
+        firstEl.focus();
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => {
       document.body.classList.remove("modal-open");
       window.removeEventListener("keydown", handleKey);
+      previous?.focus();
     };
   }, [onClose]);
 
@@ -60,17 +84,21 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
   const copy = SIGN_UP_COPY[tab];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex overflow-y-auto bg-navy/55 p-4 backdrop-blur-[2px]"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <div className="fixed inset-0 z-50 flex overflow-y-auto p-4">
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Fechar janela de acesso"
+        onClick={onClose}
+        className="fixed inset-0 bg-navy/55 backdrop-blur-[2px]"
+      />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-title"
-        className={`relative m-auto w-full rounded-3xl bg-white p-6 shadow-[0_40px_80px_-24px_rgba(11,37,69,0.45)] sm:p-8 ${
+        tabIndex={-1}
+        className={`relative z-10 m-auto w-full rounded-3xl bg-white p-6 shadow-[0_40px_80px_-24px_rgba(11,37,69,0.45)] sm:p-8 ${
           mode === "signup" ? "max-w-[560px]" : "max-w-[440px]"
         }`}
       >

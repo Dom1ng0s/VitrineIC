@@ -84,6 +84,7 @@ export function FileDrop({
       <input
         ref={inputRef}
         type="file"
+        aria-label={title}
         accept={accept}
         multiple
         className="hidden"

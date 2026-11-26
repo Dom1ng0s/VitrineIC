@@ -50,8 +50,7 @@ export function InputField({
         autoComplete={autoComplete}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="vt-input"
-        style={{ height: 44 }}
+        className="vt-input h-11!"
         {...invalidProps(id, error)}
       />
       {error ? <FieldError id={id}>{error}</FieldError> : hint ? <FieldHint>{hint}</FieldHint> : null}
@@ -90,8 +89,7 @@ export function SelectField({
           value={value}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
-          className="vt-input"
-          style={{ height: 44, appearance: "none", cursor: disabled ? "default" : "pointer", paddingRight: 40 }}
+          className={`vt-input h-11! appearance-none pr-10! ${disabled ? "cursor-default" : "cursor-pointer"}`}
           {...invalidProps(id, error)}
         >
           <option value="">Selecione...</option>

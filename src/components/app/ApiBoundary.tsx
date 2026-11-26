@@ -5,21 +5,25 @@ import { AccountSecurity } from "./AccountSecurity";
 export function ApiBoundary({ children }: { children: ReactNode }) {
   const { ready, pending, error } = useConnection();
   useEffect(() => {
+    const controller = new AbortController();
     try {
       localStorage.removeItem("vitrineic:v1");
     } catch {
       /* navegador sem storage */
     }
-    void refreshState();
+    void refreshState(controller.signal);
+    return () => controller.abort();
   }, []);
   useEffect(() => {
     if (!ready || pending) return;
+    const controller = new AbortController();
     const refresh = () => {
-      if (document.visibilityState === "visible") void refreshState();
+      if (document.visibilityState === "visible") void refreshState(controller.signal);
     };
     const timer = window.setInterval(refresh, 30_000);
     window.addEventListener("focus", refresh);
     return () => {
+      controller.abort();
       window.clearInterval(timer);
       window.removeEventListener("focus", refresh);
     };
@@ -56,10 +60,8 @@ export function ApiBoundary({ children }: { children: ReactNode }) {
           Sincronizando…
         </div>
       )}
-      <fieldset disabled={pending > 0} className="m-0 min-w-0 border-0 p-0" aria-busy={pending > 0}>
-        <AccountSecurity />
-        {children}
-      </fieldset>
+      <AccountSecurity />
+      {children}
     </>
   );
 }

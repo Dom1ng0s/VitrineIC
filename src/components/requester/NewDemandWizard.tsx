@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input, Label, SelectField } from "./ui";
 import { ArrowIcon } from "@/components/app/Icons";
 import { StepIndicator } from "@/components/app/StepIndicator";
@@ -28,6 +28,16 @@ export function NewDemandWizard({
   initialDemand?: Demand;
 }) {
   const [step, setStep] = useState(0);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    headingRef.current?.focus();
+  }, [step]);
   const [form, setForm] = useState(() => ({
     title: initialDemand?.title ?? "",
     problem: initialDemand?.description ?? "",
@@ -232,25 +242,41 @@ export function NewDemandWizard({
       <StepIndicator steps={WIZARD_STEPS} current={step} />
 
       <section className="vt-card p-6 md:p-10">
+        <p className="sr-only" aria-live="polite">
+          Passo {step + 1} de {WIZARD_STEPS.length}: {TITLES[step]}
+        </p>
         <Eyebrow>Passo {String(step + 1).padStart(2, "0")}</Eyebrow>
-        <h1 className="mt-4 mb-8 font-display text-[28px] font-medium leading-[1.1] tracking-[-0.025em] text-navy md:text-[36px]">
+        <h1
+          ref={headingRef}
+          tabIndex={-1}
+          className="mt-4 mb-8 font-display text-[28px] font-medium leading-[1.1] tracking-[-0.025em] text-navy outline-none md:text-[36px]"
+        >
           {TITLES[step]}
         </h1>
 
-        {fieldsBystep[step]}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void next();
+          }}
+          noValidate
+        >
+          {fieldsBystep[step]}
 
-        <div className="mt-10 flex items-center justify-between border-t border-navy/8 pt-6">
-          <button
-            onClick={() => goTo(Math.max(0, step - 1))}
-            disabled={step === 0}
-            className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy disabled:text-navy/30"
-          >
-            Voltar
-          </button>
-          <button onClick={next} className="vt-btn vt-btn-primary">
-            {step === 3 ? (initialDemand ? "Salvar alterações" : "Enviar demanda") : "Continuar"} <ArrowIcon />
-          </button>
-        </div>
+          <div className="mt-10 flex items-center justify-between border-t border-navy/8 pt-6">
+            <button
+              type="button"
+              onClick={() => goTo(Math.max(0, step - 1))}
+              disabled={step === 0}
+              className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy disabled:text-navy/30"
+            >
+              Voltar
+            </button>
+            <button type="submit" className="vt-btn vt-btn-primary">
+              {step === 3 ? (initialDemand ? "Salvar alterações" : "Enviar demanda") : "Continuar"} <ArrowIcon />
+            </button>
+          </div>
+        </form>
       </section>
     </main>
   );

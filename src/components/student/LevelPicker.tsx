@@ -21,6 +21,7 @@ export function LevelPicker({
   return (
     <div
       role="radiogroup"
+      tabIndex={-1}
       aria-label={`Proficiência em ${name}`}
       className="flex flex-wrap gap-1.5"
       onKeyDown={(e) => {

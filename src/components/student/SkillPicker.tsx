@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 import { LevelPicker } from "./LevelPicker";
 import { Label } from "./ui";
 import {
@@ -73,6 +73,7 @@ export function SkillPicker({
   const [highlight, setHighlight] = useState(0);
   const [showCatalog, setShowCatalog] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
 
   // `value` é um array novo a cada render, então a chave de texto é o que
   // identifica a seleção. Nome de competência não contém "|", logo o
@@ -145,6 +146,11 @@ export function SkillPicker({
         </svg>
         <input
           ref={inputRef}
+          role="combobox"
+          aria-expanded={Boolean(query && (results.length > 0 || canAddCustom))}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={query && results[highlight] ? `${listboxId}-opt-${highlight}` : undefined}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -153,19 +159,25 @@ export function SkillPicker({
           onKeyDown={onKeyDown}
           placeholder="Buscar competência (ex.: Python, React, Docker)"
           aria-label="Buscar competência"
-          className="vt-input"
-          // .vt-input fica fora das camadas do Tailwind; o respiro da lupa vai inline.
-          style={{ paddingLeft: 40, height: 44 }}
+          className="vt-input h-11! pl-10!"
         />
       </div>
 
       {/* ── Sugestões da busca: no máximo oito, sem rolagem ── */}
       {query && (results.length > 0 || canAddCustom) && (
-        <div className="mt-2 flex flex-col rounded-xl border border-navy/10 bg-white p-1 shadow-[0_12px_32px_-12px_rgba(11,37,69,0.25)]">
+        <div
+          id={listboxId}
+          role="listbox"
+          aria-label="Sugestões de competências"
+          className="mt-2 flex flex-col rounded-xl border border-navy/10 bg-white p-1 shadow-[0_12px_32px_-12px_rgba(11,37,69,0.25)]"
+        >
           {results.map((s, i) => (
             <button
               key={s.name}
+              id={`${listboxId}-opt-${i}`}
               type="button"
+              role="option"
+              aria-selected={i === highlight}
               onMouseEnter={() => setHighlight(i)}
               onClick={() => add(s.name)}
               className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left transition-colors ${
@@ -187,6 +199,8 @@ export function SkillPicker({
           {canAddCustom && (
             <button
               type="button"
+              role="option"
+              aria-selected={results.length === 0}
               onClick={() => add(canonical)}
               className="flex w-full items-center justify-between gap-3 rounded-lg bg-red/5 px-3 py-2 text-left"
             >

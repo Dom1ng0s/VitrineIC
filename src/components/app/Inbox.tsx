@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { comoDecorrido } from "@/lib/datas";
 import { markRead, markAllRead, replyNotification } from "@/lib/store";
 import type { Notification } from "@/types/api";
 import { FilterPill } from "./FilterPill";
@@ -54,7 +55,7 @@ export function Inbox({ initial, typeColors }: { initial: InboxMessage[]; typeCo
               {selected.project}
             </h1>
             <p className="font-sans text-sm text-navy/60">
-              Enviado por <span className="text-navy">{selected.from}</span> · {selected.time}
+              Enviado por <span className="text-navy">{selected.from}</span> · {comoDecorrido(selected.time)}
             </p>
           </div>
 
@@ -64,10 +65,14 @@ export function Inbox({ initial, typeColors }: { initial: InboxMessage[]; typeCo
 
           {selected.canReply && (
             <div className="border-t border-navy/8 pt-6">
-              <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
+              <label
+                htmlFor="inbox-reply"
+                className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65"
+              >
                 Responder mensagem
               </label>
               <textarea
+                id="inbox-reply"
                 rows={4}
                 className="vt-input"
                 placeholder="Escreva sua resposta..."

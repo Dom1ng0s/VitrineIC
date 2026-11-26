@@ -218,6 +218,8 @@ export function Matchmaking({
               {sorted.length} candidatos · <span className="text-red">vermelho</span> = skill da demanda
             </p>
             <input
+              type="search"
+              aria-label="Filtrar candidatos por nome ou skill"
               placeholder="Filtrar por nome ou skill..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -253,7 +255,9 @@ export function Matchmaking({
               ))}
             {!loading && !rankError && sorted.length === 0 && (
               <p className="rounded-2xl border border-dashed border-navy/20 p-10 text-center font-sans text-sm text-navy/55">
-                Nenhum estudante encontrado com esse filtro.
+                {ranked.length === 0
+                  ? "Nenhum estudante com perfil visível na vitrine ainda."
+                  : "Nenhum estudante encontrado com esse filtro."}
               </p>
             )}
           </div>

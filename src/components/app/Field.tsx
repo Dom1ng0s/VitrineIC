@@ -1,21 +1,7 @@
-import type * as React from "react";
+import { useId, type ReactNode } from "react";
 import { FieldError, FieldHint, invalidProps } from "./FieldError";
 
-/**
- * Campos de formulário das áreas logadas.
- *
- * Antes cada área tinha a própria cópia em `ui.tsx`: `Input` era idêntico no
- * estudante e no solicitante, `Select` e `SelectField` eram o mesmo campo com
- * nomes diferentes, e o `Label` da curadoria tinha outro tom de navy sem que
- * ninguém tivesse decidido isso. Agora há uma implementação só, e o `ui.tsx`
- * de cada área reexporta daqui.
- *
- * Os campos aceitam `id` opcional por herança do protótipo; sem ele não há
- * `label` ligado nem mensagem de erro acessível. Tornar o `id` obrigatório é
- * a fase 6 do plano de completude.
- */
-
-export function Label({ children, light }: { children: React.ReactNode; light?: boolean }) {
+export function Label({ children, light }: { children: ReactNode; light?: boolean }) {
   return (
     <span
       className={`mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] ${light ? "text-offwhite/60" : "text-navy/65"}`}
@@ -25,15 +11,13 @@ export function Label({ children, light }: { children: React.ReactNode; light?: 
   );
 }
 
-/** Rótulo ligado ao campo quando há `id`; solto quando não há. */
-function CampoLabel({ label, id, light }: { label?: string; id?: string; light?: boolean }) {
+/** Rótulo sempre ligado ao campo via `htmlFor`. */
+function CampoLabel({ label, id, light }: { label?: string; id: string; light?: boolean }) {
   if (!label) return null;
-  return id ? (
+  return (
     <label htmlFor={id}>
       <Label light={light}>{label}</Label>
     </label>
-  ) : (
-    <Label light={light}>{label}</Label>
   );
 }
 
@@ -55,7 +39,7 @@ export function Input({
   id?: string;
   /** Mensagem de erro; liga `aria-invalid` e `aria-describedby`. */
   error?: string;
-  hint?: React.ReactNode;
+  hint?: ReactNode;
   maxLength?: number;
   inputMode?: "numeric" | "text" | "email" | "url";
   label?: string;
@@ -67,15 +51,17 @@ export function Input({
   value?: string;
   onChange?: (v: string) => void;
 }) {
+  const generatedId = useId();
+  const fieldId = id ?? generatedId;
   const cls = mono ? "vt-input vt-input-mono" : "vt-input";
   return (
     <div>
-      <CampoLabel label={label} id={id} />
+      <CampoLabel label={label} id={fieldId} />
       {textarea ? (
         <textarea
-          id={id}
+          id={fieldId}
           maxLength={maxLength}
-          {...invalidProps(id, error)}
+          {...invalidProps(fieldId, error)}
           rows={rows}
           placeholder={placeholder}
           className={cls}
@@ -84,10 +70,10 @@ export function Input({
         />
       ) : (
         <input
-          id={id}
+          id={fieldId}
           maxLength={maxLength}
           inputMode={inputMode}
-          {...invalidProps(id, error)}
+          {...invalidProps(fieldId, error)}
           type={type}
           placeholder={placeholder}
           className={cls}
@@ -95,7 +81,7 @@ export function Input({
           onChange={(e) => onChange?.(e.target.value)}
         />
       )}
-      {id && error ? <FieldError id={id}>{error}</FieldError> : hint ? <FieldHint>{hint}</FieldHint> : null}
+      {error ? <FieldError id={fieldId}>{error}</FieldError> : hint ? <FieldHint>{hint}</FieldHint> : null}
     </div>
   );
 }
@@ -136,25 +122,22 @@ export function Select({
   multiple?: boolean;
   placeholder?: string;
 }) {
+  const generatedId = useId();
+  const fieldId = id ?? generatedId;
   return (
     <div>
-      <CampoLabel label={label} id={id} />
+      <CampoLabel label={label} id={fieldId} />
       <div className="relative">
         <select
-          id={id}
-          {...invalidProps(id, error)}
+          id={fieldId}
+          {...invalidProps(fieldId, error)}
           value={value}
           multiple={multiple}
           onChange={(e) => {
             if (multiple) onChange(Array.from(e.target.selectedOptions, (option) => option.value) as never);
             else onChange(e.target.value as never);
           }}
-          className="vt-input"
-          style={{
-            appearance: multiple ? "auto" : "none",
-            cursor: "pointer",
-            paddingRight: multiple ? undefined : 40,
-          }}
+          className={`vt-input cursor-pointer ${multiple ? "appearance-auto" : "appearance-none pr-10!"}`}
         >
           {!multiple && <option value="">{placeholder}</option>}
           {options.map((o) => {
@@ -168,7 +151,7 @@ export function Select({
         </select>
         {!multiple && <Chevron />}
       </div>
-      {id && <FieldError id={id}>{error}</FieldError>}
+      {error && <FieldError id={fieldId}>{error}</FieldError>}
     </div>
   );
 }

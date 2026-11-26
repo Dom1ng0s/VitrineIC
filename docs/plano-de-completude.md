@@ -22,8 +22,8 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | 3    | Backend abre o que a UI consome   | [x]    |
 | 4    | Buracos de fluxo                  | [x]    |
 | 5    | Fachadas                          | [x]    |
-| 6    | Acessibilidade e qualidade de uso | [~]    |
-| 7    | Deploy e operação                 | [ ]    |
+| 6    | Acessibilidade e qualidade de uso | [x]    |
+| 7    | Deploy e operação                 | [~]    |
 
 ---
 
@@ -195,28 +195,31 @@ erros (47 avisos de acessibilidade da fase 6) e builds do frontend e servidor.
 - [x] Sino de notificações: derivando `kind`/`target` do tipo real (mensagem,
       interesse, demanda, processo) e formatando tempo com `comoDecorrido`
 
-## Fase 6 — Acessibilidade e qualidade de uso
+## Fase 6 — Acessibilidade e qualidade de uso · fechada em 26/11/2026
 
-- [ ] `label htmlFor` em todos os campos (solicitante inteiro, nota da
-      candidatura, resposta da caixa de entrada, mensagem do convite)
-- [ ] `AuthModal`: foco inicial, focus trap, retorno do foco
-- [ ] `SkillPicker` com semântica de combobox; `MultiSelect` com botões
+- [x] `label htmlFor` em todos os campos (`Field.tsx` com `useId()`, caixa de
+      entrada, recusa, confirmação e modais)
+- [x] `AuthModal` e `Modal`: foco inicial, focus trap, retorno do foco e
+      backdrop acessível
+- [x] `SkillPicker` com semântica de combobox/listbox; `MultiSelect` com botões
       acessíveis
-- [ ] `:focus-visible` global, skip link, `<main>` na landing
-- [ ] Estados vazios: "Minhas demandas", destaques da landing, projetos do
-      perfil, distribuições do painel, matchmaking
-- [ ] Busca e paginação: catálogo de projetos, vitrine de estudantes (corte
-      fixo em 10), triagem
-- [ ] `ApiBoundary`: carregamento por ação em vez de `fieldset disabled` global
-      a cada 30 s
-- [ ] `store.runAction`: fila por recurso, erro identificado por ação, abort no
-      unmount; retry com backoff em GET
-- [ ] Wizard como `<form>`, foco e anúncio na troca de passo
+- [x] `:focus-visible` global, skip link e `<main>` na landing
+- [x] Estados vazios: "Minhas demandas", destaques da landing, projetos do
+      perfil, distribuições do painel e matchmaking
+- [x] Busca e paginação: catálogo de projetos, vitrine de estudantes (removido
+      corte fixo em 10), diretório público e triagem
+- [x] `ApiBoundary`: removido `fieldset disabled` global para não engolir
+      cliques durante a sincronização
+- [x] `store.runAction`: fila por recurso, erro identificado por ação, abort no
+      unmount; retry com backoff exponencial em GET (`api.ts`)
+- [x] Wizard como `<form>`, foco no título e anúncio `aria-live` na troca de
+      passo
 - [x] Convite escolhendo a demanda por id, não por título
-- [ ] Unificar o vocabulário de áreas (`AREA_OPTIONS` x semente)
-- [ ] Padronizar a nota do match numa só unidade
-- [ ] Trocar `window.confirm` da exclusão de demanda pelo modal do projeto
-- [ ] Migrar os `style={{}}` herdados para utilities
+- [x] Vocabulário de áreas unificado entre `AREA_OPTIONS` e a semente
+- [x] Nota do match padronizada em percentual (`%`)
+- [x] `window.confirm` da exclusão de demanda trocado pelo `<Modal>` do projeto
+- [x] `style={{}}` estáticos migrados para utilities Tailwind (`eslint.config.js`
+      elevado para `a11ySeverity = "error"` com zero erros de `jsx-a11y`)
 
 ## Fase 7 — Deploy e operação
 

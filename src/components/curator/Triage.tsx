@@ -34,13 +34,18 @@ export function TriageCard({
   const [open, setOpen] = useState(false);
 
   return (
-    <div
+    <article
       className="vt-card cursor-grab overflow-hidden active:cursor-grabbing"
       draggable={curatorFunction !== "comite"}
       onDragStart={() => onDragStart(demand.id)}
     >
-      <div className="flex cursor-pointer flex-col gap-3 p-4" onClick={() => setOpen(!open)}>
-        <div className="flex items-center justify-between gap-2">
+      <button
+        type="button"
+        aria-expanded={open}
+        className="flex w-full cursor-pointer flex-col gap-3 p-4 text-left"
+        onClick={() => setOpen(!open)}
+      >
+        <div className="flex w-full items-center justify-between gap-2">
           <span className="font-mono text-[10px] whitespace-nowrap uppercase tracking-[0.08em] text-navy/45">
             {demand.id}
           </span>
@@ -61,11 +66,11 @@ export function TriageCard({
             <span className="self-center font-mono text-[10px] text-navy/45">+{demand.skills.length - 2}</span>
           )}
         </div>
-        <p className="flex items-center gap-1.5 border-t border-navy/8 pt-3 font-sans text-[12px] text-navy/55">
+        <p className="flex w-full items-center gap-1.5 border-t border-navy/8 pt-3 font-sans text-[12px] text-navy/55">
           <ClockIcon />
           {demand.scope}
         </p>
-      </div>
+      </button>
 
       {open && (
         <div className="border-t border-navy/8 bg-navy/[0.02] p-3">
@@ -125,14 +130,12 @@ export function TriageCard({
 
             {demand.status === "rejeitada" && onDelete && (
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (window.confirm("Você tem certeza que deseja excluir esta demanda?")) {
-                    onDelete();
-                  }
+                  onDelete();
                 }}
-                className="mt-1 flex h-9 items-center justify-center px-3 font-sans text-[12px] text-white"
-                style={{ background: TERRACOTTA }}
+                className="mt-1 flex h-9 items-center justify-center rounded-[10px] bg-terracotta px-3 font-sans text-[12px] text-white"
               >
                 Excluir demanda
               </button>
@@ -140,7 +143,7 @@ export function TriageCard({
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 }
 
@@ -148,9 +151,21 @@ export function Triage({ demands }: { demands: Demand[] }) {
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const curatorFunction = useSession()?.account.curatorFunction ?? "comite";
   const [pendingRejection, setPendingRejection] = useState<string | null>(null);
+  const [pendingDeletion, setPendingDeletion] = useState<Demand | null>(null);
   const [reason, setReason] = useState("");
   const [kind, setKind] = useState<RequesterKind | "todos">("todos");
-  const shown = kind === "todos" ? demands : demands.filter((demand) => demand.requesterKind === kind);
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const shown = demands.filter((demand) => {
+    if (kind !== "todos" && demand.requesterKind !== kind) return false;
+    if (!q) return true;
+    return (
+      demand.title.toLowerCase().includes(q) ||
+      demand.company.toLowerCase().includes(q) ||
+      demand.id.toLowerCase().includes(q) ||
+      demand.skills.some((s) => s.toLowerCase().includes(q))
+    );
+  });
 
   const updateStatus = (id: string, status: DemandStatus) => {
     const demand = demands.find((item) => item.id === id);
@@ -183,24 +198,34 @@ export function Triage({ demands }: { demands: Demand[] }) {
     <main className={`${PAGE} pb-20`}>
       <PageHead eyebrow="Curadoria" title="Triagem de demandas." />
 
-      <div className="mb-6 flex flex-wrap gap-2" aria-label="Filtrar pelo tipo de solicitante">
-        <button
-          className={`vt-pill ${kind === "todos" ? "vt-pill-selected" : ""}`}
-          aria-pressed={kind === "todos"}
-          onClick={() => setKind("todos")}
-        >
-          Todos
-        </button>
-        {(Object.entries(REQUESTER_KIND_LABEL) as [RequesterKind, string][]).map(([code, label]) => (
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2" aria-label="Filtrar pelo tipo de solicitante">
           <button
-            key={code}
-            className={`vt-pill ${kind === code ? "vt-pill-selected" : ""}`}
-            aria-pressed={kind === code}
-            onClick={() => setKind(code)}
+            className={`vt-pill ${kind === "todos" ? "vt-pill-selected" : ""}`}
+            aria-pressed={kind === "todos"}
+            onClick={() => setKind("todos")}
           >
-            {label}
+            Todos
           </button>
-        ))}
+          {(Object.entries(REQUESTER_KIND_LABEL) as [RequesterKind, string][]).map(([code, label]) => (
+            <button
+              key={code}
+              className={`vt-pill ${kind === code ? "vt-pill-selected" : ""}`}
+              aria-pressed={kind === code}
+              onClick={() => setKind(code)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <input
+          type="search"
+          aria-label="Buscar demandas por título, organização, protocolo ou tecnologia"
+          placeholder="Buscar demanda..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="vt-input max-w-[260px] py-2! text-[13px]!"
+        />
       </div>
 
       <div className="-mx-5 overflow-x-auto px-5 pb-2 md:mx-0 md:px-0">
@@ -215,8 +240,9 @@ export function Triage({ demands }: { demands: Demand[] }) {
           ))}
 
           {KANBAN_COLS.map((col) => (
-            <div
+            <section
               key={col}
+              aria-label={`Coluna ${DEMAND_STATUS[col].label}`}
               onDrop={(e) => {
                 handleDrop(e, col);
                 setDropTarget(null);
@@ -245,7 +271,7 @@ export function Triage({ demands }: { demands: Demand[] }) {
                     demand={d}
                     onStatus={(s) => updateStatus(d.id, s)}
                     onDragStart={(id) => setDraggedId(id)}
-                    onDelete={curatorFunction === "coordenacao" ? () => deleteDemand(d.id) : undefined}
+                    onDelete={curatorFunction === "coordenacao" ? () => setPendingDeletion(d) : undefined}
                     curatorFunction={curatorFunction}
                   />
                 ))}
@@ -254,10 +280,33 @@ export function Triage({ demands }: { demands: Demand[] }) {
                   Solte aqui
                 </div>
               )}
-            </div>
+            </section>
           ))}
         </div>
       </div>
+      {pendingDeletion && (
+        <Modal eyebrow="Triagem" title="Excluir demanda?" onClose={() => setPendingDeletion(null)}>
+          <p className="font-sans text-sm leading-[1.6] text-navy/70">
+            Tem certeza que deseja excluir permanentemente <strong>{pendingDeletion.title}</strong> (
+            {pendingDeletion.id}
+            )? Esta ação não pode ser desfeita.
+          </p>
+          <div className="mt-6 flex justify-end gap-3">
+            <button type="button" onClick={() => setPendingDeletion(null)} className="vt-btn vt-btn-secondary">
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (await deleteDemand(pendingDeletion.id)) setPendingDeletion(null);
+              }}
+              className="vt-btn vt-btn-danger"
+            >
+              Excluir demanda
+            </button>
+          </div>
+        </Modal>
+      )}
       {pendingRejection && (
         <Modal eyebrow="Triagem" title="Rejeitar demanda?" onClose={() => setPendingRejection(null)}>
           <Input label="Motivo da rejeição" textarea rows={3} value={reason} onChange={setReason} />

@@ -107,6 +107,8 @@ export function UpdatesMenu({ onOpen }: { onOpen: (target: string) => void }) {
             {updates.map((u) => (
               <li key={u.id}>
                 <button
+                  type="button"
+                  aria-label={`${KIND_LABEL[u.kind]}: ${u.text}`}
                   onClick={() => select(u)}
                   className="flex w-full items-start gap-3 rounded-none! px-5 py-4 text-left transition-colors hover:bg-navy/[0.03]"
                 >
