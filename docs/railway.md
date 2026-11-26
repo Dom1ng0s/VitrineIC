@@ -22,13 +22,12 @@ esse builder, o healthcheck e a política de reinício.
 
 Obrigatórias:
 
-| Variável         | Valor                                                            |
-| ---------------- | ---------------------------------------------------------------- |
-| `NODE_ENV`       | `production`                                                     |
-| `DATABASE_URL`   | referência ao PostgreSQL do projeto                              |
-| `MAIL_MODE`      | `resend` (o Railway não bloqueia SMTP, mas HTTPS é mais simples) |
-| `RESEND_API_KEY` | a chave do Resend                                                |
-| `MAIL_FROM`      | remetente em domínio verificado no Resend                        |
+| Variável       | Valor                               |
+| -------------- | ----------------------------------- |
+| `NODE_ENV`     | `production`                        |
+| `DATABASE_URL` | referência ao PostgreSQL do projeto |
+
+O envio de e-mail tem três configurações possíveis; a seção seguinte as compara.
 
 Com valor já embutido no `Dockerfile`, não precisam ser definidas: `HOST=::`,
 `PORT=8080`, `TRUST_PROXY=1`, `PG_POOL_MAX=10`.
@@ -51,12 +50,66 @@ Opcionais:
 - `APP_ORIGIN` — **não precisa no primeiro deploy.** Sem ela, a aplicação deriva
   a origem de `RAILWAY_PUBLIC_DOMAIN`, que a plataforma anuncia. Defina ao
   apontar domínio próprio; ela tem precedência.
-- `REQUIRE_VERIFIED_EMAIL` — já é `true` em produção por padrão.
+- `REQUIRE_VERIFIED_EMAIL` — `true` em produção por padrão; ver a seção de
+  e-mail abaixo.
 - `DEMO_MODE` — **deixe fora.** Em produção o boot falha se for `true`, de
   propósito: as contas de exemplo nunca devem existir no ar.
 - `BOOTSTRAP_CURATOR`, `CURATOR_EMAIL`, `CURATOR_NAME`, `CURATOR_PASSWORD` —
   criam a primeira conta de curadoria no início do processo, já que não há rota
   HTTP de administração. Remova `CURATOR_PASSWORD` depois do primeiro boot.
+
+## E-mail e confirmação de conta
+
+A confirmação de endereço depende de conseguir entregar e-mail. São três
+configurações, e a escolha muda o que a plataforma consegue fazer:
+
+| Configuração   | Variáveis                                                                | Entrega para      |
+| -------------- | ------------------------------------------------------------------------ | ----------------- |
+| **Sem e-mail** | `MAIL_MODE=disabled` + `REQUIRE_VERIFIED_EMAIL=false`                    | ninguém           |
+| **SMTP**       | `MAIL_MODE=smtp`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | qualquer endereço |
+| **Resend**     | `MAIL_MODE=resend`, `RESEND_API_KEY`                                     | qualquer endereço |
+
+Nos dois últimos, `MAIL_FROM` é obrigatório e precisa ser um endereço nu, sem
+nome: `vitrine@ic.ufal.br`, nunca `Vitrine <vitrine@ic.ufal.br>`.
+
+### Sem e-mail — a configuração atual
+
+`MAIL_MODE=disabled` com `REQUIRE_VERIFIED_EMAIL=false`. As pessoas se cadastram
+e entram na hora, sem link de confirmação. É a única combinação que dispensa
+provedor, e o boot a aceita em produção de propósito — o que ele recusa é
+`REQUIRE_VERIFIED_EMAIL=true` sem canal de envio, que travaria todo mundo do
+lado de fora.
+
+**O que isso custa:** a recuperação de senha para de funcionar. O
+`/api/auth/forgot-password` responde **503** com "O envio de e-mail ainda não
+foi configurado. Fale com a coordenação." — falha explícita, não silenciosa,
+mas ainda assim quem esquecer a senha depende de alguém com acesso ao banco.
+Enquanto estiver assim, vale avisar os usuários na abertura do piloto.
+
+### SMTP — qualquer conta de e-mail serve
+
+Não exige domínio próprio: uma conta Gmail ou Outlook com **senha de app**
+basta. O Railway não bloqueia SMTP de saída.
+
+| Variável        | Exemplo (Gmail)                 |
+| --------------- | ------------------------------- |
+| `MAIL_MODE`     | `smtp`                          |
+| `SMTP_HOST`     | `smtp.gmail.com`                |
+| `SMTP_PORT`     | `587`                           |
+| `SMTP_USER`     | o endereço da conta             |
+| `SMTP_PASSWORD` | a senha de app, não a da conta  |
+| `MAIL_FROM`     | o mesmo endereço do `SMTP_USER` |
+
+Na 587 o transporte exige STARTTLS. O limite é de volume: provedores pessoais
+cortam em algumas centenas de mensagens por dia.
+
+### Resend — exige domínio verificado
+
+O remetente de teste `onboarding@resend.dev` **só entrega no e-mail dono da
+conta Resend**. Com `REQUIRE_VERIFIED_EMAIL=true`, isso tranca qualquer outra
+pessoa do lado de fora do cadastro. Para valer, o domínio precisa ser
+verificado no Resend, o que exige criar registros SPF e DKIM no DNS — não
+comprar domínio, mas ter controle sobre um.
 
 ## Boot e verificação
 

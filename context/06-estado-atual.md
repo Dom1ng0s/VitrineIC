@@ -26,3 +26,7 @@ Registrada a partir das decisões de produto da Fase 5:
 
 - **Coluna `estudante.certificados`**: decidir se entra no formulário/perfil do estudante ou se será removida em migração futura.
 - **Caixinhas de contexto no matchmaking**: decidir se passam a compor o peso do algoritmo de score.
+- **Confirmação de e-mail**: desligada em produção (`MAIL_MODE=disabled`),
+  porque entregar e-mail exige domínio verificado. Enquanto estiver assim, a
+  recuperação de senha não funciona. Ver a seção de e-mail em
+  [docs/railway.md](../docs/railway.md).

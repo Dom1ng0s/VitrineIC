@@ -193,17 +193,42 @@ colada por fora.
 
 ## Slide 11 — Próximos passos
 
-Em ordem de dependência, não de vontade:
+Os seis itens desta lista na versão anterior do pitch — base única,
+persistência, autenticação, roteamento por URL, escopo do solicitante e
+evolução do match — **estão entregues**. O que segue é o que ficou de fora,
+em ordem de urgência.
 
-1. **Unificar as bases de dados** — hoje curadoria e solicitante leem listas
-   paralelas. É o maior risco estrutural: cada tela nova encarece o conserto.
-2. **Fechar o escopo** — o solicitante é a universidade (PIBIC, professores) ou a
-   empresa? O código seguiu empresa; a decisão precisa ser explícita.
-3. **Persistência**, nem que seja `localStorage`, para o estado sobreviver ao
-   reload.
-4. **Autenticação real** com domínio institucional.
-5. **Evoluir o match** usando os níveis de proficiência já coletados.
-6. **Roteamento por URL** — hoje nenhuma tela é compartilhável por link.
+### Confirmação de e-mail — a dívida de operação
+
+Hoje a verificação de endereço está **desligada** (`MAIL_MODE=disabled`): quem
+se cadastra entra na hora, sem link de confirmação. A razão é externa ao
+código — enviar e-mail para qualquer destinatário exige um domínio com SPF e
+DKIM configurados, e o `ic.ufal.br` depende da TI da UFAL.
+
+A consequência a assumir em público: **a recuperação de senha não funciona**.
+Quem esquece a senha precisa da coordenação. A API responde 503 com uma
+mensagem clara, não falha calada, mas é uma muleta.
+
+O caminho tem dois degraus: SMTP com uma conta institucional comum resolve
+hoje, sem domínio próprio; o domínio verificado é o destino, e aí a
+confirmação volta a ser obrigatória trocando uma variável.
+
+### Decisões de produto em aberto
+
+Duas, registradas na pauta da próxima reunião:
+
+1. **Certificados do estudante** — a coluna existe no banco e na API, nenhuma
+   tela a preenche. Entra no perfil, ou sai numa migração?
+2. **Peso do contexto no match** — idioma e número de projetos aparecem para a
+   curadoria, mas não contam no score. Skills e disponibilidade já contam.
+   Devem passar a pesar, e quanto?
+
+### Operação
+
+3. **Backup agendado** — o script existe, com retenção de 14 dias; falta
+   alguém chamá-lo todo dia.
+4. **Domínio próprio** — sair do subdomínio da plataforma, o que também
+   destrava a confirmação de e-mail acima.
 
 ---
 
