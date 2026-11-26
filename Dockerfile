@@ -7,7 +7,9 @@ COPY . .
 RUN pnpm build
 
 FROM node:24-bookworm-slim
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3001 TRUST_PROXY=1 PG_POOL_MAX=10
+# HOST=:: escuta em IPv6 e, em pilha dupla, também atende IPv4. O Railway fala
+# com o contêiner pela rede privada em IPv6, onde 0.0.0.0 recusaria a conexão.
+ENV NODE_ENV=production HOST=:: PORT=3001 TRUST_PROXY=1 PG_POOL_MAX=10
 WORKDIR /app
 RUN corepack enable && chown node:node /app
 COPY --from=build --chown=node:node /app/package.json /app/pnpm-lock.yaml ./

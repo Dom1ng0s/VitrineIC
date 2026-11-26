@@ -1,4 +1,5 @@
 import { buildApp } from "./app";
+import { hostDeEscuta } from "./config";
 import { bootstrapCurator } from "./curator";
 
 const { app, db } = await buildApp();
@@ -9,7 +10,7 @@ try {
     );
   await app.listen({
     port: Number(process.env.PORT ?? 3001),
-    host: process.env.HOST ?? (process.env.RENDER === "true" ? "0.0.0.0" : "127.0.0.1"),
+    host: hostDeEscuta(),
   });
 } catch (error) {
   await app.close();

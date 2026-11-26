@@ -30,8 +30,19 @@ Obrigatórias:
 | `RESEND_API_KEY` | a chave do Resend                                                |
 | `MAIL_FROM`      | remetente em domínio verificado no Resend                        |
 
-Com valor já embutido no `Dockerfile`, redefina só para mudar: `HOST=0.0.0.0`,
-`PORT` (o Railway injeta a sua), `TRUST_PROXY=1`, `PG_POOL_MAX=10`.
+Com valor já embutido no `Dockerfile`, não precisam ser definidas: `HOST=::`,
+`PORT=3001`, `TRUST_PROXY=1`, `PG_POOL_MAX=10`.
+
+**Não defina `HOST` no painel.** A imagem escuta em `::`, que é o que a rede
+privada do Railway exige: ela fala com o contêiner por IPv6, e um `0.0.0.0`
+atende só IPv4 — a sonda de saúde recebe _connection refused_. Se copiar o
+endereço de algum painel, note que `[::]`, com colchetes, viraria nome de host
+(o código tolera, mas o valor certo é `::`).
+
+**Porta:** a imagem declara `EXPOSE 3001` e escuta em 3001. Se o healthcheck
+do Railway sondar outra porta (8080, por exemplo), alinhe os dois: ou aponte a
+porta do domínio em Settings → Networking para 3001, ou defina `PORT` igual à
+que ele sonda. O `index.ts` respeita `PORT`.
 
 Opcionais:
 

@@ -4,7 +4,7 @@ import { contas } from "../db/repositories";
 import { prepararBanco } from "./apoio";
 import { bootstrapCurator } from "../curator";
 import { verifyPassword } from "../security";
-import { readConfig } from "../config";
+import { readConfig, hostDeEscuta } from "../config";
 
 test("Render usa origem pública automática, permite domínio próprio e preserva validação de produção", () => {
   const env: NodeJS.ProcessEnv = {
@@ -42,6 +42,19 @@ test("Render usa origem pública automática, permite domínio próprio e preser
     "postgres://u:s@host:5432/db",
   );
   assert.match(readConfig({ NODE_ENV: "development" }).databaseUrl, /^postgresql:\/\//);
+});
+
+test("endereço de escuta acompanha a plataforma e tolera colchetes", () => {
+  // O Railway roteia por IPv6: 0.0.0.0 faria a sonda receber connection refused.
+  assert.equal(hostDeEscuta({ RAILWAY_ENVIRONMENT: "production" }), "::");
+  assert.equal(hostDeEscuta({ RAILWAY_PUBLIC_DOMAIN: "x.up.railway.app" }), "::");
+  assert.equal(hostDeEscuta({ RENDER: "true" }), "0.0.0.0");
+  // Sem plataforma, nada de expor o processo por engano.
+  assert.equal(hostDeEscuta({}), "127.0.0.1");
+  // HOST explícito vence, e o formato com colchetes dos painéis não vira nome de host.
+  assert.equal(hostDeEscuta({ HOST: "0.0.0.0", RAILWAY_ENVIRONMENT: "production" }), "0.0.0.0");
+  assert.equal(hostDeEscuta({ HOST: "[::]" }), "::");
+  assert.equal(hostDeEscuta({ HOST: " [::1] " }), "::1");
 });
 
 test("Railway deriva a origem pública do domínio que a plataforma anuncia", () => {

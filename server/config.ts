@@ -47,6 +47,24 @@ function readDatabaseUrl(env: NodeJS.ProcessEnv, production: boolean): string {
 }
 
 /**
+ * Endereço de escuta do processo.
+ *
+ * O Railway alcança o contêiner pela rede privada em IPv6, então lá é preciso
+ * escutar em `::` — um `0.0.0.0` só atende IPv4 e a sonda de saúde recebe
+ * connection refused. O Render usa IPv4. Fora de plataforma, só o laço local.
+ *
+ * Os colchetes são tolerados porque é assim que o endereço aparece nos painéis
+ * (`[::]`), e o Node trataria `[::]` como nome de host: `ENOTFOUND`.
+ */
+export function hostDeEscuta(env: NodeJS.ProcessEnv = process.env): string {
+  const definido = env.HOST?.trim();
+  if (definido) return definido.replace(/^\[(.+)\]$/, "$1");
+  if (env.RENDER === "true") return "0.0.0.0";
+  if (env.RAILWAY_ENVIRONMENT || env.RAILWAY_PUBLIC_DOMAIN) return "::";
+  return "127.0.0.1";
+}
+
+/**
  * Origem pública anunciada pela plataforma, usada quando APP_ORIGIN não foi
  * definida. O Render entrega a URL inteira; o Railway, só o domínio, sem
  * esquema. Com domínio próprio, defina APP_ORIGIN e ela tem precedência.
