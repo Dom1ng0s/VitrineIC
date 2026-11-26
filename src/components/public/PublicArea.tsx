@@ -31,9 +31,7 @@ export default function PublicArea({
         onAdmin={onAdmin}
       />
 
-      {route.view === "projects" && (
-        <ProjectsCatalog onOpenProject={(id) => onNavigate({ view: "project", id })} />
-      )}
+      {route.view === "projects" && <ProjectsCatalog onOpenProject={(id) => onNavigate({ view: "project", id })} />}
 
       {route.view === "project" && (
         <ProjectDetail
@@ -44,9 +42,7 @@ export default function PublicArea({
         />
       )}
 
-      {route.view === "students" && (
-        <StudentsDirectory onOpenProfile={(id) => onNavigate({ view: "profile", id })} />
-      )}
+      {route.view === "students" && <StudentsDirectory onOpenProfile={(id) => onNavigate({ view: "profile", id })} />}
 
       {route.view === "profile" && (
         <PublicProfile
@@ -56,9 +52,7 @@ export default function PublicArea({
         />
       )}
 
-      {route.view === "impact" && (
-        <Impact />
-      )}
+      {route.view === "impact" && <Impact />}
 
       <PublicFooter onNavigate={(view) => onNavigate({ view })} onSignIn={onSignIn} onAdmin={onAdmin} />
     </div>

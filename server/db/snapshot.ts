@@ -25,16 +25,20 @@ async function lerInteressesVisiveis(sql: Sql, conta?: StoredAccount): Promise<I
     return (await sql.rows<Interest>(`${SQL_INTERESSE} ORDER BY i.criado_em DESC`)).map(limpar);
   }
   if (conta.role === "student") {
-    return (await sql.rows<Interest>(
-      `${SQL_INTERESSE} WHERE i.estudante_id = $1 ORDER BY i.criado_em DESC`, [conta.profileId],
-    )).map(limpar);
+    return (
+      await sql.rows<Interest>(`${SQL_INTERESSE} WHERE i.estudante_id = $1 ORDER BY i.criado_em DESC`, [
+        conta.profileId,
+      ])
+    ).map(limpar);
   }
-  const doSolicitante = (await sql.rows<Interest>(
-    `${SQL_INTERESSE}
+  const doSolicitante = (
+    await sql.rows<Interest>(
+      `${SQL_INTERESSE}
      WHERE i.demanda_id IN (SELECT d.id FROM demanda d JOIN solicitante s ON s.id = d.solicitante_id WHERE s.nome = $1)
      ORDER BY i.criado_em DESC`,
-    [conta.profileId],
-  )).map(limpar);
+      [conta.profileId],
+    )
+  ).map(limpar);
   // A sugestão só aparece ao solicitante depois que o estudante aceita.
   return doSolicitante.filter(visibleToRequester);
 }
@@ -68,7 +72,7 @@ async function lerIndicadores(sql: Sql, exigirVerificado: boolean): Promise<Impa
     GROUP BY 1 ORDER BY count(*) DESC, 1`);
 
   const pares = (linhas: { chave: string; total: string }[]): [string, number][] =>
-    linhas.map(l => [l.chave, Number(l.total)]);
+    linhas.map((l) => [l.chave, Number(l.total)]);
 
   return {
     released: Number(totais.liberados),
@@ -81,7 +85,8 @@ async function lerIndicadores(sql: Sql, exigirVerificado: boolean): Promise<Impa
 }
 
 async function lerNotificacoes(sql: Sql, conta: StoredAccount): Promise<Notification[]> {
-  const linhas = await sql.rows<Notification & { interestStatus: string | null }>(`
+  const linhas = await sql.rows<Notification & { interestStatus: string | null }>(
+    `
     SELECT
       n.id, n.tipo AS type,
       COALESCE(rem.nome, 'VitrineIC')            AS "from",
@@ -98,23 +103,29 @@ async function lerNotificacoes(sql: Sql, conta: StoredAccount): Promise<Notifica
     LEFT JOIN interesse i  ON i.id = n.interesse_id
     WHERE n.destinatario_conta_id = $1
     ORDER BY n.criada_em DESC
-    LIMIT ${LIMITE_NOTIFICACOES}`, [conta.id]);
+    LIMIT ${LIMITE_NOTIFICACOES}`,
+    [conta.id],
+  );
 
-  return linhas.map(({ interestStatus, ...n }) => limpar({
-    ...n,
-    canReply: interestStatus === "contato_liberado" && conta.role !== "curator",
-  }));
+  return linhas.map(({ interestStatus, ...n }) =>
+    limpar({
+      ...n,
+      canReply: interestStatus === "contato_liberado" && conta.role !== "curator",
+    }),
+  );
 }
 
 export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount): Promise<VitrineState> {
   const interesses = await lerInteressesVisiveis(sql, conta);
-  const idsDeEstudantes = [...new Set(interesses.map(i => i.studentId))];
-  const idsDeDemandas = [...new Set(interesses.map(i => i.demandId))];
+  const idsDeEstudantes = [...new Set(interesses.map((i) => i.studentId))];
+  const idsDeDemandas = [...new Set(interesses.map((i) => i.demandId))];
   const curador = conta?.role === "curator";
   const proprioEstudante = conta?.role === "student" ? conta.profileId : null;
   const proprioSolicitante = conta?.role === "requester" ? conta.profileId : null;
 
-  const estudantes = (await sql.rows<Student>(`
+  const estudantes = (
+    await sql.rows<Student>(
+      `
     ${SQL_ESTUDANTE}
     WHERE (
       (EXISTS (SELECT 1 FROM estudante_competencia ec WHERE ec.estudante_id = e.id)
@@ -122,40 +133,53 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
       OR e.id = $1
       OR e.id = ANY($2::text[])
     )
-    ORDER BY e.id`, [proprioEstudante, idsDeEstudantes])).map(comoEstudante);
+    ORDER BY e.id`,
+      [proprioEstudante, idsDeEstudantes],
+    )
+  ).map(comoEstudante);
 
-  const demandas = (await sql.rows<Demand>(`
+  const demandas = (
+    await sql.rows<Demand>(
+      `
     ${SQL_DEMANDA}
     WHERE $1::boolean
        OR s.nome = $2
        OR d.status IN ('aprovada', 'contato_liberado')
        OR d.id = ANY($3::text[])
-    ORDER BY d.enviada_em DESC`, [curador, proprioSolicitante, idsDeDemandas])).map(limpar);
+    ORDER BY d.enviada_em DESC`,
+      [curador, proprioSolicitante, idsDeDemandas],
+    )
+  ).map(limpar);
 
   // Contato só aparece depois do aceite dos dois lados — nem para a curadoria.
-  const liberados = new Set(interesses.filter(i => i.status === "contato_liberado").map(i => i.studentId));
+  const liberados = new Set(interesses.filter((i) => i.status === "contato_liberado").map((i) => i.studentId));
   const empresasLiberadas = new Set(
-    demandas.filter(d => interesses.some(i => i.demandId === d.id && i.status === "contato_liberado"))
-      .map(d => d.company),
+    demandas
+      .filter((d) => interesses.some((i) => i.demandId === d.id && i.status === "contato_liberado"))
+      .map((d) => d.company),
   );
 
   const empresas = (await solicitantes.todos(sql)).map((empresa: Company) => ({
     ...empresa,
     contactEmail:
-      (proprioSolicitante === empresa.name) || (proprioEstudante && empresasLiberadas.has(empresa.name))
-        ? empresa.contactEmail : "",
+      proprioSolicitante === empresa.name || (proprioEstudante && empresasLiberadas.has(empresa.name))
+        ? empresa.contactEmail
+        : "",
   }));
 
-  const anexos: Attachment[] = conta?.role === "student"
-    ? await sql.rows<Attachment>(
-        `SELECT id, nome AS name, categoria AS category, tamanho_bytes AS size
-         FROM anexo_estudante WHERE estudante_id = $1 ORDER BY enviado_em DESC`, [conta.profileId])
-    : [];
+  const anexos: Attachment[] =
+    conta?.role === "student"
+      ? await sql.rows<Attachment>(
+          `SELECT id, nome AS name, categoria AS category, tamanho_bytes AS size
+         FROM anexo_estudante WHERE estudante_id = $1 ORDER BY enviado_em DESC`,
+          [conta.profileId],
+        )
+      : [];
 
   return {
     accounts: conta ? [contas.publica(conta)] : [],
     session: conta ? { accountId: conta.id } : null,
-    students: estudantes.map(estudante => {
+    students: estudantes.map((estudante) => {
       const proprio = proprioEstudante === estudante.id;
       const contato = proprio || (!!proprioSolicitante && liberados.has(estudante.id));
       const { matricula, certificados, ...publico } = estudante;
@@ -167,12 +191,12 @@ export async function snapshot(sql: Sql, config: Config, conta?: StoredAccount):
     }),
     companies: empresas,
     demands: demandas,
-    interests: interesses.map(interesse => {
+    interests: interesses.map((interesse) => {
       if (conta?.role !== "student") return interesse;
       const { refusalReason: _motivo, ...semMotivo } = interesse;
       return semMotivo as Interest;
     }),
-    inProject: Object.fromEntries(estudantes.map(e => [e.id, !!e.inProject])),
+    inProject: Object.fromEntries(estudantes.map((e) => [e.id, !!e.inProject])),
     notifications: conta ? await lerNotificacoes(sql, conta) : [],
     attachments: anexos,
     impact: await lerIndicadores(sql, config.requireVerifiedEmail),

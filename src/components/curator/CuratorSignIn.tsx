@@ -28,8 +28,8 @@ export function CuratorSignIn({ onSignedIn, onBack }: { onSignedIn: () => void; 
             Curadoria.
           </h1>
           <p className="max-w-[420px] font-sans text-[15px] font-light leading-[1.6] text-offwhite/70">
-            Triagem de demandas, sugestões com justificativa e acompanhamento dos contatos. Só responsáveis
-            cadastrados pela coordenação entram aqui.
+            Triagem de demandas, sugestões com justificativa e acompanhamento dos contatos. Só responsáveis cadastrados
+            pela coordenação entram aqui.
           </p>
           <button
             onClick={onBack}
@@ -58,10 +58,16 @@ export function CuratorSignIn({ onSignedIn, onBack }: { onSignedIn: () => void; 
             Não há cadastro aberto. Para receber acesso, fale com a coordenação.
           </p>
           <div className="my-6 h-px bg-offwhite/12" />
-          {demoEnabled && <button onClick={demo} className="vt-btn vt-btn-outline-light h-11 w-full justify-center">
-            Entrar como curador de exemplo
-          </button>}
-          {error && <p role="alert" className="mt-3 text-sm text-offwhite">{error}</p>}
+          {demoEnabled && (
+            <button onClick={demo} className="vt-btn vt-btn-outline-light h-11 w-full justify-center">
+              Entrar como curador de exemplo
+            </button>
+          )}
+          {error && (
+            <p role="alert" className="mt-3 text-sm text-offwhite">
+              {error}
+            </p>
+          )}
         </section>
       </div>
     </div>

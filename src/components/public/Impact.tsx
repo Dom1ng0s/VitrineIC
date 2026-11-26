@@ -34,7 +34,10 @@ export function Impact() {
   ];
   const byArea = impact.byArea;
   const maxArea = Math.max(...byArea.map(([, n]) => n), 1);
-  const byCourse = impact.byCourse.map(([course, n]) => ({ course, pct: impact.students ? Math.round(n / impact.students * 100) : 0 }));
+  const byCourse = impact.byCourse.map(([course, n]) => ({
+    course,
+    pct: impact.students ? Math.round((n / impact.students) * 100) : 0,
+  }));
 
   return (
     <main className={`${PAGE} pb-20 md:pb-28`}>
@@ -84,7 +87,9 @@ export function Impact() {
             {byCourse.map(({ course, pct }) => (
               <li key={course}>
                 <div className="flex items-baseline justify-between gap-4">
-                  <span className="font-sans text-sm text-offwhite" title={course}>{courseShort(course)}</span>
+                  <span className="font-sans text-sm text-offwhite" title={course}>
+                    {courseShort(course)}
+                  </span>
                   <span className="font-mono text-[10px] text-offwhite/65">{pct}%</span>
                 </div>
                 <span className="mt-2.5 block h-1 rounded-full bg-offwhite/15">

@@ -44,7 +44,14 @@ export function Input({
   const cls = mono ? "vt-input vt-input-mono" : "vt-input";
   return (
     <div>
-      {label && (id ? <label htmlFor={id}><Label>{label}</Label></label> : <Label>{label}</Label>)}
+      {label &&
+        (id ? (
+          <label htmlFor={id}>
+            <Label>{label}</Label>
+          </label>
+        ) : (
+          <Label>{label}</Label>
+        ))}
       {textarea ? (
         <textarea
           id={id}
@@ -91,7 +98,14 @@ export function SelectField({
 }) {
   return (
     <div>
-      {label && (id ? <label htmlFor={id}><Label>{label}</Label></label> : <Label>{label}</Label>)}
+      {label &&
+        (id ? (
+          <label htmlFor={id}>
+            <Label>{label}</Label>
+          </label>
+        ) : (
+          <Label>{label}</Label>
+        ))}
       <div className="relative">
         <select
           id={id}

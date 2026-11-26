@@ -15,7 +15,6 @@ import { PAGE } from "@/components/public/layout";
 import type { Demand, Interest, Student } from "@/types";
 import { paraExibicao } from "@/lib/datas";
 
-
 /** Caixinhas de critério do Figma, com o que o algoritmo de fato considera. */
 function Criteria({ student, demand }: { student: Student; demand: Demand }) {
   const matched = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
@@ -57,9 +56,7 @@ export function StudentMatchCard({
   inProject: boolean;
 }) {
   const score = scoreStudent(student, demand);
-  const matchedSkills = student.skills.filter((s) =>
-    demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase())
-  );
+  const matchedSkills = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
 
   return (
     <div
@@ -150,8 +147,10 @@ export function Matchmaking({
     .map((s) => ({ ...s, score: scoreStudent(s, demand) }))
     .filter((s) => {
       if (!filter) return true;
-      return s.skills.some((sk) => sk.toLowerCase().includes(filter.toLowerCase())) ||
-        s.name.toLowerCase().includes(filter.toLowerCase());
+      return (
+        s.skills.some((sk) => sk.toLowerCase().includes(filter.toLowerCase())) ||
+        s.name.toLowerCase().includes(filter.toLowerCase())
+      );
     })
     .sort((a, b) => b.score - a.score);
 
@@ -279,7 +278,9 @@ export function Matchmaking({
                 ))}
               </ul>
             )}
-            <p className="font-sans text-[12px] text-navy/50">Só leitura: candidaturas e convites são entre estudante e solicitante.</p>
+            <p className="font-sans text-[12px] text-navy/50">
+              Só leitura: candidaturas e convites são entre estudante e solicitante.
+            </p>
           </div>
         </aside>
       </div>

@@ -12,14 +12,14 @@ ficou para depois.
 
 ## Cores
 
-| Token | Hex | Uso |
-|---|---|---|
-| `NAVY` (azul-marinho) | `#0b2545` | texto, bordas, botão primário, painéis escuros |
-| `NAVY_MID` / `NAVY_SOFT` | `#13315c` / `#134074` | gradiente dos painéis `.vt-stone` |
-| `RED` (vermelho) | `#c1121f` | acento pontual |
-| `OFFWHITE` (creme) | `#f3f1ec` | fundo da página, texto sobre tinta |
-| `STONE` | `#e6e2d9` | superfícies secundárias |
-| `SKY` | `#8da9c4` | texto e acento sobre fundo escuro, seleção |
+| Token                    | Hex                   | Uso                                            |
+| ------------------------ | --------------------- | ---------------------------------------------- |
+| `NAVY` (azul-marinho)    | `#0b2545`             | texto, bordas, botão primário, painéis escuros |
+| `NAVY_MID` / `NAVY_SOFT` | `#13315c` / `#134074` | gradiente dos painéis `.vt-stone`              |
+| `RED` (vermelho)         | `#c1121f`             | acento pontual                                 |
+| `OFFWHITE` (creme)       | `#f3f1ec`             | fundo da página, texto sobre tinta             |
+| `STONE`                  | `#e6e2d9`             | superfícies secundárias                        |
+| `SKY`                    | `#8da9c4`             | texto e acento sobre fundo escuro, seleção     |
 
 Cores de status (tokens `SLATE`, `OCHRE`, `MOSS`, `TERRACOTTA`; utilities
 `text-slate`, `bg-ochre` etc.): azul ardósia `#4a6a9c` (novo), ocre `#b7791f`
@@ -41,11 +41,11 @@ modal: `rgba(26,25,21,0.55)` com `backdropFilter: blur(2px)`.
 
 ## Tipografia
 
-| Família | Uso |
-|---|---|
+| Família               | Uso                                                   |
+| --------------------- | ----------------------------------------------------- |
 | **Inter Tight** (500) | títulos e números grandes; tracking −0.035em em h1/h2 |
-| **Geist** | corpo e botões; botões em caixa normal |
-| **Geist Mono** | rótulos técnicos em caixa alta, tracking 0.08em |
+| **Geist**             | corpo e botões; botões em caixa normal                |
+| **Geist Mono**        | rótulos técnicos em caixa alta, tracking 0.08em       |
 
 Escala do guia, como utilities do Tailwind (tamanho, entrelinha e tracking
 juntos): `text-hero` 72, `text-page` 56, `text-section` 36 (Inter Tight 500),
@@ -65,14 +65,14 @@ Peso e tracking são aplicados por `src/index.css` a partir da família no
 
 ## Componentes do guia (classes em `src/index.css`)
 
-| Classe | O que é |
-|---|---|
-| `vt-btn` + `vt-btn-primary` / `-secondary` / `-danger` / `-cream` | botão de 40 px, raio 10, Geist 13; hover do primário vai para `#13315c` |
-| `button:disabled` | 40% de opacidade (global) |
-| `vt-input` (+ `vt-input-mono`) | fundo branco, borda navy 15%, foco com borda navy e anel de 4 px; erro via `aria-invalid="true"` |
-| `vt-pill` / `vt-pill-selected` | tag em mono 10 com contorno navy 13%; selecionada é sólida |
-| `vt-status` (+ `vt-status-solid`) | pílula de status com fundo a 10% da cor em `--vt-status` |
-| `vt-card` / `vt-card-interactive` | card branco, raio 16, borda 8%; sombra cresce no hover |
+| Classe                                                            | O que é                                                                                          |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `vt-btn` + `vt-btn-primary` / `-secondary` / `-danger` / `-cream` | botão de 40 px, raio 10, Geist 13; hover do primário vai para `#13315c`                          |
+| `button:disabled`                                                 | 40% de opacidade (global)                                                                        |
+| `vt-input` (+ `vt-input-mono`)                                    | fundo branco, borda navy 15%, foco com borda navy e anel de 4 px; erro via `aria-invalid="true"` |
+| `vt-pill` / `vt-pill-selected`                                    | tag em mono 10 com contorno navy 13%; selecionada é sólida                                       |
+| `vt-status` (+ `vt-status-solid`)                                 | pílula de status com fundo a 10% da cor em `--vt-status`                                         |
+| `vt-card` / `vt-card-interactive`                                 | card branco, raio 16, borda 8%; sombra cresce no hover                                           |
 
 Os `Input` e `Select` de `student/ui.tsx`, `requester/ui.tsx` e o
 `InputField` da landing já usam `vt-input`; os `StatusBadge` da curadoria e do

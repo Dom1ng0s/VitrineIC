@@ -18,8 +18,9 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
   const dummyHash = await hashPassword(randomUUID());
   const limits = { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } };
   const verificationEmail = (account: StoredAccount) =>
-    requestAccountMail(db, config, mail, account, "verify_email",
-      () => app.log.error("Falha ao entregar confirmação de e-mail. O usuário pode solicitar um novo link."));
+    requestAccountMail(db, config, mail, account, "verify_email", () =>
+      app.log.error("Falha ao entregar confirmação de e-mail. O usuário pode solicitar um novo link."),
+    );
 
   app.post("/api/auth/login", limits, async (request, reply) => {
     const data = loginSchema.parse(request.body);
@@ -38,17 +39,39 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     const passwordHash = await hashPassword(data.password);
     const id = `STU-${randomUUID()}`;
     const account: StoredAccount = {
-      id: `ACC-${randomUUID()}`, name: data.name, email: data.email, role: "student",
-      profileId: id, createdAt: new Date().toISOString(), passwordHash,
+      id: `ACC-${randomUUID()}`,
+      name: data.name,
+      email: data.email,
+      role: "student",
+      profileId: id,
+      createdAt: new Date().toISOString(),
+      passwordHash,
     };
-    await db.transaction(async tx => {
-      ensure(!await contas.porEmail(tx, data.email), 409, "Já existe uma conta com este e-mail.");
+    await db.transaction(async (tx) => {
+      ensure(!(await contas.porEmail(tx, data.email)), 409, "Já existe uma conta com este e-mail.");
       await salvarConta(tx, account);
-      await salvarEstudante(tx, {
-        id, name: data.name, email: data.email, initials: "", unit: data.unit, course: data.course,
-        semester: "", gpa: "", bio: "", interests: [], skills: [], skillLevels: {},
-        languages: [], projects: [], github: "", availability: "",
-      }, account.id);
+      await salvarEstudante(
+        tx,
+        {
+          id,
+          name: data.name,
+          email: data.email,
+          initials: "",
+          unit: data.unit,
+          course: data.course,
+          semester: "",
+          gpa: "",
+          bio: "",
+          interests: [],
+          skills: [],
+          skillLevels: {},
+          languages: [],
+          projects: [],
+          github: "",
+          availability: "",
+        },
+        account.id,
+      );
     });
     await createSession(db, config, request, reply, account);
     await verificationEmail(account);
@@ -60,18 +83,34 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     const data = requesterSignupSchema.parse(request.body);
     const passwordHash = await hashPassword(data.password);
     const account: StoredAccount = {
-      id: `ACC-${randomUUID()}`, name: data.contactName, email: data.email, role: "requester",
-      profileId: data.organization, createdAt: new Date().toISOString(), passwordHash,
+      id: `ACC-${randomUUID()}`,
+      name: data.contactName,
+      email: data.email,
+      role: "requester",
+      profileId: data.organization,
+      createdAt: new Date().toISOString(),
+      passwordHash,
     };
-    await db.transaction(async tx => {
-      ensure(!await contas.porEmail(tx, data.email), 409, "Já existe uma conta com este e-mail.");
-      ensure(!await solicitantes.porNome(tx, data.organization), 409, "Já existe uma organização com este nome.");
+    await db.transaction(async (tx) => {
+      ensure(!(await contas.porEmail(tx, data.email)), 409, "Já existe uma conta com este e-mail.");
+      ensure(!(await solicitantes.porNome(tx, data.organization)), 409, "Já existe uma organização com este nome.");
       await salvarConta(tx, account);
-      await salvarSolicitante(tx, {
-        name: data.organization, kind: data.kind, type: REQUESTER_KIND_LABEL[data.kind],
-        contactName: data.contactName, contactEmail: data.email, city: data.city, site: data.site,
-        since: new Date().getFullYear().toString(), description: "",
-      }, account.id, `SOL-${randomUUID()}`);
+      await salvarSolicitante(
+        tx,
+        {
+          name: data.organization,
+          kind: data.kind,
+          type: REQUESTER_KIND_LABEL[data.kind],
+          contactName: data.contactName,
+          contactEmail: data.email,
+          city: data.city,
+          site: data.site,
+          since: new Date().getFullYear().toString(),
+          description: "",
+        },
+        account.id,
+        `SOL-${randomUUID()}`,
+      );
     });
     await createSession(db, config, request, reply, account);
     await verificationEmail(account);
@@ -83,7 +122,7 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     await clearSession(db, request, reply);
     return snapshot(db.sql, config);
   });
-  app.get("/api/auth/me", async request => {
+  app.get("/api/auth/me", async (request) => {
     const account = await requireAccount(db, request);
     return snapshot(db.sql, config, account);
   });

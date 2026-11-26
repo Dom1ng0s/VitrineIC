@@ -31,7 +31,9 @@ export function TriageCard({
     >
       <div className="flex cursor-pointer flex-col gap-3 p-4" onClick={() => setOpen(!open)}>
         <div className="flex items-center justify-between gap-2">
-          <span className="font-mono text-[10px] whitespace-nowrap uppercase tracking-[0.08em] text-navy/45">{demand.id}</span>
+          <span className="font-mono text-[10px] whitespace-nowrap uppercase tracking-[0.08em] text-navy/45">
+            {demand.id}
+          </span>
           {demand.priority === "alta" && <StatusPill color={TERRACOTTA}>Alta</StatusPill>}
         </div>
         <p className="font-sans text-[15px] leading-[1.3] text-navy">{demand.title}</p>
@@ -155,15 +157,17 @@ export function Triage({ demands }: { demands: Demand[] }) {
                 <span>{DEMAND_STATUS[col].label}</span>
                 <span>{count(col)}</span>
               </div>
-              {demands.filter((d) => d.status === col).map((d) => (
-                <TriageCard
-                  key={d.id}
-                  demand={d}
-                  onStatus={(s) => updateStatus(d.id, s)}
-                  onDragStart={(id) => setDraggedId(id)}
-                  onDelete={() => deleteDemand(d.id)}
-                />
-              ))}
+              {demands
+                .filter((d) => d.status === col)
+                .map((d) => (
+                  <TriageCard
+                    key={d.id}
+                    demand={d}
+                    onStatus={(s) => updateStatus(d.id, s)}
+                    onDragStart={(id) => setDraggedId(id)}
+                    onDelete={() => deleteDemand(d.id)}
+                  />
+                ))}
               {count(col) === 0 && (
                 <div className="pointer-events-none grid h-24 place-items-center rounded-xl border border-dashed border-navy/20 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/40">
                   Solte aqui

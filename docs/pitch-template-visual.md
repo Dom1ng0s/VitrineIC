@@ -5,10 +5,11 @@
 > define **como cada slide é composto**: cores, tipografia, grid e placeholders.
 >
 > Uma ressalva honesta antes de começar: o VitrineIC é projeto de Programação 3
-> + ACE 1, não uma startup levantando rodada. Os slides de **Mercado** e
-> **Modelo de Negócios** existem aqui porque a estrutura de mercado pede, mas
-> estão reescritos como *alcance* e *sustentação* — falar em TAM/SAM/SOM com
-> dados fictícios queimaria a credibilidade da apresentação.
+>
+> - ACE 1, não uma startup levantando rodada. Os slides de **Mercado** e
+>   **Modelo de Negócios** existem aqui porque a estrutura de mercado pede, mas
+>   estão reescritos como _alcance_ e _sustentação_ — falar em TAM/SAM/SOM com
+>   dados fictícios queimaria a credibilidade da apresentação.
 
 ---
 
@@ -18,17 +19,17 @@ Fonte: `src/index.css` (bloco `@theme`) e `src/styles/tokens.ts`.
 
 ### Paleta
 
-| Papel no slide | Token | Hex | Uso |
-|---|---|---|---|
-| Fundo claro (padrão) | `offwhite` | `#F5F4F0` | fundo de 8 dos 12 slides |
-| Fundo escuro (ênfase) | `navy` | `#1C2B4A` | capa, viradas de seção, fechamento |
-| Texto sobre claro | — | `#0A0A0A` | corpo e títulos em fundo off-white |
-| Texto sobre escuro | `offwhite` | `#F5F4F0` | corpo e títulos em fundo navy |
-| Destaque / acento | `red` | `#c1121f` | uma única ênfase por slide, nunca duas |
-| Texto secundário sobre claro | — | `#4A4A4A` | legendas, descrições |
-| Texto secundário sobre escuro | — | `#C9CEDA` | legendas em fundo navy |
-| Régua e borda sobre claro | navy 20% | `#1C2B4A33` | filetes de 1px, divisores |
-| Régua e borda sobre escuro | off-white 25% | `#F5F4F040` | filetes de 1px em navy |
+| Papel no slide                | Token         | Hex         | Uso                                    |
+| ----------------------------- | ------------- | ----------- | -------------------------------------- |
+| Fundo claro (padrão)          | `offwhite`    | `#F5F4F0`   | fundo de 8 dos 12 slides               |
+| Fundo escuro (ênfase)         | `navy`        | `#1C2B4A`   | capa, viradas de seção, fechamento     |
+| Texto sobre claro             | —             | `#0A0A0A`   | corpo e títulos em fundo off-white     |
+| Texto sobre escuro            | `offwhite`    | `#F5F4F0`   | corpo e títulos em fundo navy          |
+| Destaque / acento             | `red`         | `#c1121f`   | uma única ênfase por slide, nunca duas |
+| Texto secundário sobre claro  | —             | `#4A4A4A`   | legendas, descrições                   |
+| Texto secundário sobre escuro | —             | `#C9CEDA`   | legendas em fundo navy                 |
+| Régua e borda sobre claro     | navy 20%      | `#1C2B4A33` | filetes de 1px, divisores              |
+| Régua e borda sobre escuro    | off-white 25% | `#F5F4F040` | filetes de 1px em navy                 |
 
 **Regras de cor, herdadas do produto:**
 
@@ -43,15 +44,15 @@ Fonte: `src/index.css` (bloco `@theme`) e `src/styles/tokens.ts`.
 
 ### Tipografia
 
-| Papel | Fonte | Peso | Tamanho (canvas 1920×1080) | Tracking |
-|---|---|---|---|---|
-| Título de slide | DM Serif Display | Regular | 72–96 pt | −1% |
-| Subtítulo / frase de apoio | DM Serif Display *italic* | Regular | 40–48 pt | 0 |
-| Corpo e listas | Inter | 400 | 28–32 pt | 0 |
-| Destaque no corpo | Inter | 600 | 28–32 pt | 0 |
-| Rótulo de seção (CAIXA ALTA) | Space Mono | 700 | 16–18 pt | +8% |
-| Número grande / métrica | DM Serif Display | Regular | 120–160 pt | −2% |
-| Código, score, protocolo | Space Mono | 400 | 22–26 pt | 0 |
+| Papel                        | Fonte                     | Peso    | Tamanho (canvas 1920×1080) | Tracking |
+| ---------------------------- | ------------------------- | ------- | -------------------------- | -------- |
+| Título de slide              | DM Serif Display          | Regular | 72–96 pt                   | −1%      |
+| Subtítulo / frase de apoio   | DM Serif Display _italic_ | Regular | 40–48 pt                   | 0        |
+| Corpo e listas               | Inter                     | 400     | 28–32 pt                   | 0        |
+| Destaque no corpo            | Inter                     | 600     | 28–32 pt                   | 0        |
+| Rótulo de seção (CAIXA ALTA) | Space Mono                | 700     | 16–18 pt                   | +8%      |
+| Número grande / métrica      | DM Serif Display          | Regular | 120–160 pt                 | −2%      |
+| Código, score, protocolo     | Space Mono                | 400     | 22–26 pt                   | 0        |
 
 As três estão no Google Fonts, mesmo import do app: DM Serif Display, Inter
 (300–700), Space Mono (400/700).
@@ -71,18 +72,18 @@ As três estão no Google Fonts, mesmo import do app: DM Serif Display, Inter
 
 ## 2. Mapa: estrutura de mercado → slides deste deck
 
-| Estrutura pedida | Slide aqui |
-|---|---|
-| 1. Capa / one-liner | **1** |
-| 2. O problema | **2** |
-| 3. A solução | **3** |
-| 4. Produto / demonstração | **4** e **5** |
-| 5. Mercado | **6** — *alcance e escala no IC* |
-| 6. Modelo de negócios | **7** — *quem opera e a que custo* |
-| 7. Concorrência / diferencial | **8** |
-| 8. Tração / roadmap | **9** e **10** |
-| 9. Equipe | **11** |
-| 10. CTA / contato | **12** |
+| Estrutura pedida              | Slide aqui                         |
+| ----------------------------- | ---------------------------------- |
+| 1. Capa / one-liner           | **1**                              |
+| 2. O problema                 | **2**                              |
+| 3. A solução                  | **3**                              |
+| 4. Produto / demonstração     | **4** e **5**                      |
+| 5. Mercado                    | **6** — _alcance e escala no IC_   |
+| 6. Modelo de negócios         | **7** — _quem opera e a que custo_ |
+| 7. Concorrência / diferencial | **8**                              |
+| 8. Tração / roadmap           | **9** e **10**                     |
+| 9. Equipe                     | **11**                             |
+| 10. CTA / contato             | **12**                             |
 
 ---
 
@@ -232,7 +233,7 @@ RÓTULO: DEMONSTRAÇÃO                  (fundo navy)
 
 ---
 
-### Slide 6 — Alcance e escala *(o slide de "Mercado")*
+### Slide 6 — Alcance e escala _(o slide de "Mercado")_
 
 - **Cores:** fundo `#F5F4F0`. Números grandes em `#1C2B4A`, rótulos em
   `#4A4A4A`, a progressão dos anéis marcada em `#c1121f`.
@@ -259,7 +260,7 @@ RÓTULO: ALCANCE
 
 ---
 
-### Slide 7 — Quem opera e a que custo *(o slide de "Modelo de Negócios")*
+### Slide 7 — Quem opera e a que custo _(o slide de "Modelo de Negócios")_
 
 - **Cores:** fundo `#F5F4F0`. Cabeçalho da tabela em `#1C2B4A` com texto
   off-white; linhas alternadas `#FFFFFF` / `#F5F4F0`. A linha de custo humano
@@ -313,7 +314,7 @@ ninguém sabe o porquê    │ o porquê fica registrado
 
 ---
 
-### Slide 9 — O que está construído *(tração)*
+### Slide 9 — O que está construído _(tração)_
 
 - **Cores:** fundo `#F5F4F0`. Badges: **funcional** = navy sólido, texto
   off-white; **navegável** = branco com borda navy; **ainda não** = borda 1px
@@ -430,25 +431,25 @@ Domingos     Melo         Américo
 O `.pptx` cresceu além do esqueleto de 12: dois slides vieram da sondagem e três
 foram abertos para explicar a ideia com profundidade. A ordem final:
 
-| # | Slide | Fundo |
-|---|---|---|
-| 1 | Capa | navy |
-| 2 | O problema (com os dados da sondagem) | claro |
-| 3 | A solução — três peças | claro |
-| 4 | **Quem usa — quatro papéis** | claro |
-| 5 | **Anatomia de uma demanda** | navy |
-| 6 | O fluxo ponta a ponta | claro |
-| 7 | **Como o match funciona** | claro |
-| 8 | Demonstração | navy |
-| 9 | Alcance e escala | claro |
-| 10 | Quem opera e a que custo | claro |
-| 11 | O diferencial | navy |
-| 12 | **A sondagem sustenta** | claro |
-| 13 | **A sondagem derruba** | navy |
-| 14 | O que está construído | claro |
-| 15 | Roadmap e acessibilidade | claro |
-| 16 | A equipe | claro |
-| 17 | Fechamento | navy |
+| #   | Slide                                 | Fundo |
+| --- | ------------------------------------- | ----- |
+| 1   | Capa                                  | navy  |
+| 2   | O problema (com os dados da sondagem) | claro |
+| 3   | A solução — três peças                | claro |
+| 4   | **Quem usa — quatro papéis**          | claro |
+| 5   | **Anatomia de uma demanda**           | navy  |
+| 6   | O fluxo ponta a ponta                 | claro |
+| 7   | **Como o match funciona**             | claro |
+| 8   | Demonstração                          | navy  |
+| 9   | Alcance e escala                      | claro |
+| 10  | Quem opera e a que custo              | claro |
+| 11  | O diferencial                         | navy  |
+| 12  | **A sondagem sustenta**               | claro |
+| 13  | **A sondagem derruba**                | navy  |
+| 14  | O que está construído                 | claro |
+| 15  | Roadmap e acessibilidade              | claro |
+| 16  | A equipe                              | claro |
+| 17  | Fechamento                            | navy  |
 
 ### Slide 4 — Quem usa
 
@@ -483,7 +484,6 @@ produto ao lado.
 
 > Uma banca perdoa um dado contrário assumido; não perdoa um dado contrário que
 > ela mesma encontra no CSV.
-
 
 ---
 

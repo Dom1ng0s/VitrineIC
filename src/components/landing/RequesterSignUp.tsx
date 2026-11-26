@@ -51,7 +51,9 @@ export function RequesterSignUp({ onSignedUp }: { onSignedUp: () => void }) {
       {failure && <FormAlert>{failure}</FormAlert>}
 
       <fieldset>
-        <legend className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">Você representa</legend>
+        <legend className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
+          Você representa
+        </legend>
         <div className="flex flex-wrap gap-2">
           {KINDS.map(([kind, label]) => (
             <button
@@ -68,9 +70,27 @@ export function RequesterSignUp({ onSignedUp }: { onSignedUp: () => void }) {
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <InputField label="Organização" autoComplete="organization" value={v.organization} onChange={(x) => set({ organization: x })} {...field("organization")} />
-        <InputField label="Cidade" placeholder="Maceió, AL" value={v.city} onChange={(x) => set({ city: x })} {...field("city")} />
-        <InputField label="Responsável" autoComplete="name" value={v.contactName} onChange={(x) => set({ contactName: x })} {...field("contactName")} />
+        <InputField
+          label="Organização"
+          autoComplete="organization"
+          value={v.organization}
+          onChange={(x) => set({ organization: x })}
+          {...field("organization")}
+        />
+        <InputField
+          label="Cidade"
+          placeholder="Maceió, AL"
+          value={v.city}
+          onChange={(x) => set({ city: x })}
+          {...field("city")}
+        />
+        <InputField
+          label="Responsável"
+          autoComplete="name"
+          value={v.contactName}
+          onChange={(x) => set({ contactName: x })}
+          {...field("contactName")}
+        />
         <InputField
           id="signup-site"
           label="Site (opcional)"

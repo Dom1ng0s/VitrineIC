@@ -77,8 +77,6 @@ export function PublicFooter({
           <span>VitrineIC — {INSTITUTION.universityShort} · 2026</span>
           <span>Curadoria humana · contato só com aceite dos dois lados</span>
         </div>
-
-
       </div>
     </footer>
   );

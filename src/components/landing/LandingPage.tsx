@@ -54,8 +54,8 @@ export default function LandingPage({
             Conectando <span className="text-red">inovação</span> acadêmica ao mercado.
           </h1>
           <p className="max-w-[500px] font-sans text-lead font-light text-navy/65">
-            Estudantes de todos os cursos da {INSTITUTION.universityShort} mostram o que já construíram.
-            Empresas publicam demandas. Estudantes se candidatam, empresas convidam e a curadoria sugere quem combina.
+            Estudantes de todos os cursos da {INSTITUTION.universityShort} mostram o que já construíram. Empresas
+            publicam demandas. Estudantes se candidatam, empresas convidam e a curadoria sugere quem combina.
           </p>
           <div className="flex flex-wrap gap-3">
             <button onClick={onSignIn} className="vt-btn vt-btn-primary">
@@ -102,10 +102,7 @@ export default function LandingPage({
               Projetos que já saíram do papel.
             </h2>
           </div>
-          <button
-            onClick={() => onNavigate({ view: "projects" })}
-            className="vt-btn vt-btn-secondary shrink-0"
-          >
+          <button onClick={() => onNavigate({ view: "projects" })} className="vt-btn vt-btn-secondary shrink-0">
             Ver catálogo <Arrow />
           </button>
         </div>
@@ -128,8 +125,7 @@ export default function LandingPage({
           <div className="max-w-[560px]">
             <Eyebrow onDark>Para estudantes e empresas</Eyebrow>
             <h2 className="mt-6 font-display text-[28px] font-medium leading-[1.05] tracking-[-0.03em] text-offwhite md:text-section">
-              Faça parte da vitrine de <span className="text-sky">inovação</span> da{" "}
-              {INSTITUTION.universityShort}
+              Faça parte da vitrine de <span className="text-sky">inovação</span> da {INSTITUTION.universityShort}
               <span className="text-sky">.</span>
             </h2>
           </div>

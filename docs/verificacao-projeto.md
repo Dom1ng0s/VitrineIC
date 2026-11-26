@@ -26,27 +26,27 @@ publicado está saudável ou que não existem vulnerabilidades desconhecidas.
 
 ## Escopo e evidências
 
-| Verificação | Resultado |
-|---|---|
-| `pnpm test` | 19 testes aprovados; zero falhas |
-| `pnpm build` | Aprovado, incluindo TypeScript do frontend e backend, Vite e esbuild |
-| Sintaxe dos executáveis compilados e backup | `node --check` sem erros |
-| Imports relativos e alias `@/` | 542 referências verificadas em 139 arquivos; nenhuma ausente |
-| Maiúsculas/minúsculas nos imports locais | Nenhuma divergência identificada que afetaria a resolução no Linux |
-| Marcadores de conflito em código | Nenhum identificado |
-| Artefatos de produção | `dist/index.html`, `build/server.mjs` e `build/create-curator.mjs` presentes |
-| HTML e JavaScript servidos pelo Fastify | Respostas válidas na checagem interna |
-| `/api/health` | Resposta `status: ok` |
-| Rota desconhecida da API | 404 |
-| Fallback de navegação do frontend | Página HTML servida |
-| Bootstrap da curadoria em produção | Criação inicial e preservação da conta ao reabrir o banco |
-| Login da curadoria em produção | Aprovado na checagem interna |
-| Cookie de sessão em produção | Atributos Secure e HttpOnly presentes |
-| Requisição com origem diferente | Rejeitada com 403 |
-| Reabertura do mesmo arquivo SQLite | Dados preservados localmente |
-| Arquivos privados no Git | Na consulta por `.env*`, bancos, `var/`, dependências e builds, somente `.env.example` está versionado |
-| Regras de exclusão do Git | Cache, `.env`, `var/`, dependências e builds ignorados |
-| Blueprint do Render | Node, um serviço Free, build sem `corepack enable`, start e health check coerentes |
+| Verificação                                 | Resultado                                                                                              |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `pnpm test`                                 | 19 testes aprovados; zero falhas                                                                       |
+| `pnpm build`                                | Aprovado, incluindo TypeScript do frontend e backend, Vite e esbuild                                   |
+| Sintaxe dos executáveis compilados e backup | `node --check` sem erros                                                                               |
+| Imports relativos e alias `@/`              | 542 referências verificadas em 139 arquivos; nenhuma ausente                                           |
+| Maiúsculas/minúsculas nos imports locais    | Nenhuma divergência identificada que afetaria a resolução no Linux                                     |
+| Marcadores de conflito em código            | Nenhum identificado                                                                                    |
+| Artefatos de produção                       | `dist/index.html`, `build/server.mjs` e `build/create-curator.mjs` presentes                           |
+| HTML e JavaScript servidos pelo Fastify     | Respostas válidas na checagem interna                                                                  |
+| `/api/health`                               | Resposta `status: ok`                                                                                  |
+| Rota desconhecida da API                    | 404                                                                                                    |
+| Fallback de navegação do frontend           | Página HTML servida                                                                                    |
+| Bootstrap da curadoria em produção          | Criação inicial e preservação da conta ao reabrir o banco                                              |
+| Login da curadoria em produção              | Aprovado na checagem interna                                                                           |
+| Cookie de sessão em produção                | Atributos Secure e HttpOnly presentes                                                                  |
+| Requisição com origem diferente             | Rejeitada com 403                                                                                      |
+| Reabertura do mesmo arquivo SQLite          | Dados preservados localmente                                                                           |
+| Arquivos privados no Git                    | Na consulta por `.env*`, bancos, `var/`, dependências e builds, somente `.env.example` está versionado |
+| Regras de exclusão do Git                   | Cache, `.env`, `var/`, dependências e builds ignorados                                                 |
+| Blueprint do Render                         | Node, um serviço Free, build sem `corepack enable`, start e health check coerentes                     |
 
 A revisão cobriu configuração, scripts, fronteira HTTP, inicialização,
 persistência, autorização, contrato do estado e cliente da API. Os arquivos
@@ -108,17 +108,17 @@ pnpm install --frozen-lockfile --prod=false && pnpm build
 
 ## Avisos e limites encontrados
 
-| Ponto | Efeito e encaminhamento |
-|---|---|
-| Bundle JavaScript de aproximadamente 677 kB, ou 175 kB gzip | Aviso do Vite, sem falha no build. Divisão de código pode melhorar o carregamento inicial; não foi feita refatoração de navegação nesta revisão. |
-| Acesso do navegador ao servidor local | A tentativa retornou timeout. Não foi possível percorrer visualmente as telas nesse navegador. A checagem funcional do servidor usou `app.inject`. |
-| Auditoria de dependências | `pnpm audit --prod --json` não concluiu por `ENOTFOUND registry.npmjs.org`. Não há resultado de auditoria de vulnerabilidades para afirmar ausência de alertas. Repetir em uma rede com acesso ao registro npm. |
-| E-mail real | Não foi enviado e-mail externo. Testes usam transporte local ou simulação de HTTPS; entrega exige credenciais e remetente configurados. |
-| Infraestrutura Render | A URL pública ainda não foi informada para esta verificação. O estado Live e os logs atuais não foram conferidos diretamente. |
-| SQLite no Render Free | O banco é descartável na configuração adotada; a persistência local entre aberturas não comprova durabilidade na hospedagem. |
-| Confirmação de e-mail no Blueprint Free | Desativada explicitamente para testes sem provedor de envio; não comprova posse do endereço cadastrado. |
-| Rate limit atrás do proxy | Mantido em memória, com `trustProxy: false`; usuários podem compartilhar o IP percebido. Requer acompanhamento antes de tráfego maior. |
-| Documentos históricos de contexto | Alguns descrevem o protótipo anterior. Para operação atual, priorizar `docs/backend.md` e `docs/render.md`. |
+| Ponto                                                       | Efeito e encaminhamento                                                                                                                                                                                         |
+| ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bundle JavaScript de aproximadamente 677 kB, ou 175 kB gzip | Aviso do Vite, sem falha no build. Divisão de código pode melhorar o carregamento inicial; não foi feita refatoração de navegação nesta revisão.                                                                |
+| Acesso do navegador ao servidor local                       | A tentativa retornou timeout. Não foi possível percorrer visualmente as telas nesse navegador. A checagem funcional do servidor usou `app.inject`.                                                              |
+| Auditoria de dependências                                   | `pnpm audit --prod --json` não concluiu por `ENOTFOUND registry.npmjs.org`. Não há resultado de auditoria de vulnerabilidades para afirmar ausência de alertas. Repetir em uma rede com acesso ao registro npm. |
+| E-mail real                                                 | Não foi enviado e-mail externo. Testes usam transporte local ou simulação de HTTPS; entrega exige credenciais e remetente configurados.                                                                         |
+| Infraestrutura Render                                       | A URL pública ainda não foi informada para esta verificação. O estado Live e os logs atuais não foram conferidos diretamente.                                                                                   |
+| SQLite no Render Free                                       | O banco é descartável na configuração adotada; a persistência local entre aberturas não comprova durabilidade na hospedagem.                                                                                    |
+| Confirmação de e-mail no Blueprint Free                     | Desativada explicitamente para testes sem provedor de envio; não comprova posse do endereço cadastrado.                                                                                                         |
+| Rate limit atrás do proxy                                   | Mantido em memória, com `trustProxy: false`; usuários podem compartilhar o IP percebido. Requer acompanhamento antes de tráfego maior.                                                                          |
+| Documentos históricos de contexto                           | Alguns descrevem o protótipo anterior. Para operação atual, priorizar `docs/backend.md` e `docs/render.md`.                                                                                                     |
 
 ## O que ainda precisa ser validado no serviço publicado
 

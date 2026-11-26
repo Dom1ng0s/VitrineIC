@@ -2,11 +2,14 @@ import type * as React from "react";
 import { MOSS, NAVY, OCHRE, SLATE, TERRACOTTA } from "@/styles/tokens";
 import type { DemandStatus } from "@/types";
 
-export const DEMAND_STATUS: Record<DemandStatus, { label: string; color: string; shape: "circle" | "square" | "diamond" }> = {
-  nova:       { label: "Nova",         color: SLATE,      shape: "diamond" },
-  em_analise: { label: "Em Análise",   color: OCHRE,      shape: "circle"  },
-  aprovada:   { label: "Aprovada",     color: MOSS,       shape: "square"  },
-  rejeitada:  { label: "Rejeitada",    color: TERRACOTTA, shape: "diamond" },
+export const DEMAND_STATUS: Record<
+  DemandStatus,
+  { label: string; color: string; shape: "circle" | "square" | "diamond" }
+> = {
+  nova: { label: "Nova", color: SLATE, shape: "diamond" },
+  em_analise: { label: "Em Análise", color: OCHRE, shape: "circle" },
+  aprovada: { label: "Aprovada", color: MOSS, shape: "square" },
+  rejeitada: { label: "Rejeitada", color: TERRACOTTA, shape: "diamond" },
   contato_liberado: { label: "Contato liberado", color: NAVY, shape: "square" },
 };
 

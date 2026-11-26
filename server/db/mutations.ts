@@ -17,34 +17,56 @@ async function idDe(sql: Sql, consulta: string, params: unknown[]) {
   return (await sql.row<{ id: string }>(consulta, params))!.id;
 }
 
-const garantirCompetencia = (sql: Sql, nome: string) => idDe(sql,
-  `INSERT INTO competencia (nome_canonico, fora_do_catalogo) VALUES ($1, true)
+const garantirCompetencia = (sql: Sql, nome: string) =>
+  idDe(
+    sql,
+    `INSERT INTO competencia (nome_canonico, fora_do_catalogo) VALUES ($1, true)
    ON CONFLICT (nome_canonico) DO UPDATE SET nome_canonico = excluded.nome_canonico
-   RETURNING id`, [nome]);
+   RETURNING id`,
+    [nome],
+  );
 
-const garantirTopico = (sql: Sql, nome: string) => idDe(sql,
-  `INSERT INTO topico_interesse (nome) VALUES ($1)
-   ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`, [nome]);
+const garantirTopico = (sql: Sql, nome: string) =>
+  idDe(
+    sql,
+    `INSERT INTO topico_interesse (nome) VALUES ($1)
+   ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`,
+    [nome],
+  );
 
-const garantirIdioma = (sql: Sql, nome: string) => idDe(sql,
-  `INSERT INTO idioma (nome) VALUES ($1)
-   ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`, [nome]);
+const garantirIdioma = (sql: Sql, nome: string) =>
+  idDe(
+    sql,
+    `INSERT INTO idioma (nome) VALUES ($1)
+   ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`,
+    [nome],
+  );
 
 async function idDeArea(sql: Sql, nome?: string) {
   if (!nome?.trim()) return null;
-  return idDe(sql, `INSERT INTO area (nome) VALUES ($1)
-    ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`, [nome.trim()]);
+  return idDe(
+    sql,
+    `INSERT INTO area (nome) VALUES ($1)
+    ON CONFLICT (nome) DO UPDATE SET nome = excluded.nome RETURNING id`,
+    [nome.trim()],
+  );
 }
 
 async function idDeEscopo(sql: Sql, rotulo?: string) {
   if (!rotulo?.trim()) return null;
-  return idDe(sql, `INSERT INTO escopo_demanda (rotulo) VALUES ($1)
-    ON CONFLICT (rotulo) DO UPDATE SET rotulo = excluded.rotulo RETURNING id`, [rotulo.trim()]);
+  return idDe(
+    sql,
+    `INSERT INTO escopo_demanda (rotulo) VALUES ($1)
+    ON CONFLICT (rotulo) DO UPDATE SET rotulo = excluded.rotulo RETURNING id`,
+    [rotulo.trim()],
+  );
 }
 
 async function idDeCurso(sql: Sql, unidade: string, curso: string) {
-  const linha = await sql.row<{ id: string }>(
-    "SELECT id FROM curso WHERE unidade_codigo = $1 AND nome = $2", [unidade, curso]);
+  const linha = await sql.row<{ id: string }>("SELECT id FROM curso WHERE unidade_codigo = $1 AND nome = $2", [
+    unidade,
+    curso,
+  ]);
   return linha?.id ?? null;
 }
 
@@ -62,8 +84,16 @@ export async function salvarConta(sql: Sql, conta: StoredAccount) {
        email = excluded.email, nome = excluded.nome, papel = excluded.papel,
        senha_hash = excluded.senha_hash, versao_credencial = excluded.versao_credencial,
        email_confirmado_em = excluded.email_confirmado_em`,
-    [conta.id, conta.email, conta.name, conta.role, conta.passwordHash,
-     conta.credentialVersion ?? 0, conta.emailVerifiedAt ?? null, paraTimestamp(conta.createdAt) || null],
+    [
+      conta.id,
+      conta.email,
+      conta.name,
+      conta.role,
+      conta.passwordHash,
+      conta.credentialVersion ?? 0,
+      conta.emailVerifiedAt ?? null,
+      paraTimestamp(conta.createdAt) || null,
+    ],
   );
 }
 
@@ -80,12 +110,25 @@ export async function salvarEstudante(sql: Sql, estudante: Student, contaId: str
        certificados = excluded.certificados, disponibilidade = excluded.disponibilidade,
        em_projeto = excluded.em_projeto, foto = excluded.foto,
        onboarding_em = excluded.onboarding_em, onboarding_pulado = excluded.onboarding_pulado`,
-    [estudante.id, contaId, await idDeCurso(sql, estudante.unit, estudante.course),
-     vazioOuNulo(estudante.matricula), vazioOuNulo(estudante.semester), numeroOuNulo(estudante.gpa),
-     vazioOuNulo(estudante.bio), vazioOuNulo(estudante.github), vazioOuNulo(estudante.linkedin),
-     vazioOuNulo(estudante.site), vazioOuNulo(estudante.lattes), vazioOuNulo(estudante.certificados),
-     vazioOuNulo(estudante.availability), !!estudante.inProject, vazioOuNulo(estudante.photo),
-     vazioOuNulo(estudante.onboardedAt), !!estudante.onboardingSkipped],
+    [
+      estudante.id,
+      contaId,
+      await idDeCurso(sql, estudante.unit, estudante.course),
+      vazioOuNulo(estudante.matricula),
+      vazioOuNulo(estudante.semester),
+      numeroOuNulo(estudante.gpa),
+      vazioOuNulo(estudante.bio),
+      vazioOuNulo(estudante.github),
+      vazioOuNulo(estudante.linkedin),
+      vazioOuNulo(estudante.site),
+      vazioOuNulo(estudante.lattes),
+      vazioOuNulo(estudante.certificados),
+      vazioOuNulo(estudante.availability),
+      !!estudante.inProject,
+      vazioOuNulo(estudante.photo),
+      vazioOuNulo(estudante.onboardedAt),
+      !!estudante.onboardingSkipped,
+    ],
   );
 
   await sql.run("DELETE FROM estudante_competencia WHERE estudante_id = $1", [estudante.id]);
@@ -106,10 +149,10 @@ export async function salvarEstudante(sql: Sql, estudante: Student, contaId: str
 
   await sql.run("DELETE FROM estudante_topico WHERE estudante_id = $1", [estudante.id]);
   for (const topico of estudante.interests ?? []) {
-    await sql.run(
-      "INSERT INTO estudante_topico (estudante_id, topico_id) VALUES ($1,$2) ON CONFLICT DO NOTHING",
-      [estudante.id, await garantirTopico(sql, topico)],
-    );
+    await sql.run("INSERT INTO estudante_topico (estudante_id, topico_id) VALUES ($1,$2) ON CONFLICT DO NOTHING", [
+      estudante.id,
+      await garantirTopico(sql, topico),
+    ]);
   }
 }
 
@@ -120,8 +163,16 @@ export async function salvarProjeto(sql: Sql, estudanteId: string, projeto: Stud
      ON CONFLICT (id) DO UPDATE SET
        titulo = excluded.titulo, descricao = excluded.descricao, situacao = excluded.situacao,
        ano = excluded.ano, area_id = excluded.area_id, link = excluded.link`,
-    [projeto.id, estudanteId, projeto.title, projeto.description, projeto.status,
-     projeto.year, await idDeArea(sql, projeto.area), vazioOuNulo(projeto.link)],
+    [
+      projeto.id,
+      estudanteId,
+      projeto.title,
+      projeto.description,
+      projeto.status,
+      projeto.year,
+      await idDeArea(sql, projeto.area),
+      vazioOuNulo(projeto.link),
+    ],
   );
   await sql.run("DELETE FROM projeto_competencia WHERE projeto_id = $1", [projeto.id]);
   for (const nome of projeto.stack ?? []) {
@@ -143,9 +194,17 @@ export async function salvarSolicitante(sql: Sql, empresa: Company, contaId: str
        tipo_codigo = excluded.tipo_codigo, rotulo_exibicao = excluded.rotulo_exibicao,
        cidade = excluded.cidade, desde = excluded.desde, site = excluded.site,
        descricao = excluded.descricao`,
-    [id ?? null, contaId, empresa.name, empresa.kind, vazioOuNulo(empresa.type),
-     vazioOuNulo(empresa.city), vazioOuNulo(empresa.since), vazioOuNulo(empresa.site),
-     vazioOuNulo(empresa.description)],
+    [
+      id ?? null,
+      contaId,
+      empresa.name,
+      empresa.kind,
+      vazioOuNulo(empresa.type),
+      vazioOuNulo(empresa.city),
+      vazioOuNulo(empresa.since),
+      vazioOuNulo(empresa.site),
+      vazioOuNulo(empresa.description),
+    ],
   );
 }
 
@@ -162,11 +221,23 @@ export async function salvarDemanda(sql: Sql, demanda: Demand) {
        prioridade = excluded.prioridade, publico_alvo = excluded.publico_alvo,
        nivel_academico = excluded.nivel_academico, tamanho_equipe = excluded.tamanho_equipe,
        orcamento = excluded.orcamento, observacoes = excluded.observacoes`,
-    [demanda.id, solicitante.id, demanda.title, demanda.description,
-     await idDeArea(sql, demanda.area), await idDeEscopo(sql, demanda.scope),
-     paraISO(demanda.deadline) || null, demanda.status, demanda.priority, vazioOuNulo(demanda.audience),
-     vazioOuNulo(demanda.academicLevel), vazioOuNulo(demanda.teamSize), vazioOuNulo(demanda.budget),
-     vazioOuNulo(demanda.notes), paraISO(demanda.submitted) || null],
+    [
+      demanda.id,
+      solicitante.id,
+      demanda.title,
+      demanda.description,
+      await idDeArea(sql, demanda.area),
+      await idDeEscopo(sql, demanda.scope),
+      paraISO(demanda.deadline) || null,
+      demanda.status,
+      demanda.priority,
+      vazioOuNulo(demanda.audience),
+      vazioOuNulo(demanda.academicLevel),
+      vazioOuNulo(demanda.teamSize),
+      vazioOuNulo(demanda.budget),
+      vazioOuNulo(demanda.notes),
+      paraISO(demanda.submitted) || null,
+    ],
   );
   await sql.run("DELETE FROM demanda_competencia WHERE demanda_id = $1", [demanda.id]);
   for (const nome of demanda.skills ?? []) {
@@ -178,7 +249,11 @@ export async function salvarDemanda(sql: Sql, demanda: Demand) {
 }
 
 export async function mudarStatusDaDemanda(
-  sql: Sql, demandaId: string, status: string, porContaId?: string, observacao?: string,
+  sql: Sql,
+  demandaId: string,
+  status: string,
+  porContaId?: string,
+  observacao?: string,
 ) {
   await sql.run("UPDATE demanda SET status = $2 WHERE id = $1", [demandaId, status]);
   await sql.run(
@@ -195,15 +270,26 @@ export async function salvarInteresse(sql: Sql, interesse: Interest, porContaId?
     `INSERT INTO interesse (id, demanda_id, estudante_id, origem, justificativa, status, criado_por_conta_id, criado_em)
      VALUES ($1,$2,$3,$4,$5,$6,$7, COALESCE($8::timestamptz, now()))
      ON CONFLICT (id) DO UPDATE SET status = excluded.status, justificativa = excluded.justificativa`,
-    [interesse.id, interesse.demandId, interesse.studentId, interesse.origin,
-     vazioOuNulo(interesse.justification), interesse.status, porContaId ?? null,
-     paraTimestamp(interesse.createdAt) || null],
+    [
+      interesse.id,
+      interesse.demandId,
+      interesse.studentId,
+      interesse.origin,
+      vazioOuNulo(interesse.justification),
+      interesse.status,
+      porContaId ?? null,
+      paraTimestamp(interesse.createdAt) || null,
+    ],
   );
 }
 
 /** O aceite de cada lado vira linha; o status do interesse é o estado corrente. */
 export async function registrarResposta(
-  sql: Sql, interesseId: string, lado: InterestSide, aceito: boolean, motivo?: string,
+  sql: Sql,
+  interesseId: string,
+  lado: InterestSide,
+  aceito: boolean,
+  motivo?: string,
 ) {
   await sql.run(
     `INSERT INTO interesse_resposta (interesse_id, lado, aceito, motivo_recusa)
@@ -218,26 +304,45 @@ export const mudarStatusDoInteresse = (sql: Sql, id: string, status: string) =>
   sql.run("UPDATE interesse SET status = $2 WHERE id = $1", [id, status]);
 
 export async function criarMensagem(sql: Sql, interesseId: string, remetenteContaId: string, conteudo: string) {
-  return idDe(sql,
-    "INSERT INTO mensagem (interesse_id, remetente_conta_id, conteudo) VALUES ($1,$2,$3) RETURNING id",
-    [interesseId, remetenteContaId, conteudo]);
+  return idDe(sql, "INSERT INTO mensagem (interesse_id, remetente_conta_id, conteudo) VALUES ($1,$2,$3) RETURNING id", [
+    interesseId,
+    remetenteContaId,
+    conteudo,
+  ]);
 }
 
-export async function criarNotificacao(sql: Sql, dados: {
-  destinatarioContaId: string; tipo: "SISTEMA" | "MENSAGEM";
-  demandaId?: string; interesseId?: string; mensagemId?: string; assunto?: string; conteudo?: string;
-}) {
+export async function criarNotificacao(
+  sql: Sql,
+  dados: {
+    destinatarioContaId: string;
+    tipo: "SISTEMA" | "MENSAGEM";
+    demandaId?: string;
+    interesseId?: string;
+    mensagemId?: string;
+    assunto?: string;
+    conteudo?: string;
+  },
+) {
   await sql.run(
     `INSERT INTO notificacao (destinatario_conta_id, tipo, demanda_id, interesse_id, mensagem_id, assunto, conteudo)
      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-    [dados.destinatarioContaId, dados.tipo, dados.demandaId ?? null,
-     dados.interesseId ?? null, dados.mensagemId ?? null, dados.assunto ?? null, dados.conteudo ?? null],
+    [
+      dados.destinatarioContaId,
+      dados.tipo,
+      dados.demandaId ?? null,
+      dados.interesseId ?? null,
+      dados.mensagemId ?? null,
+      dados.assunto ?? null,
+      dados.conteudo ?? null,
+    ],
   );
 }
 
 export const marcarNotificacaoLida = (sql: Sql, id: string, contaId: string) =>
-  sql.run("UPDATE notificacao SET lida_em = now() WHERE id = $1 AND destinatario_conta_id = $2 AND lida_em IS NULL",
-    [id, contaId]);
+  sql.run("UPDATE notificacao SET lida_em = now() WHERE id = $1 AND destinatario_conta_id = $2 AND lida_em IS NULL", [
+    id,
+    contaId,
+  ]);
 
 /** Substitui a varredura que reescrevia um documento por notificação não lida. */
 export const marcarTodasLidas = (sql: Sql, contaId: string) =>

@@ -17,14 +17,16 @@ export async function migrate(db: Database): Promise<string[]> {
     )
   `);
 
-  const arquivos = (await readdir(directory)).filter(f => f.endsWith(".sql")).sort();
-  const aplicadas = new Set((await db.sql.rows<{ versao: string }>("SELECT versao FROM schema_migration")).map(r => r.versao));
+  const arquivos = (await readdir(directory)).filter((f) => f.endsWith(".sql")).sort();
+  const aplicadas = new Set(
+    (await db.sql.rows<{ versao: string }>("SELECT versao FROM schema_migration")).map((r) => r.versao),
+  );
   const novas: string[] = [];
 
   for (const arquivo of arquivos) {
     if (aplicadas.has(arquivo)) continue;
     const sql = await readFile(join(directory, arquivo), "utf8");
-    await db.transaction(async tx => {
+    await db.transaction(async (tx) => {
       await tx.run(sql);
       await tx.run("INSERT INTO schema_migration(versao) VALUES($1)", [arquivo]);
     });

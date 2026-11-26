@@ -3,9 +3,7 @@ import * as React from "react";
 import { NAVY, OFFWHITE, RED, WHITE } from "@/styles/tokens";
 
 export function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">{children}</span>
-  );
+  return <span className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">{children}</span>;
 }
 
 export function Input({
@@ -41,7 +39,14 @@ export function Input({
   const cls = mono ? "vt-input vt-input-mono" : "vt-input";
   return (
     <div>
-      {label && (id ? <label htmlFor={id}><Label>{label}</Label></label> : <Label>{label}</Label>)}
+      {label &&
+        (id ? (
+          <label htmlFor={id}>
+            <Label>{label}</Label>
+          </label>
+        ) : (
+          <Label>{label}</Label>
+        ))}
       {textarea ? (
         <textarea
           id={id}
@@ -91,7 +96,14 @@ export function Select({
 }) {
   return (
     <div>
-      {label && (id ? <label htmlFor={id}><Label>{label}</Label></label> : <Label>{label}</Label>)}
+      {label &&
+        (id ? (
+          <label htmlFor={id}>
+            <Label>{label}</Label>
+          </label>
+        ) : (
+          <Label>{label}</Label>
+        ))}
       <div className="relative">
         <select
           id={id}
@@ -100,7 +112,7 @@ export function Select({
           multiple={multiple}
           onChange={(e) => {
             if (multiple) {
-              const vals = Array.from(e.target.selectedOptions, option => option.value);
+              const vals = Array.from(e.target.selectedOptions, (option) => option.value);
               onChange(vals);
             } else {
               onChange(e.target.value);
@@ -133,7 +145,13 @@ export function Select({
             aria-hidden="true"
             className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-navy/55"
           >
-            <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M1 1l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         )}
       </div>
@@ -190,13 +208,26 @@ export function MultiSelect({
           minHeight: "41px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between"
+          justifyContent: "space-between",
         }}
       >
-        <span style={{ opacity: value.length === 0 ? 0.6 : 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span
+          style={{
+            opacity: value.length === 0 ? 0.6 : 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {value.length === 0 ? "Selecione..." : value.join(", ")}
         </span>
-        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+        >
           <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
@@ -209,7 +240,7 @@ export function MultiSelect({
             borderRadius: "8px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             maxHeight: "200px",
-            overflowY: "auto"
+            overflowY: "auto",
           }}
         >
           {options.map((o) => (
@@ -221,7 +252,7 @@ export function MultiSelect({
                 fontFamily: "Geist, Inter, system-ui, sans-serif",
                 color: NAVY,
                 fontSize: "13px",
-                borderBottom: `1px solid ${NAVY}10`
+                borderBottom: `1px solid ${NAVY}10`,
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = `${NAVY}05`)}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
@@ -231,12 +262,18 @@ export function MultiSelect({
                 style={{
                   border: `1px solid ${value.includes(o) ? NAVY : `${NAVY}40`}`,
                   borderRadius: "4px",
-                  background: value.includes(o) ? NAVY : "transparent"
+                  background: value.includes(o) ? NAVY : "transparent",
                 }}
               >
                 {value.includes(o) && (
                   <svg width="10" height="8" viewBox="0 0 10 8" fill="none" style={{ color: OFFWHITE }}>
-                    <path d="M1 4l2.5 2.5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M1 4l2.5 2.5L9 1"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 )}
               </div>
@@ -274,7 +311,7 @@ export function Tag({
         background: active ? (accent ? RED : NAVY) : "transparent",
         color: active ? OFFWHITE : NAVY,
         opacity: 1,
-        borderRadius: "6px"
+        borderRadius: "6px",
       }}
     >
       {children}

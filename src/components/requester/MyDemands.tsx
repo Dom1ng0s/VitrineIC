@@ -71,7 +71,9 @@ export function MyDemands({ onNew, onViewMatch }: { onNew: () => void; onViewMat
                       {visible.length > 0 ? `Ver interessados (${visible.length})` : "Ver interessados"} <ArrowIcon />
                     </button>
                   ) : (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">Aguardando curadoria</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
+                      Aguardando curadoria
+                    </span>
                   )}
                 </div>
               )}

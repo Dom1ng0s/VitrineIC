@@ -52,7 +52,11 @@ export class Database {
       await client.query("COMMIT");
       return value;
     } catch (error) {
-      try { await client.query("ROLLBACK"); } catch { /* conexão já perdida */ }
+      try {
+        await client.query("ROLLBACK");
+      } catch {
+        /* conexão já perdida */
+      }
       throw error;
     } finally {
       client.release();

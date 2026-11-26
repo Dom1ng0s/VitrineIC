@@ -3,10 +3,10 @@ import { Eyebrow } from "@/components/public/Eyebrow";
 import { PAGE } from "@/components/public/layout";
 
 export const PIPELINE_STEPS = [
-  { n: "01", label: "Análise",     desc: "Equipe de curadoria revisa a demanda e valida escopo técnico." },
-  { n: "02", label: "Publicação",  desc: "A demanda aprovada aparece para os estudantes." },
-  { n: "03", label: "Interesses",  desc: "Candidaturas dos estudantes e sugestões da curadoria chegam a você." },
-  { n: "04", label: "Contato",     desc: "Liberado quando você e o estudante aceitam." },
+  { n: "01", label: "Análise", desc: "Equipe de curadoria revisa a demanda e valida escopo técnico." },
+  { n: "02", label: "Publicação", desc: "A demanda aprovada aparece para os estudantes." },
+  { n: "03", label: "Interesses", desc: "Candidaturas dos estudantes e sugestões da curadoria chegam a você." },
+  { n: "04", label: "Contato", desc: "Liberado quando você e o estudante aceitam." },
 ];
 
 export function SuccessScreen({ protocol, onDashboard }: { protocol: string; onDashboard: () => void }) {
@@ -27,7 +27,9 @@ export function SuccessScreen({ protocol, onDashboard }: { protocol: string; onD
 
       <div className="vt-card mt-10 px-10 py-7 md:px-14">
         <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/55">Protocolo</p>
-        <p className="mt-3 font-display text-[28px] font-medium tracking-[-0.02em] text-navy md:text-[32px]">{protocol}</p>
+        <p className="mt-3 font-display text-[28px] font-medium tracking-[-0.02em] text-navy md:text-[32px]">
+          {protocol}
+        </p>
       </div>
 
       <button onClick={onDashboard} className="vt-btn vt-btn-primary mt-8">

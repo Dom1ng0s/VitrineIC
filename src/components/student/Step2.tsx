@@ -3,13 +3,7 @@ import { SkillPicker } from "./SkillPicker";
 import { Label } from "./ui";
 import type { ProfileDraft } from "@/lib/profile";
 
-export function Step2({
-  data,
-  setData,
-}: {
-  data: ProfileDraft;
-  setData: (d: Partial<ProfileDraft>) => void;
-}) {
+export function Step2({ data, setData }: { data: ProfileDraft; setData: (d: Partial<ProfileDraft>) => void }) {
   const skills = data.skills;
 
   return (
@@ -18,20 +12,11 @@ export function Step2({
         Adicione pelo menos uma competência para seu perfil aparecer na vitrine e receber convites.
       </p>
 
-      <SkillPicker
-        value={skills}
-        course={data.course}
-        onChange={(s) => setData({ skills: s })}
-      />
+      <SkillPicker value={skills} course={data.course} onChange={(s) => setData({ skills: s })} />
 
       <div>
         <Label>Certificados (opcional)</Label>
-        <FileDrop
-          title="Anexar certificado técnico"
-          hint="PDF"
-          accept=".pdf"
-          category="tech"
-        />
+        <FileDrop title="Anexar certificado técnico" hint="PDF" accept=".pdf" category="tech" />
       </div>
     </div>
   );

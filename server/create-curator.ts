@@ -7,4 +7,6 @@ const db = new Database(readConfig().databaseUrl);
 try {
   await createCurator(db, process.env);
   console.log("Conta de curadoria criada.");
-} finally { await db.close(); }
+} finally {
+  await db.close();
+}

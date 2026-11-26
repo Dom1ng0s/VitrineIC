@@ -17,7 +17,9 @@ export function StepIndicator({ steps, current }: { steps: readonly string[]; cu
             >
               {String(i + 1).padStart(2, "0")}
             </p>
-            <p className={`mt-1 font-sans text-[11px] leading-tight md:text-[13px] ${reached ? "text-navy" : "text-navy/40"}`}>
+            <p
+              className={`mt-1 font-sans text-[11px] leading-tight md:text-[13px] ${reached ? "text-navy" : "text-navy/40"}`}
+            >
               {label}
             </p>
           </li>

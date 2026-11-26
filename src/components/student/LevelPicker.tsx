@@ -77,12 +77,15 @@ export function LevelMeter({ level, labels = LEVELS }: { level: SkillLevel; labe
               width: "4px",
               height: `${step * 2.5 + 2}px`,
               background: step <= level ? LEVEL_COLORS[step] : `${NAVY}20`,
-              borderRadius: "1px"
+              borderRadius: "1px",
             }}
           />
         ))}
       </span>
-      <span className="text-[10px] tracking-[0.1em] uppercase font-bold" style={{ fontFamily: MONO, color: activeColor }}>
+      <span
+        className="text-[10px] tracking-[0.1em] uppercase font-bold"
+        style={{ fontFamily: MONO, color: activeColor }}
+      >
         {labels[level - 1]}
       </span>
     </div>

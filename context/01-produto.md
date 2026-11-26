@@ -35,7 +35,7 @@ cortada da entrega:
 
 ## O match direcionado
 
-**Não é candidatura aberta.** O sistema aponta *a pessoa mais compatível* e
+**Não é candidatura aberta.** O sistema aponta _a pessoa mais compatível_ e
 **só ela é contatada**. Isso é o oposto de um mural onde todos se candidatam.
 
 O **crivo humano** precisa existir de fato no sistema, "mesmo que de forma
@@ -65,11 +65,11 @@ então adicionar um curso é mudar os dois arquivos, e o compilador aponta o res
 
 ## Usuários
 
-| Perfil | No código | O que faz |
-|---|---|---|
-| Estudante | `student` | expõe projetos, preenche perfil e skills, recebe convites |
-| Solicitante | `company` / `requester` | publica demandas, acompanha status, recebe matches |
-| Curador | área `curator` | tria demandas, seleciona candidato, confirma conexão |
+| Perfil      | No código               | O que faz                                                 |
+| ----------- | ----------------------- | --------------------------------------------------------- |
+| Estudante   | `student`               | expõe projetos, preenche perfil e skills, recebe convites |
+| Solicitante | `company` / `requester` | publica demandas, acompanha status, recebe matches        |
+| Curador     | área `curator`          | tria demandas, seleciona candidato, confirma conexão      |
 
 ## Modelo de negócio
 
@@ -88,12 +88,12 @@ Resumo do canvas em `docs/modelo-de-negocio.md`:
 
 **Esta é a decisão mais importante ainda não tomada.**
 
-| | README da equipe | Código |
-|---|---|---|
-| Conecta | alunos ↔ demandas da **universidade** (PIBIC, PIBITI, professores, coordenação) | alunos ↔ **empresas** |
-| Papel intermediário | professor / coordenação / proponente | empresa / solicitante |
-| Copy do hero | — | "Conectando inovação acadêmica **ao mercado**" |
-| Dados de exemplo | — | `TechBr Soluções`, `Fintech Labs`, `EduCorpora` |
+|                     | README da equipe                                                                | Código                                          |
+| ------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Conecta             | alunos ↔ demandas da **universidade** (PIBIC, PIBITI, professores, coordenação) | alunos ↔ **empresas**                           |
+| Papel intermediário | professor / coordenação / proponente                                            | empresa / solicitante                           |
+| Copy do hero        | —                                                                               | "Conectando inovação acadêmica **ao mercado**"  |
+| Dados de exemplo    | —                                                                               | `TechBr Soluções`, `Fintech Labs`, `EduCorpora` |
 
 O código seguiu firme na direção aluno↔empresa por dois commits seguidos, e
 nenhuma demanda de exemplo é acadêmica. A leitura mais provável é que **o README

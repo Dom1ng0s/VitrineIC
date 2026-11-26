@@ -92,7 +92,12 @@ export function Profile() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2">
-          <Input label="Responsável" value={data.contactName} onChange={(v) => set({ contactName: v })} {...field("contactName")} />
+          <Input
+            label="Responsável"
+            value={data.contactName}
+            onChange={(v) => set({ contactName: v })}
+            {...field("contactName")}
+          />
           <Input
             label="E-mail de contato"
             type="email"
@@ -102,7 +107,12 @@ export function Profile() {
             {...field("contactEmail")}
           />
           <Input label="Cidade" value={data.city} onChange={(v) => set({ city: v })} {...field("city")} />
-          <Input label="Site (opcional)" placeholder="suaorganizacao.com.br" value={data.site} onChange={(v) => set({ site: v })} />
+          <Input
+            label="Site (opcional)"
+            placeholder="suaorganizacao.com.br"
+            value={data.site}
+            onChange={(v) => set({ site: v })}
+          />
           <div className="md:col-span-2">
             <Input
               label="Descrição"

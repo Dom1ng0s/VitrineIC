@@ -7,8 +7,8 @@ instituição, não só do Instituto de Computação.
 **Não há demonstração.** A pessoa responde sozinha, lendo o formulário. Isso
 impõe duas consequências que atravessam o documento inteiro:
 
-1. **Nada pode depender de ver o produto.** As perguntas validam o *problema* e o
-   *conceito*, nunca a interface.
+1. **Nada pode depender de ver o produto.** As perguntas validam o _problema_ e o
+   _conceito_, nunca a interface.
 2. **O conceito precisa ser explicado dentro do próprio formulário**, em um texto
    curto, colocado só depois do bloco sobre o problema (seção 6) — antes disso,
    descrever a solução contamina as respostas.
@@ -22,12 +22,12 @@ uma, para a equipe cortar o que não couber sem perder o que importa.
 
 Quatro hipóteses. Toda pergunta existe para testar uma delas.
 
-| # | Hipótese | Se cair, o que muda |
-|---|---|---|
+| #      | Hipótese                                                                                                                               | Se cair, o que muda                                    |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | **H1** | O problema é real e generalizável: estudantes universitários não têm onde expor o que produzem nem onde encontrar parceiros de projeto | o produto perde razão de existir, ou vale só para o IC |
-| **H2** | O match **direcionado a uma pessoa** é preferível à candidatura aberta | muda a peça central do produto |
-| **H3** | A **curadoria humana** aumenta a confiança e justifica seu custo | muda o modelo de operação e de custos |
-| **H4** | Existe intenção de uso — a pessoa criaria perfil e publicaria seu trabalho | a vitrine nasce vazia |
+| **H2** | O match **direcionado a uma pessoa** é preferível à candidatura aberta                                                                 | muda a peça central do produto                         |
+| **H3** | A **curadoria humana** aumenta a confiança e justifica seu custo                                                                       | muda o modelo de operação e de custos                  |
+| **H4** | Existe intenção de uso — a pessoa criaria perfil e publicaria seu trabalho                                                             | a vitrine nasce vazia                                  |
 
 > Ficou de fora, deliberadamente: usabilidade da interface. Sem demonstração, não
 > há como medir — e responder "a tela é clara" sem ver a tela não é dado, é ruído.
@@ -38,11 +38,11 @@ Quatro hipóteses. Toda pergunta existe para testar uma delas.
 
 Estudantes de graduação ou pós, de qualquer curso e instituição.
 
-| Segmento | Alvo mínimo | Por que importa |
-|---|---|---|
-| Computação (qualquer instituição) | 30 | é o público de partida do produto |
-| Outras áreas — exatas, humanas, saúde, artes | 30 | testa se o problema é do IC ou da universidade |
-| Total | 60 | |
+| Segmento                                     | Alvo mínimo | Por que importa                                |
+| -------------------------------------------- | ----------- | ---------------------------------------------- |
+| Computação (qualquer instituição)            | 30          | é o público de partida do produto              |
+| Outras áreas — exatas, humanas, saúde, artes | 30          | testa se o problema é do IC ou da universidade |
+| Total                                        | 60          |                                                |
 
 **A comparação entre os dois segmentos é o achado mais valioso do
 questionário.** Se o problema aparecer forte só em computação, o produto é do IC;
@@ -82,18 +82,18 @@ mesma escala no formulário inteiro — misturar escalas inviabiliza a comparaç
 ## 4. Bloco 0 — Perfil
 
 1. Você é estudante de graduação ou pós-graduação?
-   ( ) Graduação ( ) Pós ( ) Não sou estudante *(→ encerra o formulário)*
+   ( ) Graduação ( ) Pós ( ) Não sou estudante _(→ encerra o formulário)_
 2. Qual sua **área**?
    ( ) Computação / TI ( ) Outras engenharias ( ) Exatas ( ) Saúde
    ( ) Humanas / sociais ( ) Artes / design ( ) Outra: ____
 3. Curso: ____
-4. Instituição: ____  Pública ( ) Privada ( )
+4. Instituição: ____ Pública ( ) Privada ( )
 5. Em que período/ano você está? ____
 6. Já participou de iniciação científica, extensão, empresa júnior, laboratório,
-   coletivo ou startup? *(múltipla)*
+   coletivo ou startup? _(múltipla)_
    Sim, atualmente · Sim, no passado · Não, mas tenho interesse · Não tenho
    interesse
-7. Onde você mostra hoje o que produz? *(múltipla)*
+7. Onde você mostra hoje o que produz? _(múltipla)_
    GitHub · LinkedIn · Behance/Dribbble · Portfólio próprio · Redes sociais ·
    Currículo Lattes · **Não mostro em lugar nenhum** · Outro: ____
 
@@ -102,7 +102,7 @@ mesma escala no formulário inteiro — misturar escalas inviabiliza a comparaç
 
 ---
 
-## 5. Bloco A — O problema *(ainda sem falar da solução)* — H1
+## 5. Bloco A — O problema _(ainda sem falar da solução)_ — H1
 
 **Escala 1–5:**
 
@@ -121,7 +121,7 @@ mesma escala no formulário inteiro — misturar escalas inviabiliza a comparaç
 13. Descreva a última vez em que você **quis** encontrar alguém da sua
     universidade para um projeto. O que você fez, e no que deu?
 14. Na sua opinião, por que bons trabalhos universitários ficam invisíveis?
-15. *(opcional)* Conte, em uma frase, um projeto seu que você gostaria que mais
+15. _(opcional)_ Conte, em uma frase, um projeto seu que você gostaria que mais
     gente tivesse visto.
 
 > **Leitura:** H1 se sustenta se 8 e 10 vierem altas (mediana ≥ 4) **e** 9 e 11
@@ -131,7 +131,7 @@ mesma escala no formulário inteiro — misturar escalas inviabiliza a comparaç
 
 ---
 
-## 6. Apresentação do conceito *(texto no formulário, não é pergunta)*
+## 6. Apresentação do conceito _(texto no formulário, não é pergunta)_
 
 Só aqui a solução aparece. Insira como bloco de texto entre as seções:
 
@@ -165,8 +165,8 @@ eles inflam artificialmente as respostas de intenção de uso do bloco D.
     - ( ) **B** — alguém analisa os perfis e convida **uma** pessoa; só ela é
       contatada
     - ( ) Tanto faz
-17. **Por quê?** *(aberta — a pergunta mais importante do bloco; deixe
-    obrigatória)*
+17. **Por quê?** _(aberta — a pergunta mais importante do bloco; deixe
+    obrigatória)_
 18. **Escala.** "Receber um convite direcionado me faria levar a oportunidade
     mais a sério do que ver um anúncio aberto."
 19. **Escala.** "Saber que só uma pessoa é contatada me preocupa: sinto que
@@ -245,10 +245,10 @@ eles inflam artificialmente as respostas de intenção de uso do bloco D.
 ## 10. Bloco E — Fechamento
 
 34. Se essa plataforma existisse, o que ela **precisaria ter** para você usar de
-    verdade? *(aberta)*
-35. O que te pareceu frágil ou pouco convincente na ideia? *(aberta — peça
-    sinceridade explicitamente; respostas negativas valem mais que elogios)*
-36. Algo que você gostaria de dizer e não foi perguntado? *(aberta, opcional)*
+    verdade? _(aberta)_
+35. O que te pareceu frágil ou pouco convincente na ideia? _(aberta — peça
+    sinceridade explicitamente; respostas negativas valem mais que elogios)_
+36. Algo que você gostaria de dizer e não foi perguntado? _(aberta, opcional)_
 37. Aceita ser contatado para uma próxima rodada, com o protótipo pronto?
     ( ) Sim ( ) Não — e-mail (opcional): ____
 
@@ -259,12 +259,12 @@ eles inflam artificialmente as respostas de intenção de uso do bloco D.
 Preencha para cada hipótese, **e repita o quadro separando computação das demais
 áreas**:
 
-| Hipótese | Perguntas | Resultado (mediana / %) | Veredito | O que muda no produto |
-|---|---|---|---|---|
-| H1 — problema real | 8–13 | | ( ) confirma ( ) parcial ( ) refuta | |
-| H2 — match direcionado | 16, 18, 19, 21 | | | |
-| H3 — curadoria humana | 22, 23, 24, 25 | | | |
-| H4 — intenção de uso | 27, 28, 29, 30 | | | |
+| Hipótese               | Perguntas      | Resultado (mediana / %) | Veredito                            | O que muda no produto |
+| ---------------------- | -------------- | ----------------------- | ----------------------------------- | --------------------- |
+| H1 — problema real     | 8–13           |                         | ( ) confirma ( ) parcial ( ) refuta |                       |
+| H2 — match direcionado | 16, 18, 19, 21 |                         |                                     |                       |
+| H3 — curadoria humana  | 22, 23, 24, 25 |                         |                                     |                       |
+| H4 — intenção de uso   | 27, 28, 29, 30 |                         |                                     |                       |
 
 **Regras de leitura, combinadas antes de ver os dados:**
 
@@ -284,7 +284,7 @@ Anote sempre o **n** de cada corte. Uma leitura sobre 6 respostas não carrega o
 peso de uma sobre 40, e o relatório da ACE1 precisa deixar isso visível em vez de
 apresentar porcentagens soltas.
 
-**Não descarte as abertas.** As perguntas 13, 14, 17, 34 e 35 explicam *por que*
+**Não descarte as abertas.** As perguntas 13, 14, 17, 34 e 35 explicam _por que_
 um número veio como veio. Agrupe por tema, conte quantas respostas caem em cada
 tema e cite as literais mais representativas.
 
@@ -294,10 +294,10 @@ tema e cite as literais mais representativas.
 
 Fecha duas questões que estavam em aberto no projeto:
 
-| Questão em aberto | Pergunta que resolve |
-|---|---|
-| Solicitante é a universidade ou a empresa? | 31 |
-| Quem faz o crivo humano? | 24 |
+| Questão em aberto                          | Pergunta que resolve |
+| ------------------------------------------ | -------------------- |
+| Solicitante é a universidade ou a empresa? | 31                   |
+| Quem faz o crivo humano?                   | 24                   |
 
 E abre uma nova, que antes nem estava posta: **o problema é do IC ou de toda a
 universidade?** — respondida pelo corte da pergunta 2 sobre o bloco A.

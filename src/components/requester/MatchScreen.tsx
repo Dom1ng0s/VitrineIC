@@ -34,7 +34,12 @@ function InterestCard({
   const student = findStudent(interest.studentId);
   if (!student) return null;
 
-  const noteTitle = interest.origin === "sugestao" ? "Justificativa da curadoria" : interest.origin === "convite" ? "Sua mensagem" : "Nota do estudante";
+  const noteTitle =
+    interest.origin === "sugestao"
+      ? "Justificativa da curadoria"
+      : interest.origin === "convite"
+        ? "Sua mensagem"
+        : "Nota do estudante";
 
   return (
     <article className="vt-card flex flex-col gap-5 p-6">
@@ -68,9 +73,10 @@ function InterestCard({
         </p>
       )}
 
-      {interest.refusalReason && (interest.status === "recusado_estudante" || interest.status === "recusado_solicitante") && (
-        <p className="font-sans text-[13px] text-navy/60">Motivo: {interest.refusalReason}</p>
-      )}
+      {interest.refusalReason &&
+        (interest.status === "recusado_estudante" || interest.status === "recusado_solicitante") && (
+          <p className="font-sans text-[13px] text-navy/60">Motivo: {interest.refusalReason}</p>
+        )}
 
       <div className="flex flex-wrap gap-2 border-t border-navy/8 pt-5">
         <button onClick={onOpen} className="vt-btn vt-btn-secondary flex-1">
@@ -194,7 +200,7 @@ export function MatchScreen({ demandId, onBack }: { demandId?: string | null; on
           title={`Recusar ${findStudent(refusing.studentId)?.name ?? "estudante"}?`}
           onClose={() => setRefusing(null)}
           onConfirm={async (reason) => {
-            if (!await respondInterest(refusing.id, "solicitante", false, reason)) return;
+            if (!(await respondInterest(refusing.id, "solicitante", false, reason))) return;
             setRefusing(null);
           }}
         />

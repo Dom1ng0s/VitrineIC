@@ -59,7 +59,11 @@ export function SignInForm({
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-4">
       {failure && <FormAlert>{failure}</FormAlert>}
-      {message && <p role="status" className={`text-sm ${dark ? "text-offwhite" : "text-moss"}`}>{message}</p>}
+      {message && (
+        <p role="status" className={`text-sm ${dark ? "text-offwhite" : "text-moss"}`}>
+          {message}
+        </p>
+      )}
       <InputField
         label={emailLabel}
         type="email"
@@ -70,25 +74,38 @@ export function SignInForm({
         dark={dark}
         {...field("email")}
       />
-      {!recovering && <InputField
-        label="Senha"
-        type="password"
-        autoComplete="current-password"
-        placeholder="••••••••"
-        value={values.password}
-        onChange={(v) => set({ password: v })}
-        dark={dark}
-        {...field("password")}
-      />}
+      {!recovering && (
+        <InputField
+          label="Senha"
+          type="password"
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={values.password}
+          onChange={(v) => set({ password: v })}
+          dark={dark}
+          {...field("password")}
+        />
+      )}
       <button
         type="submit"
         className={`vt-btn ${dark ? "vt-btn-cream" : "vt-btn-primary"} mt-2 h-11 w-full justify-center`}
       >
         {recovering ? "Enviar instruções" : submitLabel} <ArrowIcon />
       </button>
-      {auth.emailEnabled && <button type="button" onClick={() => { setRecovering(!recovering); setFailure(null); setMessage(""); setValues({ ...values, password: "" }); }} className={`text-center text-sm underline underline-offset-4 ${dark ? "text-offwhite/75" : "text-navy/65"}`}>
-        {recovering ? "Voltar para entrar" : "Esqueci minha senha"}
-      </button>}
+      {auth.emailEnabled && (
+        <button
+          type="button"
+          onClick={() => {
+            setRecovering(!recovering);
+            setFailure(null);
+            setMessage("");
+            setValues({ ...values, password: "" });
+          }}
+          className={`text-center text-sm underline underline-offset-4 ${dark ? "text-offwhite/75" : "text-navy/65"}`}
+        >
+          {recovering ? "Voltar para entrar" : "Esqueci minha senha"}
+        </button>
+      )}
     </form>
   );
 }

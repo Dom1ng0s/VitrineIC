@@ -23,24 +23,44 @@ import { accountRoutes } from "./account-routes";
 export async function buildApp(overrides: Partial<Config> = {}, services: { mailer?: Mailer } = {}) {
   const config = { ...readConfig(), ...overrides };
   ensure(!(config.production && config.demo), 500, "Modo de demonstração proibido em produção.");
-  ensure(!(config.production && config.mail.mode === "file" && !services.mailer), 500, "E-mails em arquivo são exclusivos de desenvolvimento.");
-  ensure(!config.requireVerifiedEmail || config.mail.mode !== "disabled", 500, "A confirmação de e-mail exige um serviço de envio configurado.");
+  ensure(
+    !(config.production && config.mail.mode === "file" && !services.mailer),
+    500,
+    "E-mails em arquivo são exclusivos de desenvolvimento.",
+  );
+  ensure(
+    !config.requireVerifiedEmail || config.mail.mode !== "disabled",
+    500,
+    "A confirmação de e-mail exige um serviço de envio configurado.",
+  );
   const mail = new MailQueue(services.mailer ?? createMailer(config.mail));
   const db = new Database(config.databaseUrl);
   await migrate(db);
   // Catálogo só na primeira subida; a recarga completa é do `pnpm db:migrate`.
-  if (!await db.sql.row("SELECT 1 FROM competencia LIMIT 1")) await db.transaction(syncCatalog);
-  if (config.production && await db.sql.row("SELECT 1 FROM conta WHERE id IN ('ACC-001','ACC-002','ACC-003')")) {
+  if (!(await db.sql.row("SELECT 1 FROM competencia LIMIT 1"))) await db.transaction(syncCatalog);
+  if (config.production && (await db.sql.row("SELECT 1 FROM conta WHERE id IN ('ACC-001','ACC-002','ACC-003')"))) {
     await db.close();
     throw new Error("Use um banco sem contas de demonstração em produção.");
   }
-  const app = Fastify({ logger: config.logger ? { redact: ["req.headers.cookie", "req.headers.authorization", "res.headers.set-cookie"] } : false, bodyLimit: 2 * 1024 * 1024, trustProxy: false });
+  const app = Fastify({
+    logger: config.logger
+      ? { redact: ["req.headers.cookie", "req.headers.authorization", "res.headers.set-cookie"] }
+      : false,
+    bodyLimit: 2 * 1024 * 1024,
+    trustProxy: false,
+  });
   await app.register(cookie);
   await app.register(rateLimit, { max: 240, timeWindow: "1 minute" });
   await app.register(multipart, { limits: { fileSize: 20 * 1024 * 1024, files: 1, fields: 0, parts: 1 } });
-  app.addHook("onClose", async () => { await mail.drain(); await db.close(); });
+  app.addHook("onClose", async () => {
+    await mail.drain();
+    await db.close();
+  });
   app.addHook("onRequest", async (request, reply) => {
-    reply.header("X-Content-Type-Options", "nosniff").header("Referrer-Policy", "same-origin").header("X-Frame-Options", "DENY");
+    reply
+      .header("X-Content-Type-Options", "nosniff")
+      .header("Referrer-Policy", "same-origin")
+      .header("X-Frame-Options", "DENY");
     if (config.production) reply.header("Strict-Transport-Security", "max-age=31536000");
     if (!request.url.startsWith("/api/")) return;
     reply.header("Cache-Control", "no-store");
@@ -52,14 +72,28 @@ export async function buildApp(overrides: Partial<Config> = {}, services: { mail
     }
   });
   app.setErrorHandler((error, request, reply) => {
-    if (error instanceof ZodError) return reply.code(400).send({ error: "Confira os dados enviados.", fields: error.flatten().fieldErrors });
-    const status = error instanceof HttpError ? error.statusCode : (typeof error === "object" && error && "statusCode" in error ? Number(error.statusCode) : 500);
+    if (error instanceof ZodError)
+      return reply.code(400).send({ error: "Confira os dados enviados.", fields: error.flatten().fieldErrors });
+    const status =
+      error instanceof HttpError
+        ? error.statusCode
+        : typeof error === "object" && error && "statusCode" in error
+          ? Number(error.statusCode)
+          : 500;
     if (status >= 500) request.log.error(error);
-    const message = status >= 500 ? "Não foi possível concluir a operação." : error instanceof Error ? error.message : "Requisição inválida.";
+    const message =
+      status >= 500
+        ? "Não foi possível concluir a operação."
+        : error instanceof Error
+          ? error.message
+          : "Requisição inválida.";
     return reply.code(status >= 400 && status < 600 ? status : 500).send({ error: message });
   });
-  app.get("/api/health", async () => { await db.sql.row("SELECT 1"); return { status: "ok" }; });
-  app.get("/api/state", async request => snapshot(db.sql, config, await accountFor(db, request)));
+  app.get("/api/health", async () => {
+    await db.sql.row("SELECT 1");
+    return { status: "ok" };
+  });
+  app.get("/api/state", async (request) => snapshot(db.sql, config, await accountFor(db, request)));
   app.get("/api/impact", async () => (await snapshot(db.sql, config)).impact);
   await authRoutes(app, db, config, mail);
   accountRoutes(app, db, config, mail);
@@ -69,7 +103,8 @@ export async function buildApp(overrides: Partial<Config> = {}, services: { mail
   const dist = resolve("dist");
   if (existsSync(dist)) await app.register(staticFiles, { root: dist, prefix: "/" });
   app.setNotFoundHandler((request, reply) => {
-    if (request.url.startsWith("/api/") || request.method !== "GET" || !existsSync(resolve(dist, "index.html"))) return reply.code(404).send({ error: "Rota não encontrada." });
+    if (request.url.startsWith("/api/") || request.method !== "GET" || !existsSync(resolve(dist, "index.html")))
+      return reply.code(404).send({ error: "Rota não encontrada." });
     return reply.sendFile("index.html");
   });
   return { app, db, mail };

@@ -13,8 +13,8 @@ export function fileRoutes(app: FastifyInstance, db: Database, config: Config) {
     ensure(["tech", "language", "portfolio"].includes(category), 400, "Categoria inválida.");
     const file = await request.file();
     ensure(file, 400, "Selecione um arquivo.");
-    // eslint-disable-next-line no-control-regex -- tirar caractere de controle do nome é o objetivo
     const name = basename(file.filename.replaceAll("\\", "/"))
+      // eslint-disable-next-line no-control-regex -- tirar caractere de controle do nome é o objetivo
       .replace(/[\x00-\x1f\x7f]/g, "")
       .slice(0, 200);
     const extension = extname(name).toLowerCase();

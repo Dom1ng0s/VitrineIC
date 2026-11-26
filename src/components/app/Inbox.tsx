@@ -18,13 +18,7 @@ export type InboxMessage = Notification;
  * Os avisos curtos ficam no sino (`UpdatesMenu`).
  * `typeColors` dá a cor da pílula de cada tipo.
  */
-export function Inbox({
-  initial,
-  typeColors,
-}: {
-  initial: InboxMessage[];
-  typeColors: Record<string, string>;
-}) {
+export function Inbox({ initial, typeColors }: { initial: InboxMessage[]; typeColors: Record<string, string> }) {
   const notifs = initial;
   const [sent, setSent] = useState(false);
   const [filter, setFilter] = useState<"todas" | "nao-lidas">("todas");
@@ -35,7 +29,7 @@ export function Inbox({
 
   const openNotif = async (index: number) => {
     const original = notifs[index];
-    if (!await markRead(original.id)) return;
+    if (!(await markRead(original.id))) return;
     setSent(false);
     setSelected(original);
   };
@@ -64,34 +58,49 @@ export function Inbox({
             </p>
           </div>
 
-          <p className="py-8 font-sans text-[15px] leading-[1.65] whitespace-pre-wrap text-navy/85">{selected.content}</p>
+          <p className="py-8 font-sans text-[15px] leading-[1.65] whitespace-pre-wrap text-navy/85">
+            {selected.content}
+          </p>
 
-          {selected.canReply && <div className="border-t border-navy/8 pt-6">
-            <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
-              Responder mensagem
-            </label>
-            <textarea
-              rows={4}
-              className="vt-input"
-              placeholder="Escreva sua resposta..."
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-            />
-            <div className="mt-4 flex justify-end">
-              {sent && <p role="status" className="mr-4 text-sm text-moss">Resposta enviada.</p>}
-              <button disabled={!reply.trim()} onClick={async () => { if (await replyNotification(selected.id, reply)) { setReply(""); setSent(true); } }} className="vt-btn vt-btn-primary">
-                Enviar resposta <ArrowIcon />
-              </button>
+          {selected.canReply && (
+            <div className="border-t border-navy/8 pt-6">
+              <label className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
+                Responder mensagem
+              </label>
+              <textarea
+                rows={4}
+                className="vt-input"
+                placeholder="Escreva sua resposta..."
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+              />
+              <div className="mt-4 flex justify-end">
+                {sent && (
+                  <p role="status" className="mr-4 text-sm text-moss">
+                    Resposta enviada.
+                  </p>
+                )}
+                <button
+                  disabled={!reply.trim()}
+                  onClick={async () => {
+                    if (await replyNotification(selected.id, reply)) {
+                      setReply("");
+                      setSent(true);
+                    }
+                  }}
+                  className="vt-btn vt-btn-primary"
+                >
+                  Enviar resposta <ArrowIcon />
+                </button>
+              </div>
             </div>
-          </div>}
+          )}
         </article>
       </main>
     );
   }
 
-  const filtered = notifs
-    .map((n, index) => ({ n, index }))
-    .filter(({ n }) => filter === "todas" || n.unread);
+  const filtered = notifs.map((n, index) => ({ n, index })).filter(({ n }) => filter === "todas" || n.unread);
 
   return (
     <main className={`${PAGE} pb-20`}>

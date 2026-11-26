@@ -16,7 +16,10 @@ export const STUDENTS: Student[] = [
     gpa: "9.1",
     bio: "Interesse em sistemas distribuídos e aprendizado de máquina aplicado a infraestrutura. Busco projetos de iniciação científica em detecção de anomalias.",
     interests: ["Inteligência Artificial", "Redes & Sistemas", "Banco de Dados"],
-    languages: [{ name: "Inglês", level: 3 }, { name: "Espanhol", level: 2 }],
+    languages: [
+      { name: "Inglês", level: 3 },
+      { name: "Espanhol", level: 2 },
+    ],
     skills: ["Python", "PyTorch", "Docker", "PostgreSQL", "Node.js", "scikit-learn", "MQTT"],
     skillLevels: { Python: 3, PyTorch: 3, Docker: 2, PostgreSQL: 2 },
     projects: [
@@ -25,7 +28,8 @@ export const STUDENTS: Student[] = [
         title: "Detecção de Anomalias em Redes",
         stack: ["Python", "PyTorch"],
         status: "coding",
-        description: "Pipeline de ML para identificação de comportamentos suspeitos em tráfego de rede, usando autoencoders e análise estatística de séries temporais.",
+        description:
+          "Pipeline de ML para identificação de comportamentos suspeitos em tráfego de rede, usando autoencoders e análise estatística de séries temporais.",
         year: "2026",
         area: "Redes & Sistemas",
       },
@@ -34,7 +38,8 @@ export const STUDENTS: Student[] = [
         title: "DSL para Análise Genômica",
         stack: ["Rust", "LLVM"],
         status: "ideation",
-        description: "Linguagem de domínio específico para expressão de pipelines bioinformáticos, com compilação para bytecode executável.",
+        description:
+          "Linguagem de domínio específico para expressão de pipelines bioinformáticos, com compilação para bytecode executável.",
         year: "2026",
         area: "Linguagens",
       },
@@ -54,7 +59,10 @@ export const STUDENTS: Student[] = [
     gpa: "8.7",
     bio: "Foco em visualização de dados e sustentabilidade. Já trabalhei com métricas ESG para pequenas empresas e quero seguir em dados aplicados a impacto social.",
     interests: ["Banco de Dados", "Sistemas Web", "HCI & Design"],
-    languages: [{ name: "Inglês", level: 4 }, { name: "Francês", level: 2 }],
+    languages: [
+      { name: "Inglês", level: 4 },
+      { name: "Francês", level: 2 },
+    ],
     skills: ["Python", "React", "AWS", "PostgreSQL", "scikit-learn", "Pandas", "SQL"],
     skillLevels: { Python: 3, React: 2, AWS: 1, PostgreSQL: 2 },
     projects: [
@@ -63,7 +71,8 @@ export const STUDENTS: Student[] = [
         title: "Dashboard ESG para PMEs",
         stack: ["React", "Node.js", "D3.js"],
         status: "review",
-        description: "Ferramenta de coleta e visualização de métricas de sustentabilidade adaptada à realidade de pequenas e médias empresas brasileiras.",
+        description:
+          "Ferramenta de coleta e visualização de métricas de sustentabilidade adaptada à realidade de pequenas e médias empresas brasileiras.",
         year: "2025",
         area: "Sistemas Web",
       },
@@ -83,7 +92,10 @@ export const STUDENTS: Student[] = [
     gpa: "8.3",
     bio: "Gosto de compiladores e de ensino de programação. Meu projeto atual nasceu de monitoria: queria uma linguagem que desse mensagens de erro compreensíveis para calouros.",
     interests: ["Engenharia de Software", "Linguagens", "Sistemas Web"],
-    languages: [{ name: "Inglês", level: 3 }, { name: "Japonês", level: 3 }],
+    languages: [
+      { name: "Inglês", level: 3 },
+      { name: "Japonês", level: 3 },
+    ],
     skills: ["Python", "FastAPI", "Docker", "PostgreSQL", "React", "TypeScript"],
     skillLevels: { Python: 3, FastAPI: 2, Docker: 2, PostgreSQL: 1 },
     projects: [
@@ -92,7 +104,8 @@ export const STUDENTS: Student[] = [
         title: "Compilador para Linguagem Educacional",
         stack: ["Python", "LLVM"],
         status: "coding",
-        description: "Compilador de linguagem projetada para ensino introdutório, com diagnósticos de erro voltados a quem está aprendendo a programar.",
+        description:
+          "Compilador de linguagem projetada para ensino introdutório, com diagnósticos de erro voltados a quem está aprendendo a programar.",
         year: "2025",
         area: "Linguagens",
       },
@@ -112,7 +125,10 @@ export const STUDENTS: Student[] = [
     gpa: "9.4",
     bio: "Trabalho com visão computacional aplicada a reabilitação motora, em parceria com o laboratório de robótica. Procuro demandas na área de saúde.",
     interests: ["Inteligência Artificial", "Sistemas Embarcados", "Computação Gráfica"],
-    languages: [{ name: "Inglês", level: 4 }, { name: "Libras", level: 3 }],
+    languages: [
+      { name: "Inglês", level: 4 },
+      { name: "Libras", level: 3 },
+    ],
     skills: ["Python", "OpenCV", "PyTorch", "FastAPI", "Docker", "C++"],
     skillLevels: { Python: 4, OpenCV: 3, PyTorch: 3, FastAPI: 2 },
     projects: [
@@ -121,7 +137,8 @@ export const STUDENTS: Student[] = [
         title: "Robótica Assistiva",
         stack: ["Python", "OpenCV", "ROS"],
         status: "coding",
-        description: "Sistema de acompanhamento de exercícios de reabilitação por visão computacional, com feedback em tempo real para o paciente.",
+        description:
+          "Sistema de acompanhamento de exercícios de reabilitação por visão computacional, com feedback em tempo real para o paciente.",
         year: "2026",
         area: "Robótica",
       },
@@ -151,7 +168,8 @@ export const STUDENTS: Student[] = [
         title: "Análise Preditiva de Falhas",
         stack: ["Python", "Pandas"],
         status: "ideation",
-        description: "Modelo de previsão de falhas em equipamentos de rede a partir de histórico de logs e métricas de desempenho.",
+        description:
+          "Modelo de previsão de falhas em equipamentos de rede a partir de histórico de logs e métricas de desempenho.",
         year: "2025",
         area: "Redes & Sistemas",
       },

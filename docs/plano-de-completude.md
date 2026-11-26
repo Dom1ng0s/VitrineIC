@@ -54,9 +54,9 @@ Decidido com a equipe. Estas respostas são a fonte para as fases 3, 4 e 5.
 - [x] ESLint 9 (`react-hooks`, `jsx-a11y`, `react-refresh`), Prettier e
       pre-commit com `lint-staged`. Zero erro de lint; os ~50 avisos de
       `jsx-a11y` são a dívida da fase 6 — ao fechá-la, troque `a11ySeverity`
-      para `"error"` em `eslint.config.js`. Formatação é progressiva
-      (`lint-staged` formata o que for tocado), por isso o CI não roda
-      `format:check`.
+      para `"error"` em `eslint.config.js`. O repositório foi formatado uma vez
+      só, em commit próprio, para que os diffs das fases seguintes não viessem
+      misturados com reformatação; por isso o CI roda `format:check`.
 - [x] Corrigidos no caminho, porque o lint os apontou: dependências de
       `useMemo` no `SkillPicker`, `setState` em efeito no `AccountSecurity`
       (agora remonta por `key`), `prefer-const` e o regex de controle do

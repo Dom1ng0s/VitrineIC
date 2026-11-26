@@ -19,9 +19,7 @@ export function ConfirmModal({
 }) {
   const [note, setNote] = useState("");
   const score = scoreStudent(student, demand);
-  const matchedSkills = student.skills.filter((s) =>
-    demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase())
-  );
+  const matchedSkills = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase()));
 
   return (
     <Modal eyebrow="Sugestão da curadoria" title="Sugerir estudante." onClose={onClose} width="max-w-[640px]">
@@ -55,7 +53,15 @@ export function ConfirmModal({
         <div className="sm:text-right">
           <Label>Skills em comum</Label>
           <div className="flex flex-wrap gap-1.5 sm:justify-end">
-            {matchedSkills.length ? matchedSkills.map((s) => <SkillTag key={s} highlight>{s}</SkillTag>) : <Mono dim>nenhuma</Mono>}
+            {matchedSkills.length ? (
+              matchedSkills.map((s) => (
+                <SkillTag key={s} highlight>
+                  {s}
+                </SkillTag>
+              ))
+            ) : (
+              <Mono dim>nenhuma</Mono>
+            )}
           </div>
         </div>
       </div>
@@ -68,7 +74,9 @@ export function ConfirmModal({
               <li key={p.title} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
                 <span className="font-sans text-[13px] text-navy/75">{p.title}</span>
                 <span className="flex gap-1">
-                  {p.stack.map((t) => <SkillTag key={t}>{t}</SkillTag>)}
+                  {p.stack.map((t) => (
+                    <SkillTag key={t}>{t}</SkillTag>
+                  ))}
                 </span>
               </li>
             ))}
@@ -89,7 +97,10 @@ export function ConfirmModal({
       </div>
 
       <div className="mt-8 flex items-center justify-end gap-3">
-        <button onClick={onClose} className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy">
+        <button
+          onClick={onClose}
+          className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
+        >
           Cancelar
         </button>
         <button onClick={() => onConfirm(note)} disabled={!note.trim()} className="vt-btn vt-btn-primary">

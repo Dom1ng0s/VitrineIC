@@ -25,4 +25,4 @@ export const SCOPE_OPTIONS: { rotulo: string; mesesMax: number | null }[] = [
   { rotulo: "Grande (6–12 meses)", mesesMax: 12 },
 ];
 
-export const SCOPE_LABELS = SCOPE_OPTIONS.map(s => s.rotulo);
+export const SCOPE_LABELS = SCOPE_OPTIONS.map((s) => s.rotulo);

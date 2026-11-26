@@ -62,7 +62,9 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
   return (
     <div
       className="fixed inset-0 z-50 flex overflow-y-auto bg-navy/55 p-4 backdrop-blur-[2px]"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
       <div
         role="dialog"
@@ -115,7 +117,9 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
                   onClick={() => setTab(r.id)}
                   aria-pressed={tab === r.id}
                   className={`h-9 rounded-lg px-2 font-sans text-[13px] transition-colors sm:text-sm ${
-                    tab === r.id ? "bg-white text-navy shadow-[0_1px_3px_rgba(11,37,69,0.12)]" : "text-navy/55 hover:text-navy"
+                    tab === r.id
+                      ? "bg-white text-navy shadow-[0_1px_3px_rgba(11,37,69,0.12)]"
+                      : "text-navy/55 hover:text-navy"
                   }`}
                 >
                   {r.label}
@@ -134,24 +138,35 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
 
             <p className="mt-5 text-center font-sans text-[13px] text-navy/65">
               Ainda não tem conta?{" "}
-              <button onClick={() => setMode("signup")} className="text-navy underline underline-offset-4 hover:text-red">
+              <button
+                onClick={() => setMode("signup")}
+                className="text-navy underline underline-offset-4 hover:text-red"
+              >
                 Criar conta
               </button>
             </p>
 
-            {demoEnabled && <><Divider label="Contas de demonstração" />
-            <div className="grid grid-cols-2 gap-2.5">
-              <button onClick={() => demo("student")} className="vt-btn vt-btn-secondary justify-center">
-                Estudante de exemplo
-              </button>
-              <button onClick={() => demo("requester")} className="vt-btn vt-btn-secondary justify-center">
-                Solicitante de exemplo
-              </button>
-            </div>
-            <p className="mt-4 text-center font-sans text-xs text-navy/55">
-              Ambiente com dados fictícios para demonstração.
-            </p>
-            {demoError && <p role="alert" className="text-sm text-red">{demoError}</p>}</>}
+            {demoEnabled && (
+              <>
+                <Divider label="Contas de demonstração" />
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button onClick={() => demo("student")} className="vt-btn vt-btn-secondary justify-center">
+                    Estudante de exemplo
+                  </button>
+                  <button onClick={() => demo("requester")} className="vt-btn vt-btn-secondary justify-center">
+                    Solicitante de exemplo
+                  </button>
+                </div>
+                <p className="mt-4 text-center font-sans text-xs text-navy/55">
+                  Ambiente com dados fictícios para demonstração.
+                </p>
+                {demoError && (
+                  <p role="alert" className="text-sm text-red">
+                    {demoError}
+                  </p>
+                )}
+              </>
+            )}
           </>
         )}
       </div>

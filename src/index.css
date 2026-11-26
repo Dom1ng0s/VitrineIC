@@ -1,5 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
 
 @theme inline {
   --color-navy: #0b2545;
@@ -36,29 +36,27 @@
   --text-label--line-height: 1.5;
   --text-label--letter-spacing: 0.08em;
 
-  --font-serif: 'Inter Tight', 'Geist', system-ui, sans-serif;
-  --font-display: 'Inter Tight', 'Geist', system-ui, sans-serif;
-  --font-sans: 'Geist', 'Inter', system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-serif: "Inter Tight", "Geist", system-ui, sans-serif;
+  --font-display: "Inter Tight", "Geist", system-ui, sans-serif;
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 }
 
 :root {
   --vt-shadow-card:
-    0 1px 1px rgba(11, 37, 69, 0.04),
-    0 2px 4px rgba(11, 37, 69, 0.04),
-    0 8px 24px -8px rgba(11, 37, 69, 0.08);
+    0 1px 1px rgba(11, 37, 69, 0.04), 0 2px 4px rgba(11, 37, 69, 0.04), 0 8px 24px -8px rgba(11, 37, 69, 0.08);
   --vt-shadow-card-hover:
-    0 1px 1px rgba(11, 37, 69, 0.05),
-    0 6px 12px rgba(11, 37, 69, 0.06),
-    0 24px 48px -12px rgba(11, 37, 69, 0.16);
+    0 1px 1px rgba(11, 37, 69, 0.05), 0 6px 12px rgba(11, 37, 69, 0.06), 0 24px 48px -12px rgba(11, 37, 69, 0.16);
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 html {
-  font-family: 'Geist', 'Inter', system-ui, sans-serif;
+  font-family: "Geist", "Inter", system-ui, sans-serif;
   background-color: #f3f1ec;
   color: #0b2545;
   -webkit-font-smoothing: antialiased;
@@ -76,9 +74,16 @@ body {
   color: #0b2545;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #0b254533; border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #0b254533;
+  border-radius: 2px;
+}
 
 body.modal-open {
   overflow: hidden;
@@ -118,11 +123,14 @@ button.uppercase[style*="font-family: Geist, Inter"] {
    Formas
    ========================================= */
 
-input, select, textarea {
+input,
+select,
+textarea {
   border-radius: 10px !important;
 }
 
-button, a {
+button,
+a {
   border-radius: 10px !important;
   cursor: pointer;
 }
@@ -187,22 +195,58 @@ button:disabled {
   padding: 0 16px;
   border: 1px solid transparent;
   border-radius: 10px;
-  font-family: 'Geist', 'Inter', system-ui, sans-serif;
+  font-family: "Geist", "Inter", system-ui, sans-serif;
   font-size: 13px;
   line-height: 1.5;
-  transition: background-color 0.15s, border-color 0.15s;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
-.vt-btn-primary { background: #0b2545; color: #f3f1ec; }
-.vt-btn-primary:hover:not(:disabled) { background: #13315c; }
-.vt-btn-secondary { background: transparent; color: #0b2545; border-color: rgba(11, 37, 69, 0.2); }
-.vt-btn-secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.6); border-color: rgba(11, 37, 69, 0.5); }
-.vt-btn-danger { background: transparent; color: #b4432f; border-color: rgba(180, 67, 47, 0.3); }
-.vt-btn-danger:hover:not(:disabled) { background: rgba(255, 255, 255, 0.6); border-color: rgba(11, 37, 69, 0.5); }
-.vt-btn-cream { background: #f3f1ec; color: #0b2545; }
-.vt-btn-ghost { background: transparent; color: rgba(11, 37, 69, 0.65); }
-.vt-btn-ghost:hover:not(:disabled) { color: #0b2545; background: rgba(11, 37, 69, 0.05); }
-.vt-btn-outline-light { background: transparent; color: #f3f1ec; border-color: rgba(243, 241, 236, 0.3); }
-.vt-btn-outline-light:hover:not(:disabled) { border-color: rgba(243, 241, 236, 0.6); }
+.vt-btn-primary {
+  background: #0b2545;
+  color: #f3f1ec;
+}
+.vt-btn-primary:hover:not(:disabled) {
+  background: #13315c;
+}
+.vt-btn-secondary {
+  background: transparent;
+  color: #0b2545;
+  border-color: rgba(11, 37, 69, 0.2);
+}
+.vt-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(11, 37, 69, 0.5);
+}
+.vt-btn-danger {
+  background: transparent;
+  color: #b4432f;
+  border-color: rgba(180, 67, 47, 0.3);
+}
+.vt-btn-danger:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(11, 37, 69, 0.5);
+}
+.vt-btn-cream {
+  background: #f3f1ec;
+  color: #0b2545;
+}
+.vt-btn-ghost {
+  background: transparent;
+  color: rgba(11, 37, 69, 0.65);
+}
+.vt-btn-ghost:hover:not(:disabled) {
+  color: #0b2545;
+  background: rgba(11, 37, 69, 0.05);
+}
+.vt-btn-outline-light {
+  background: transparent;
+  color: #f3f1ec;
+  border-color: rgba(243, 241, 236, 0.3);
+}
+.vt-btn-outline-light:hover:not(:disabled) {
+  border-color: rgba(243, 241, 236, 0.6);
+}
 
 /* Inputs: fundo branco, borda navy 15%; foco com borda navy e anel de 4px;
    erro em terracota; desabilitado com texto a 40%. */
@@ -213,22 +257,44 @@ button:disabled {
   color: #0b2545;
   border: 1px solid rgba(11, 37, 69, 0.15);
   border-radius: 10px;
-  font-family: 'Geist', 'Inter', system-ui, sans-serif;
+  font-family: "Geist", "Inter", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   outline: none;
   resize: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
-.vt-input::placeholder { color: rgba(11, 37, 69, 0.35); }
-.vt-input:focus { border-color: #0b2545; box-shadow: 0 0 0 4px rgba(11, 37, 69, 0.08); }
-.vt-input[aria-invalid="true"] { border-color: #b4432f; }
-.vt-input[aria-invalid="true"]:focus { box-shadow: 0 0 0 4px rgba(180, 67, 47, 0.1); }
+.vt-input::placeholder {
+  color: rgba(11, 37, 69, 0.35);
+}
+.vt-input:focus {
+  border-color: #0b2545;
+  box-shadow: 0 0 0 4px rgba(11, 37, 69, 0.08);
+}
+.vt-input[aria-invalid="true"] {
+  border-color: #b4432f;
+}
+.vt-input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 4px rgba(180, 67, 47, 0.1);
+}
 /* Sobre superfície escura (.vt-stone) o terracota não tem contraste: clareia. */
-.vt-stone .vt-field-error { color: #f2a99a; }
-.vt-stone .vt-field-error.border { border-color: rgba(242, 169, 154, 0.35); background: rgba(242, 169, 154, 0.08); }
-.vt-input:disabled { color: rgba(11, 37, 69, 0.4); cursor: not-allowed; }
-.vt-input-mono { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; }
+.vt-stone .vt-field-error {
+  color: #f2a99a;
+}
+.vt-stone .vt-field-error.border {
+  border-color: rgba(242, 169, 154, 0.35);
+  background: rgba(242, 169, 154, 0.08);
+}
+.vt-input:disabled {
+  color: rgba(11, 37, 69, 0.4);
+  cursor: not-allowed;
+}
+.vt-input-mono {
+  font-family: "Geist Mono", ui-monospace, monospace;
+  font-size: 12px;
+}
 
 /* Tags: pílula com contorno navy 13% e texto a 70%; selecionada é sólida. */
 .vt-pill {
@@ -239,13 +305,17 @@ button:disabled {
   border: 1px solid rgba(11, 37, 69, 0.13);
   border-radius: 999px;
   color: rgba(11, 37, 69, 0.7);
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: "Geist Mono", ui-monospace, monospace;
   font-size: 10px;
   line-height: 1.5;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.vt-pill-selected { background: #0b2545; border-color: #0b2545; color: #f3f1ec; }
+.vt-pill-selected {
+  background: #0b2545;
+  border-color: #0b2545;
+  color: #f3f1ec;
+}
 
 /* Status: pílula com fundo tingido (10%) e texto na cor do status.
    A cor vem de --vt-status no style do elemento. */
@@ -257,7 +327,7 @@ button:disabled {
   border-radius: 999px;
   background: color-mix(in srgb, var(--vt-status) 10%, transparent);
   color: var(--vt-status);
-  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-family: "Geist Mono", ui-monospace, monospace;
   font-size: 10px;
   line-height: 1.5;
   letter-spacing: 0.08em;
@@ -271,7 +341,10 @@ button:disabled {
   border-radius: 999px;
   background: currentColor;
 }
-.vt-status-solid { background: #0b2545; color: #f3f1ec; }
+.vt-status-solid {
+  background: #0b2545;
+  color: #f3f1ec;
+}
 
 /* =========================================
    Superfícies texturizadas (pedra)
@@ -328,13 +401,29 @@ button:disabled {
    ========================================= */
 
 @keyframes vt-unit-in {
-  from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
-  to { opacity: 1; transform: none; filter: blur(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
 }
 
 @keyframes vt-unit-out {
-  from { opacity: 1; transform: none; filter: blur(0); }
-  to { opacity: 0; transform: translateY(-14px); filter: blur(6px); }
+  from {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-14px);
+    filter: blur(6px);
+  }
 }
 
 .vt-unit-in {

@@ -22,15 +22,27 @@ import type { Company } from "@/data/companies";
  * compartilham esse banco.
  */
 export const TEST_DATABASE_URL =
-  process.env.TEST_DATABASE_URL
-  ?? readConfig().databaseUrl.replace(/\/([^/?]+)(\?|$)/, "/vitrineic_test$2");
+  process.env.TEST_DATABASE_URL ?? readConfig().databaseUrl.replace(/\/([^/?]+)(\?|$)/, "/vitrineic_test$2");
 
 const TABELAS = [
-  "notificacao", "mensagem", "interesse_resposta", "interesse",
-  "demanda_historico_status", "demanda_competencia", "demanda",
-  "anexo_estudante", "projeto_competencia", "projeto_estudante",
-  "estudante_topico", "estudante_idioma", "estudante_competencia", "estudante",
-  "solicitante", "token_conta", "sessao", "conta",
+  "notificacao",
+  "mensagem",
+  "interesse_resposta",
+  "interesse",
+  "demanda_historico_status",
+  "demanda_competencia",
+  "demanda",
+  "anexo_estudante",
+  "projeto_competencia",
+  "projeto_estudante",
+  "estudante_topico",
+  "estudante_idioma",
+  "estudante_competencia",
+  "estudante",
+  "solicitante",
+  "token_conta",
+  "sessao",
+  "conta",
 ];
 
 let preparado = false;
@@ -64,33 +76,57 @@ export async function criarConta(
     createdAt: dados.createdAt ?? new Date().toISOString(),
     emailVerifiedAt: dados.emailVerifiedAt,
     credentialVersion: dados.credentialVersion,
-    passwordHash: dados.passwordHash ?? await hashPassword(dados.senha ?? "senha-de-teste-123"),
+    passwordHash: dados.passwordHash ?? (await hashPassword(dados.senha ?? "senha-de-teste-123")),
   };
-  await db.transaction(tx => salvarConta(tx, conta));
+  await db.transaction((tx) => salvarConta(tx, conta));
   return conta;
 }
 
 export async function criarEstudante(
-  db: Database, conta: StoredAccount, dados: Partial<Student> = {},
+  db: Database,
+  conta: StoredAccount,
+  dados: Partial<Student> = {},
 ): Promise<Student> {
   const estudante: Student = {
-    id: conta.profileId, name: conta.name, email: conta.email, initials: "",
-    unit: "IC", course: "Ciência da Computação", semester: "", gpa: "", bio: "",
-    interests: [], skills: [], skillLevels: {}, languages: [], projects: [],
-    github: "", availability: "", ...dados,
+    id: conta.profileId,
+    name: conta.name,
+    email: conta.email,
+    initials: "",
+    unit: "IC",
+    course: "Ciência da Computação",
+    semester: "",
+    gpa: "",
+    bio: "",
+    interests: [],
+    skills: [],
+    skillLevels: {},
+    languages: [],
+    projects: [],
+    github: "",
+    availability: "",
+    ...dados,
   };
-  await db.transaction(tx => salvarEstudante(tx, estudante, conta.id));
+  await db.transaction((tx) => salvarEstudante(tx, estudante, conta.id));
   return estudante;
 }
 
 export async function criarSolicitante(
-  db: Database, conta: StoredAccount, dados: Partial<Company> = {},
+  db: Database,
+  conta: StoredAccount,
+  dados: Partial<Company> = {},
 ): Promise<Company> {
   const empresa: Company = {
-    name: conta.profileId, kind: "empresa", type: "Empresa", contactName: conta.name,
-    contactEmail: conta.email, city: "Maceió", since: "2026", site: "", description: "",
+    name: conta.profileId,
+    kind: "empresa",
+    type: "Empresa",
+    contactName: conta.name,
+    contactEmail: conta.email,
+    city: "Maceió",
+    since: "2026",
+    site: "",
+    description: "",
     ...dados,
   };
-  await db.transaction(tx => salvarSolicitante(tx, empresa, conta.id, `SOL-${randomUUID()}`));
+  await db.transaction((tx) => salvarSolicitante(tx, empresa, conta.id, `SOL-${randomUUID()}`));
   return empresa;
 }

@@ -17,10 +17,7 @@ import { AccountLinkPage, readAccountLink } from "@/components/landing/AccountLi
  * área logada vem da sessão do servidor (cookie HttpOnly): recarregar com
  * sessão aberta volta direto para ela. Ver docs/analise-frontend.md, seção 2.
  */
-type Route =
-  | { area: "landing" }
-  | { area: "public"; route: PublicRoute }
-  | { area: "curator_signin" };
+type Route = { area: "landing" } | { area: "public"; route: PublicRoute } | { area: "curator_signin" };
 
 export default function App() {
   const session = useSession();
@@ -47,7 +44,16 @@ export default function App() {
     if (await signOut()) toLanding();
   };
 
-  if (accountLink) return <AccountLinkPage link={accountLink} onDone={() => { setAccountLink(null); toLanding(); }} />;
+  if (accountLink)
+    return (
+      <AccountLinkPage
+        link={accountLink}
+        onDone={() => {
+          setAccountLink(null);
+          toLanding();
+        }}
+      />
+    );
   if (role === "student") return <StudentArea onBack={exit} />;
   if (role === "requester") return <RequesterArea onBack={exit} />;
   if (role === "curator") return <CuratorArea onBack={exit} />;

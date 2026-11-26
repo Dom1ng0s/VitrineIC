@@ -11,6 +11,7 @@
 ## Slide 1 — Abertura
 
 # VitrineIC
+
 ### Conectando inovação acadêmica a quem precisa dela
 
 Instituto de Computação · UFAL · Maceió
@@ -48,11 +49,11 @@ direcionado com curadoria humana entre os dois.**
 
 Três peças, nenhuma opcional:
 
-| Peça | O que faz |
-|---|---|
-| **Vitrine de projetos** | o estudante expõe o que constrói, no espírito de startup em estágio inicial |
-| **Mural de demandas** | quem precisa publica o que precisa, com skills e escopo |
-| **Match com crivo humano** | o sistema aponta **uma** pessoa; um curador decide e justifica |
+| Peça                       | O que faz                                                                   |
+| -------------------------- | --------------------------------------------------------------------------- |
+| **Vitrine de projetos**    | o estudante expõe o que constrói, no espírito de startup em estágio inicial |
+| **Mural de demandas**      | quem precisa publica o que precisa, com skills e escopo                     |
+| **Match com crivo humano** | o sistema aponta **uma** pessoa; um curador decide e justifica              |
 
 ---
 
@@ -79,12 +80,12 @@ design — é passo obrigatório do fluxo, com campo de justificativa registrado
 
 ## Slide 5 — Quem usa
 
-| Perfil | O que faz na plataforma |
-|---|---|
-| **Estudante** | preenche perfil e competências, expõe projetos, recebe convites direcionados |
-| **Solicitante** | publica a demanda em 4 passos, acompanha status, recebe o match |
-| **Curador** | tria a fila, compara candidatos, confirma a conexão com justificativa |
-| **Visitante** | navega o catálogo público, perfis e indicadores — **sem login** |
+| Perfil          | O que faz na plataforma                                                      |
+| --------------- | ---------------------------------------------------------------------------- |
+| **Estudante**   | preenche perfil e competências, expõe projetos, recebe convites direcionados |
+| **Solicitante** | publica a demanda em 4 passos, acompanha status, recebe o match              |
+| **Curador**     | tria a fila, compara candidatos, confirma a conexão com justificativa        |
+| **Visitante**   | navega o catálogo público, perfis e indicadores — **sem login**              |
 
 A vitrine pública é o que sustenta a exigência de alcance externo da ACE1: o
 trabalho do IC fica visível para quem nunca entrou na plataforma.
@@ -141,14 +142,14 @@ score = (skills da demanda cobertas pelo estudante) ÷ (skills da demanda) × 10
 
 React 19 + TypeScript strict + Vite + Tailwind v4 · ~6.600 linhas · 20 telas
 
-| Fluxo | Estado |
-|---|---|
-| Triagem e match (curadoria) | **funcional** — o estado muda e persiste na sessão |
-| Convites do estudante | **funcional** — aceite muda badge e contadores |
-| Vitrine de projetos (laboratório) | **funcional** — a lista cresce |
-| Catálogo público, perfis, impacto | **funcional** — derivados da base única |
-| Onboarding e wizard de demanda | **navegáveis** — os passos avançam, não gravam |
-| Autenticação e persistência | **ainda não** |
+| Fluxo                             | Estado                                             |
+| --------------------------------- | -------------------------------------------------- |
+| Triagem e match (curadoria)       | **funcional** — o estado muda e persiste na sessão |
+| Convites do estudante             | **funcional** — aceite muda badge e contadores     |
+| Vitrine de projetos (laboratório) | **funcional** — a lista cresce                     |
+| Catálogo público, perfis, impacto | **funcional** — derivados da base única            |
+| Onboarding e wizard de demanda    | **navegáveis** — os passos avançam, não gravam     |
+| Autenticação e persistência       | **ainda não**                                      |
 
 **Todos os dados são fictícios** — pessoas, empresas e métricas foram inventadas
 para o protótipo.
@@ -174,12 +175,12 @@ Alvo: **WCAG 2.1 AA**, verificado e mantido.
 A plataforma **mede a si mesma**: os indicadores do painel de impacto são
 derivados das bases em tempo de render, nunca digitados à mão.
 
-| Indicador | Meta do período |
-|---|---|
-| Estudantes na vitrine | 8 |
-| Projetos expostos | 10 |
-| Demandas publicadas | 6 |
-| Matches efetivados | 3 |
+| Indicador             | Meta do período |
+| --------------------- | --------------- |
+| Estudantes na vitrine | 8               |
+| Projetos expostos     | 10              |
+| Demandas publicadas   | 6               |
+| Matches efetivados    | 3               |
 
 Mais depoimentos de estudante e de solicitante — o qualitativo que número não
 alcança.
@@ -209,6 +210,7 @@ Em ordem de dependência, não de vontade:
 ## Slide 12 — Fechamento
 
 # O que o IC constrói deve ser visível.
+
 ### E quem precisa disso deve saber onde procurar.
 
 **VitrineIC** — vitrine pública, demanda com endereço, match com nome e
@@ -217,21 +219,21 @@ justificativa.
 Instituto de Computação · UFAL
 Programação 3 (Web) + ACE 1
 
-*Perguntas?*
+_Perguntas?_
 
 ---
 
 ## Anexo — roteiro de demonstração (5 minutos)
 
-| Tempo | Tela | O que mostrar |
-|---|---|---|
-| 0:00 | Landing | hero, destaques, indicadores |
-| 0:40 | Catálogo público | navegação **sem login**; abrir um projeto e um perfil |
-| 1:30 | Solicitante | wizard de nova demanda, 4 passos, protocolo gerado |
-| 2:30 | Curadoria — triagem | mover uma demanda no kanban |
-| 3:10 | Curadoria — matchmaking | ranking, justificativa, confirmar **um** candidato |
-| 4:00 | Estudante | convite recebido, aceitar, conexão estabelecida |
-| 4:40 | Impacto | indicadores derivados da base |
+| Tempo | Tela                    | O que mostrar                                         |
+| ----- | ----------------------- | ----------------------------------------------------- |
+| 0:00  | Landing                 | hero, destaques, indicadores                          |
+| 0:40  | Catálogo público        | navegação **sem login**; abrir um projeto e um perfil |
+| 1:30  | Solicitante             | wizard de nova demanda, 4 passos, protocolo gerado    |
+| 2:30  | Curadoria — triagem     | mover uma demanda no kanban                           |
+| 3:10  | Curadoria — matchmaking | ranking, justificativa, confirmar **um** candidato    |
+| 4:00  | Estudante               | convite recebido, aceitar, conexão estabelecida       |
+| 4:40  | Impacto                 | indicadores derivados da base                         |
 
 **Recarregue a página de propósito** — o estado vive em PostgreSQL, e recarregar
 na frente de quem assiste demonstra a persistência em vez de escondê-la. O bom

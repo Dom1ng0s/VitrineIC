@@ -34,47 +34,47 @@ significa que a hospedagem gratuita preserve o banco entre suas instâncias.
 
 ## 2. Stack e organização
 
-| Camada | Implementação atual |
-|---|---|
-| Interface | React 19, Vite e Tailwind CSS v4 |
-| API | TypeScript com Fastify 5 |
-| Banco | SQLite pela API nativa `node:sqlite` |
-| Validação de entrada | Zod |
-| Senhas e tokens | `node:crypto` |
-| Sessões | Cookie HttpOnly e registros no SQLite |
-| Arquivos | Multipart; conteúdo armazenado como BLOB no SQLite |
-| E-mail | Arquivos locais, SMTP ou Resend via HTTPS |
-| Build do servidor | esbuild; saídas ESM em `build/` |
-| Testes | `node:test`, executado com tsx |
-| Pacotes | pnpm 10.34.3 |
-| Node no deploy preparado | 24.22.1, definido em `.node-version` |
+| Camada                   | Implementação atual                                |
+| ------------------------ | -------------------------------------------------- |
+| Interface                | React 19, Vite e Tailwind CSS v4                   |
+| API                      | TypeScript com Fastify 5                           |
+| Banco                    | SQLite pela API nativa `node:sqlite`               |
+| Validação de entrada     | Zod                                                |
+| Senhas e tokens          | `node:crypto`                                      |
+| Sessões                  | Cookie HttpOnly e registros no SQLite              |
+| Arquivos                 | Multipart; conteúdo armazenado como BLOB no SQLite |
+| E-mail                   | Arquivos locais, SMTP ou Resend via HTTPS          |
+| Build do servidor        | esbuild; saídas ESM em `build/`                    |
+| Testes                   | `node:test`, executado com tsx                     |
+| Pacotes                  | pnpm 10.34.3                                       |
+| Node no deploy preparado | 24.22.1, definido em `.node-version`               |
 
 ### Mapa dos arquivos principais
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `server/index.ts` | Inicialização, endereço/porta, bootstrap e encerramento |
-| `server/app.ts` | Montagem do Fastify, proteções HTTP, rotas e arquivos do frontend |
-| `server/config.ts` | Leitura e validação das variáveis de ambiente |
-| `server/database.ts` | Conexão, esquema inicial, consultas e transações |
-| `server/migrations.ts` | Evoluções versionadas do esquema |
-| `server/security.ts` | Hash de senha, sessões e exigências de autenticação |
-| `server/auth-routes.ts` | Login, logout e cadastros |
-| `server/account-routes.ts` | Confirmação, recuperação, troca de senha e revogação de sessões |
-| `server/account-tokens.ts` | Emissão, finalidade, validade e consumo de tokens |
-| `server/domain-routes.ts` | Perfis, projetos, demandas, ranking e interesses |
-| `server/schemas.ts` | Contratos de entrada e limites dos campos |
-| `server/views.ts` | Estado filtrado por conta e indicadores agregados |
-| `server/notifications.ts` | Notificações derivadas dos eventos do sistema |
-| `server/inbox-routes.ts` | Leitura de notificações e mensagens entre as partes |
-| `server/file-routes.ts` | Upload, download e exclusão de anexos privados |
-| `server/mail.ts` | Transportes de e-mail e fila de entrega |
-| `server/curator.ts` | Criação de curadores e bootstrap opcional |
-| `server/create-curator.ts` | Comando administrativo de criação de curadoria |
-| `server/seed.ts` | Carga explícita de dados fictícios em desenvolvimento |
-| `scripts/build-server.mjs` | Build do servidor e do comando de curadoria |
-| `scripts/backup-database.mjs` | Backup consistente do SQLite |
-| `render.yaml` | Configuração de um Web Service gratuito no Render |
+| Arquivo                       | Responsabilidade                                                  |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `server/index.ts`             | Inicialização, endereço/porta, bootstrap e encerramento           |
+| `server/app.ts`               | Montagem do Fastify, proteções HTTP, rotas e arquivos do frontend |
+| `server/config.ts`            | Leitura e validação das variáveis de ambiente                     |
+| `server/database.ts`          | Conexão, esquema inicial, consultas e transações                  |
+| `server/migrations.ts`        | Evoluções versionadas do esquema                                  |
+| `server/security.ts`          | Hash de senha, sessões e exigências de autenticação               |
+| `server/auth-routes.ts`       | Login, logout e cadastros                                         |
+| `server/account-routes.ts`    | Confirmação, recuperação, troca de senha e revogação de sessões   |
+| `server/account-tokens.ts`    | Emissão, finalidade, validade e consumo de tokens                 |
+| `server/domain-routes.ts`     | Perfis, projetos, demandas, ranking e interesses                  |
+| `server/schemas.ts`           | Contratos de entrada e limites dos campos                         |
+| `server/views.ts`             | Estado filtrado por conta e indicadores agregados                 |
+| `server/notifications.ts`     | Notificações derivadas dos eventos do sistema                     |
+| `server/inbox-routes.ts`      | Leitura de notificações e mensagens entre as partes               |
+| `server/file-routes.ts`       | Upload, download e exclusão de anexos privados                    |
+| `server/mail.ts`              | Transportes de e-mail e fila de entrega                           |
+| `server/curator.ts`           | Criação de curadores e bootstrap opcional                         |
+| `server/create-curator.ts`    | Comando administrativo de criação de curadoria                    |
+| `server/seed.ts`              | Carga explícita de dados fictícios em desenvolvimento             |
+| `scripts/build-server.mjs`    | Build do servidor e do comando de curadoria                       |
+| `scripts/backup-database.mjs` | Backup consistente do SQLite                                      |
+| `render.yaml`                 | Configuração de um Web Service gratuito no Render                 |
 
 ## 3. Banco de dados
 
@@ -100,18 +100,18 @@ Não é um modelo totalmente normalizado.
 
 ### 3.2. Tabelas existentes
 
-| Tabela | Conteúdo e observações |
-|---|---|
-| `migrations` | Versões de esquema já aplicadas |
-| `students` | Perfil do estudante em JSON, com chave `id` |
-| `companies` | Organizações solicitantes; o nome identifica a organização no modelo atual |
-| `accounts` | Conta, papel e hash de senha; e-mail único sem diferenciação de maiúsculas/minúsculas; referências ao perfil |
-| `demands` | Demanda, organização responsável e demais atributos em JSON |
-| `interests` | Relação demanda/estudante, status e dados do interesse |
-| `sessions` | Hash do token, conta e expiração da sessão |
-| `notifications` | Notificações e mensagens, vinculadas à conta destinatária |
-| `attachments` | Nome, categoria, estudante e bytes do anexo em BLOB |
-| `account_tokens` | Hash, finalidade, conta, versão de credenciais e validade de tokens de confirmação/recuperação |
+| Tabela           | Conteúdo e observações                                                                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------------ |
+| `migrations`     | Versões de esquema já aplicadas                                                                              |
+| `students`       | Perfil do estudante em JSON, com chave `id`                                                                  |
+| `companies`      | Organizações solicitantes; o nome identifica a organização no modelo atual                                   |
+| `accounts`       | Conta, papel e hash de senha; e-mail único sem diferenciação de maiúsculas/minúsculas; referências ao perfil |
+| `demands`        | Demanda, organização responsável e demais atributos em JSON                                                  |
+| `interests`      | Relação demanda/estudante, status e dados do interesse                                                       |
+| `sessions`       | Hash do token, conta e expiração da sessão                                                                   |
+| `notifications`  | Notificações e mensagens, vinculadas à conta destinatária                                                    |
+| `attachments`    | Nome, categoria, estudante e bytes do anexo em BLOB                                                          |
+| `account_tokens` | Hash, finalidade, conta, versão de credenciais e validade de tokens de confirmação/recuperação               |
 
 **Projetos não têm tabela própria nesta versão:** ficam no perfil JSON do
 estudante, em `projects`. Mensagens internas também não têm tabela separada;
@@ -255,11 +255,11 @@ O ranking apoia a curadoria; não substitui sua decisão.
 
 ### 6.2. Interesses e aceite duplo
 
-| Origem | Aceite inicial | Resposta seguinte | Resultado após os aceites |
-|---|---|---|---|
-| Candidatura | Estudante, ao se candidatar | Solicitante | `contato_liberado` |
-| Convite | Solicitante, ao convidar | Estudante | `contato_liberado` |
-| Sugestão da curadoria | Nenhum aceite das partes é presumido | Estudante; depois solicitante | `contato_liberado` |
+| Origem                | Aceite inicial                       | Resposta seguinte             | Resultado após os aceites |
+| --------------------- | ------------------------------------ | ----------------------------- | ------------------------- |
+| Candidatura           | Estudante, ao se candidatar          | Solicitante                   | `contato_liberado`        |
+| Convite               | Solicitante, ao convidar             | Estudante                     | `contato_liberado`        |
+| Sugestão da curadoria | Nenhum aceite das partes é presumido | Estudante; depois solicitante | `contato_liberado`        |
 
 A sugestão exige justificativa. A API identifica de quem é o turno e rejeita
 respostas de outra pessoa ou fora do momento permitido. Uma recusa encerra
@@ -298,12 +298,12 @@ O download exige o estudante proprietário ou um curador; a exclusão é do dono
 
 ## 8. E-mail
 
-| `MAIL_MODE` | Comportamento |
-|---|---|
-| `disabled` | Sem envio; solicitação de links por e-mail indisponível |
-| `file` | Gera `.eml` para desenvolvimento; recusado em produção |
-| `smtp` | Nodemailer com TLS, credenciais e remetente configurados |
-| `resend` | Requisição HTTPS ao serviço Resend com chave de API |
+| `MAIL_MODE` | Comportamento                                            |
+| ----------- | -------------------------------------------------------- |
+| `disabled`  | Sem envio; solicitação de links por e-mail indisponível  |
+| `file`      | Gera `.eml` para desenvolvimento; recusado em produção   |
+| `smtp`      | Nodemailer com TLS, credenciais e remetente configurados |
+| `resend`    | Requisição HTTPS ao serviço Resend com chave de API      |
 
 O modo Resend foi acrescentado na preparação para o Render. Ele usa o `fetch`
 nativo, timeout de 15 segundos e rejeição de redirecionamentos. Não registra
@@ -323,39 +323,39 @@ Todas as rotas abaixo incluem o prefixo `/api`. Para JSON, enviar
 `Content-Type: application/json`. Em POST, PATCH, PUT e DELETE, enviar também
 `X-Vitrine-Client: web`. O navegador transmite o cookie da mesma origem.
 
-| Método | Rota | Finalidade |
-|---|---|---|
-| GET | `/api/health` | Saúde da aplicação e consulta básica ao banco |
-| GET | `/api/state` | Estado filtrado pela sessão |
-| GET | `/api/impact` | Indicadores agregados |
-| POST | `/api/auth/students` | Cadastro de estudante |
-| POST | `/api/auth/requesters` | Cadastro de solicitante |
-| POST | `/api/auth/login` | Login |
-| POST | `/api/auth/logout` | Encerrar sessão atual |
-| GET | `/api/auth/me` | Consultar estado autenticado |
-| POST | `/api/auth/forgot-password` | Solicitar recuperação |
-| POST | `/api/auth/reset-password` | Redefinir com token |
-| POST | `/api/auth/verification-email` | Solicitar confirmação |
-| POST | `/api/auth/verify-email` | Consumir token de confirmação |
-| POST | `/api/auth/change-password` | Trocar senha autenticada |
-| POST | `/api/auth/logout-all` | Revogar todas as sessões |
-| PATCH | `/api/students/:id` | Editar perfil próprio |
-| PATCH | `/api/company` | Editar organização própria |
-| POST | `/api/projects` | Adicionar projeto ao próprio perfil |
-| PUT | `/api/projects/:id` | Atualizar projeto próprio |
-| DELETE | `/api/projects/:id` | Excluir projeto próprio |
-| POST | `/api/demands` | Criar demanda |
-| PATCH | `/api/demands/:id/status` | Executar transição de triagem |
-| DELETE | `/api/demands/:id` | Excluir conforme papel e histórico |
-| GET | `/api/demands/:id/ranking` | Ranking para curadoria |
-| POST | `/api/interests` | Criar candidatura, convite ou sugestão |
-| POST | `/api/interests/:id/respond` | Aceitar ou recusar no turno correto |
-| POST | `/api/notifications/:id/read` | Marcar uma notificação própria |
-| POST | `/api/notifications/read-all` | Marcar notificações próprias |
-| POST | `/api/notifications/:id/reply` | Enviar mensagem após contato liberado |
-| POST | `/api/attachments/:category` | Enviar arquivo multipart |
-| GET | `/api/attachments/:id` | Baixar anexo autorizado |
-| DELETE | `/api/attachments/:id` | Excluir anexo próprio |
+| Método | Rota                           | Finalidade                                    |
+| ------ | ------------------------------ | --------------------------------------------- |
+| GET    | `/api/health`                  | Saúde da aplicação e consulta básica ao banco |
+| GET    | `/api/state`                   | Estado filtrado pela sessão                   |
+| GET    | `/api/impact`                  | Indicadores agregados                         |
+| POST   | `/api/auth/students`           | Cadastro de estudante                         |
+| POST   | `/api/auth/requesters`         | Cadastro de solicitante                       |
+| POST   | `/api/auth/login`              | Login                                         |
+| POST   | `/api/auth/logout`             | Encerrar sessão atual                         |
+| GET    | `/api/auth/me`                 | Consultar estado autenticado                  |
+| POST   | `/api/auth/forgot-password`    | Solicitar recuperação                         |
+| POST   | `/api/auth/reset-password`     | Redefinir com token                           |
+| POST   | `/api/auth/verification-email` | Solicitar confirmação                         |
+| POST   | `/api/auth/verify-email`       | Consumir token de confirmação                 |
+| POST   | `/api/auth/change-password`    | Trocar senha autenticada                      |
+| POST   | `/api/auth/logout-all`         | Revogar todas as sessões                      |
+| PATCH  | `/api/students/:id`            | Editar perfil próprio                         |
+| PATCH  | `/api/company`                 | Editar organização própria                    |
+| POST   | `/api/projects`                | Adicionar projeto ao próprio perfil           |
+| PUT    | `/api/projects/:id`            | Atualizar projeto próprio                     |
+| DELETE | `/api/projects/:id`            | Excluir projeto próprio                       |
+| POST   | `/api/demands`                 | Criar demanda                                 |
+| PATCH  | `/api/demands/:id/status`      | Executar transição de triagem                 |
+| DELETE | `/api/demands/:id`             | Excluir conforme papel e histórico            |
+| GET    | `/api/demands/:id/ranking`     | Ranking para curadoria                        |
+| POST   | `/api/interests`               | Criar candidatura, convite ou sugestão        |
+| POST   | `/api/interests/:id/respond`   | Aceitar ou recusar no turno correto           |
+| POST   | `/api/notifications/:id/read`  | Marcar uma notificação própria                |
+| POST   | `/api/notifications/read-all`  | Marcar notificações próprias                  |
+| POST   | `/api/notifications/:id/reply` | Enviar mensagem após contato liberado         |
+| POST   | `/api/attachments/:category`   | Enviar arquivo multipart                      |
+| GET    | `/api/attachments/:id`         | Baixar anexo autorizado                       |
+| DELETE | `/api/attachments/:id`         | Excluir anexo próprio                         |
 
 ### Exemplos de corpos
 
@@ -398,14 +398,14 @@ resposta idêntica em todos os endpoints.
 
 ## 10. Integração com o frontend — referência para Arthur
 
-| Arquivo | Uso |
-|---|---|
-| `src/lib/api.ts` | Requisições relativas a `/api`, cookie, cabeçalho de segurança, timeout e erros |
-| `src/lib/auth.ts` | Login/cadastro/logout e leitura da sessão atual |
-| `src/lib/store.ts` | Cache do estado, atualização e funções de mutação |
-| `src/types/api.ts` | Tipos do estado recebido da API |
-| `src/components/app/ApiBoundary.tsx` | Carregamento inicial, erros, sincronização e remoção do armazenamento antigo |
-| `src/components/app/AccountSecurity.tsx` | Interface de segurança da conta |
+| Arquivo                                  | Uso                                                                             |
+| ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `src/lib/api.ts`                         | Requisições relativas a `/api`, cookie, cabeçalho de segurança, timeout e erros |
+| `src/lib/auth.ts`                        | Login/cadastro/logout e leitura da sessão atual                                 |
+| `src/lib/store.ts`                       | Cache do estado, atualização e funções de mutação                               |
+| `src/types/api.ts`                       | Tipos do estado recebido da API                                                 |
+| `src/components/app/ApiBoundary.tsx`     | Carregamento inicial, erros, sincronização e remoção do armazenamento antigo    |
+| `src/components/app/AccountSecurity.tsx` | Interface de segurança da conta                                                 |
 
 O helper `api` recebe caminhos como `/auth/login`; ele próprio acrescenta
 `/api`. Não passar `/api/auth/login` para esse helper, pois duplicaria o prefixo.
@@ -507,14 +507,14 @@ confirmação de e-mail desativada para teste sem provedor externo.
 
 ### Configuração gratuita preparada
 
-| Variável | Valor no Blueprint |
-|---|---|
-| `NODE_ENV` | `production` |
-| `HOST` | `0.0.0.0` |
-| `DATABASE_PATH` | `/tmp/vitrineic/vitrineic.sqlite` |
-| `DEMO_MODE` | `false` |
-| `MAIL_MODE` | `disabled` |
-| `REQUIRE_VERIFIED_EMAIL` | `false` |
+| Variável                 | Valor no Blueprint                |
+| ------------------------ | --------------------------------- |
+| `NODE_ENV`               | `production`                      |
+| `HOST`                   | `0.0.0.0`                         |
+| `DATABASE_PATH`          | `/tmp/vitrineic/vitrineic.sqlite` |
+| `DEMO_MODE`              | `false`                           |
+| `MAIL_MODE`              | `disabled`                        |
+| `REQUIRE_VERIFIED_EMAIL` | `false`                           |
 
 Não há `VITE_API_URL`, banco gerenciado, disco pago ou seed automático.
 `PORT` e a URL externa são fornecidos pelo Render.
@@ -584,19 +584,19 @@ WAL/SHM antigos e reiniciar. Conferir saúde, login e anexos em ambiente de test
 **Não é necessário apagar arquivos para o deploy.** O `.gitignore` já exclui
 dependências, builds, cache, `.env`, bancos, logs e `var/`.
 
-| Item | Orientação |
-|---|---|
-| `node_modules/` | Dependências locais; não versionar; pode reinstalar se necessário |
-| `dist/` e `build/` | Saídas geradas por `pnpm build`; não versionar |
-| `.cache/render-verify/` | Cópia temporária criada na validação; pode apagar |
-| `.cache/smoke-*` | Scripts e bancos sintéticos da checagem; podem ser apagados |
-| `.cache/pnpm-store/` | Cache local das dependências; opcional remover, mas útil para instalação offline |
-| `var/` | Pode conter o banco local, anexos e e-mails; preservar se os dados forem necessários |
-| `.env` | Configuração privada; manter localmente e fora do Git |
-| `pnpm-lock.yaml` | Preservar e versionar; utilizado no build com lockfile congelado |
-| `.env.example` | Preservar e versionar; exemplo sem segredos reais |
-| `render.yaml`, `.node-version` e `scripts/` | Preservar; necessários para a configuração preparada |
-| `railway.json`, `.railwayignore` e `Dockerfile` | Alternativas de implantação; não precisam ser excluídas para usar o Render Node |
+| Item                                            | Orientação                                                                           |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `node_modules/`                                 | Dependências locais; não versionar; pode reinstalar se necessário                    |
+| `dist/` e `build/`                              | Saídas geradas por `pnpm build`; não versionar                                       |
+| `.cache/render-verify/`                         | Cópia temporária criada na validação; pode apagar                                    |
+| `.cache/smoke-*`                                | Scripts e bancos sintéticos da checagem; podem ser apagados                          |
+| `.cache/pnpm-store/`                            | Cache local das dependências; opcional remover, mas útil para instalação offline     |
+| `var/`                                          | Pode conter o banco local, anexos e e-mails; preservar se os dados forem necessários |
+| `.env`                                          | Configuração privada; manter localmente e fora do Git                                |
+| `pnpm-lock.yaml`                                | Preservar e versionar; utilizado no build com lockfile congelado                     |
+| `.env.example`                                  | Preservar e versionar; exemplo sem segredos reais                                    |
+| `render.yaml`, `.node-version` e `scripts/`     | Preservar; necessários para a configuração preparada                                 |
+| `railway.json`, `.railwayignore` e `Dockerfile` | Alternativas de implantação; não precisam ser excluídas para usar o Render Node      |
 
 Não tratar arquivos `-wal` e `-shm` de um banco em uso como lixo independente.
 A limpeza dos temporários não altera as limitações de persistência do Render.
@@ -606,13 +606,13 @@ A limpeza dos temporários não altera as limitações de persistência do Rende
 Na preparação de 22/10/2026 foram aprovados **19 testes**, a verificação de
 tipos e o build completo de produção.
 
-| Arquivo de testes | Cenários principais |
-|---|---|
-| `server/tests/api.test.ts` | Cadastro, autenticação, autorização, privacidade, interesses, projetos, persistência, CSRF e limites |
-| `server/tests/accounts.test.ts` | Confirmação, recuperação, troca de senha, concorrência, revogação, reenvio, falha de entrega e migração |
-| `server/tests/files.test.ts` | Anexos privados, formatos, isolamento de acesso e cookies de produção |
-| `server/tests/mail.test.ts` | Transporte local e transporte HTTPS simulado, incluindo rejeição e falha de rede |
-| `server/tests/deployment.test.ts` | Origem do Render, bootstrap sem redefinição de senha e snapshot com WAL/BLOBs |
+| Arquivo de testes                 | Cenários principais                                                                                     |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `server/tests/api.test.ts`        | Cadastro, autenticação, autorização, privacidade, interesses, projetos, persistência, CSRF e limites    |
+| `server/tests/accounts.test.ts`   | Confirmação, recuperação, troca de senha, concorrência, revogação, reenvio, falha de entrega e migração |
+| `server/tests/files.test.ts`      | Anexos privados, formatos, isolamento de acesso e cookies de produção                                   |
+| `server/tests/mail.test.ts`       | Transporte local e transporte HTTPS simulado, incluindo rejeição e falha de rede                        |
+| `server/tests/deployment.test.ts` | Origem do Render, bootstrap sem redefinição de senha e snapshot com WAL/BLOBs                           |
 
 Também foi feita checagem interna com os arquivos do frontend compilados:
 HTML, JavaScript, health check, 404 da API, fallback de página, login da
@@ -635,20 +635,20 @@ compilado e carrega o `.env` local; `pnpm preview` serve somente o frontend.
 
 ## 15. Limitações e próximos trabalhos da equipe
 
-| Tema | Situação atual / trabalho futuro |
-|---|---|
-| Persistência no Render Free | Banco descartável; decidir infraestrutura durável antes de receber dados importantes |
-| Entrega de e-mail | Transporte pronto; faltam credenciais e validação real do remetente/provedor |
-| Identidade institucional | Domínio e confirmação de e-mail; sem SSO institucional |
-| Antivírus | Não implementado |
-| Fila de mensagens de e-mail | Em memória; sem recuperação durável e retentativa automática |
-| Comunicação em tempo real | Polling; sem WebSocket |
-| Escala | Uma instância SQLite; revisar modelo, consultas e limites para maior volume |
-| Banco externo | Sem adaptador PostgreSQL ou migração para ele |
-| Anexos em object storage | Não implementado; hoje são BLOBs |
-| Operação | Falta configurar serviço real, acesso, monitoramento e rotina externa de backups |
-| Dados editoriais | Sementes e métricas de exemplo são fictícias; revisar cursos e conteúdo antes de uso público |
-| Navegação | Continua baseada em estado React; sem roteamento geral por URL |
+| Tema                        | Situação atual / trabalho futuro                                                             |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| Persistência no Render Free | Banco descartável; decidir infraestrutura durável antes de receber dados importantes         |
+| Entrega de e-mail           | Transporte pronto; faltam credenciais e validação real do remetente/provedor                 |
+| Identidade institucional    | Domínio e confirmação de e-mail; sem SSO institucional                                       |
+| Antivírus                   | Não implementado                                                                             |
+| Fila de mensagens de e-mail | Em memória; sem recuperação durável e retentativa automática                                 |
+| Comunicação em tempo real   | Polling; sem WebSocket                                                                       |
+| Escala                      | Uma instância SQLite; revisar modelo, consultas e limites para maior volume                  |
+| Banco externo               | Sem adaptador PostgreSQL ou migração para ele                                                |
+| Anexos em object storage    | Não implementado; hoje são BLOBs                                                             |
+| Operação                    | Falta configurar serviço real, acesso, monitoramento e rotina externa de backups             |
+| Dados editoriais            | Sementes e métricas de exemplo são fictícias; revisar cursos e conteúdo antes de uso público |
+| Navegação                   | Continua baseada em estado React; sem roteamento geral por URL                               |
 
 Para Arthur, a principal referência de integração são os helpers de API,
 autenticação e store, além dos contratos de resposta filtrados. Para Davi,

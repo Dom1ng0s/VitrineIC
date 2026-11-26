@@ -11,7 +11,8 @@ export const SAMPLE_PROJECTS = [
   {
     id: 1,
     title: "Sistema de Detecção de Anomalias em Redes",
-    description: "Pipeline de ML para identificação de comportamentos suspeitos em tráfego de rede utilizando autoencoders e análise estatística.",
+    description:
+      "Pipeline de ML para identificação de comportamentos suspeitos em tráfego de rede utilizando autoencoders e análise estatística.",
     stack: ["Python", "PyTorch", "Wireshark", "PostgreSQL"],
     status: "coding",
     repo: "github.com/anacf/anomaly-net",
@@ -20,7 +21,8 @@ export const SAMPLE_PROJECTS = [
   {
     id: 2,
     title: "Compilador para DSL de Análise Genômica",
-    description: "Linguagem de domínio específico para expressão de pipelines bioinformáticos com compilação para bytecode executável.",
+    description:
+      "Linguagem de domínio específico para expressão de pipelines bioinformáticos com compilação para bytecode executável.",
     stack: ["Rust", "LLVM", "Python"],
     status: "ideation",
     repo: "github.com/anacf/genomic-dsl",

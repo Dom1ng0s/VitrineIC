@@ -18,14 +18,24 @@ export function Step4({
   return (
     <div className="flex flex-col gap-8">
       <div className="grid gap-x-4 gap-y-5 md:grid-cols-2">
-        <Input label="GitHub" placeholder="github.com/usuario" value={data.github} onChange={(v) => setData({ github: v })} />
+        <Input
+          label="GitHub"
+          placeholder="github.com/usuario"
+          value={data.github}
+          onChange={(v) => setData({ github: v })}
+        />
         <Input
           label="LinkedIn"
           placeholder="linkedin.com/in/usuario"
           value={data.linkedin}
           onChange={(v) => setData({ linkedin: v })}
         />
-        <Input label="Site / Portfólio" placeholder="seusite.dev" value={data.site} onChange={(v) => setData({ site: v })} />
+        <Input
+          label="Site / Portfólio"
+          placeholder="seusite.dev"
+          value={data.site}
+          onChange={(v) => setData({ site: v })}
+        />
         <Input
           label="Lattes"
           placeholder="lattes.cnpq.br/xxxxxxxx"
@@ -55,7 +65,10 @@ export function Step4({
           <StatusPill color={MOSS}>Visível</StatusPill>
         </div>
       ) : (
-        <div role="status" className="rounded-xl border border-ochre/30 bg-ochre/8 px-4 py-3 font-sans text-sm text-ochre">
+        <div
+          role="status"
+          className="rounded-xl border border-ochre/30 bg-ochre/8 px-4 py-3 font-sans text-sm text-ochre"
+        >
           Seu perfil ainda não aparece na vitrine: falta adicionar uma competência.{" "}
           <button type="button" onClick={onGoToSkills} className="underline underline-offset-4 hover:text-navy">
             Voltar ao passo 02

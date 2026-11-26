@@ -154,9 +154,11 @@ export const estudantes = {
     (await sql.rows<Student>(`${SQL_ESTUDANTE} WHERE e.id = $1`, [id])).map(comoEstudante)[0],
   /** Só quem aparece na vitrine: perfil com ao menos uma competência. */
   visiveis: async (sql: Sql) =>
-    (await sql.rows<Student>(
-      `${SQL_ESTUDANTE} WHERE EXISTS (SELECT 1 FROM estudante_competencia ec WHERE ec.estudante_id = e.id) ORDER BY e.id`,
-    )).map(comoEstudante),
+    (
+      await sql.rows<Student>(
+        `${SQL_ESTUDANTE} WHERE EXISTS (SELECT 1 FROM estudante_competencia ec WHERE ec.estudante_id = e.id) ORDER BY e.id`,
+      )
+    ).map(comoEstudante),
 };
 
 export const solicitantes = {
@@ -166,7 +168,8 @@ export const solicitantes = {
 
 export const demandas = {
   todas: async (sql: Sql) => (await sql.rows<Demand>(`${SQL_DEMANDA} ORDER BY d.enviada_em DESC`)).map(limpar),
-  porId: async (sql: Sql, id: string) => (await sql.rows<Demand>(`${SQL_DEMANDA} WHERE d.id = $1`, [id])).map(limpar)[0],
+  porId: async (sql: Sql, id: string) =>
+    (await sql.rows<Demand>(`${SQL_DEMANDA} WHERE d.id = $1`, [id])).map(limpar)[0],
 };
 
 export const interesses = {
@@ -175,11 +178,13 @@ export const interesses = {
     (await sql.rows<Interest>(`${SQL_INTERESSE} WHERE i.id = $1`, [id])).map(limpar)[0],
   /** Substitui a varredura que procurava o par ativo em memória. */
   ativoDoPar: async (sql: Sql, demandaId: string, estudanteId: string) =>
-    (await sql.rows<Interest>(
-      `${SQL_INTERESSE} WHERE i.demanda_id = $1 AND i.estudante_id = $2
+    (
+      await sql.rows<Interest>(
+        `${SQL_INTERESSE} WHERE i.demanda_id = $1 AND i.estudante_id = $2
          AND i.status NOT IN ('recusado_estudante','recusado_solicitante')`,
-      [demandaId, estudanteId],
-    )).map(limpar)[0],
+        [demandaId, estudanteId],
+      )
+    ).map(limpar)[0],
   existeAtivoNaDemanda: async (sql: Sql, demandaId: string) =>
     !!(await sql.row(
       `SELECT 1 FROM interesse WHERE demanda_id = $1
@@ -191,7 +196,8 @@ export const interesses = {
 };
 
 export const contas = {
-  porId: async (sql: Sql, id: string) => (await sql.rows<StoredAccount>(`${CONTA} WHERE c.id = $1`, [id])).map(limpar)[0],
+  porId: async (sql: Sql, id: string) =>
+    (await sql.rows<StoredAccount>(`${CONTA} WHERE c.id = $1`, [id])).map(limpar)[0],
   porEmail: async (sql: Sql, email: string) =>
     (await sql.rows<StoredAccount>(`${CONTA} WHERE c.email = $1`, [email])).map(limpar)[0],
   /** Buscas que antes varriam a tabela inteira para achar o dono de um perfil. */

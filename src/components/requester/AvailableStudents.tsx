@@ -119,7 +119,8 @@ export function AvailableStudents() {
             <section className="vt-card p-7">
               <Eyebrow>Sobre</Eyebrow>
               <p className="mt-4 font-sans text-[15px] leading-[1.6] text-navy/75">
-                {selectedStudent.bio || "Estudante altamente engajado e em busca de novos desafios em desenvolvimento de software e inteligência artificial."}
+                {selectedStudent.bio ||
+                  "Estudante altamente engajado e em busca de novos desafios em desenvolvimento de software e inteligência artificial."}
               </p>
               <p className="mt-4 font-mono text-[11px] text-navy/55">
                 github.com/{selectedStudent.name.split(" ")[0].toLowerCase()}
@@ -144,7 +145,9 @@ export function AvailableStudents() {
                   },
                 ].map((p) => (
                   <div key={p.title} className="py-5">
-                    <p className={`font-mono text-[10px] uppercase tracking-[0.08em] ${p.red ? "text-red" : "text-navy/55"}`}>
+                    <p
+                      className={`font-mono text-[10px] uppercase tracking-[0.08em] ${p.red ? "text-red" : "text-navy/55"}`}
+                    >
                       {p.tag}
                     </p>
                     <h3 className="mt-2 font-display text-lg font-medium text-navy">{p.title}</h3>
@@ -161,8 +164,8 @@ export function AvailableStudents() {
             {sent ? (
               <>
                 <p className="font-sans text-sm leading-[1.6] text-navy/65">
-                  {selectedStudent.name} recebe o convite na área dele. O contato é liberado para os dois lados assim que
-                  ele aceitar; você acompanha em Interessados.
+                  {selectedStudent.name} recebe o convite na área dele. O contato é liberado para os dois lados assim
+                  que ele aceitar; você acompanha em Interessados.
                 </p>
                 <button onClick={closeOffer} className="vt-btn vt-btn-primary mt-6 w-full">
                   Fechar
@@ -192,14 +195,16 @@ export function AvailableStudents() {
                 {existing ? (
                   <div className="mt-6 flex items-center gap-3">
                     <InterestStatusPill status={existing.status} viewer="solicitante" />
-                    <span className="font-sans text-xs text-navy/55">Já existe um interesse com este estudante nesta demanda.</span>
+                    <span className="font-sans text-xs text-navy/55">
+                      Já existe um interesse com este estudante nesta demanda.
+                    </span>
                   </div>
                 ) : (
                   <button
                     disabled={!demand}
                     onClick={async () => {
                       if (!demand) return;
-                      if (!await createInterest(demand.id, selectedStudent.id, "convite", message)) return;
+                      if (!(await createInterest(demand.id, selectedStudent.id, "convite", message))) return;
                       setSent(true);
                     }}
                     className="vt-btn vt-btn-primary mt-6 w-full"
@@ -224,9 +229,12 @@ export function AvailableStudents() {
       />
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {students.filter(isProfileVisible).slice(0, 10).map((s) => (
-          <StudentCard key={s.id} student={s} inProject={!!inProject[s.id]} onClick={() => setSelectedStudent(s)} />
-        ))}
+        {students
+          .filter(isProfileVisible)
+          .slice(0, 10)
+          .map((s) => (
+            <StudentCard key={s.id} student={s} inProject={!!inProject[s.id]} onClick={() => setSelectedStudent(s)} />
+          ))}
       </div>
     </main>
   );

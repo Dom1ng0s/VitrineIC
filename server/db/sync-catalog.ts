@@ -46,7 +46,7 @@ export async function syncCatalog(sql: Sql): Promise<void> {
     }
   }
 
-  for (const categoria of new Set(ALL_SKILLS.map(s => s.cat))) {
+  for (const categoria of new Set(ALL_SKILLS.map((s) => s.cat))) {
     await sql.run("INSERT INTO categoria_competencia(nome) VALUES($1) ON CONFLICT (nome) DO NOTHING", [categoria]);
   }
   for (const skill of ALL_SKILLS) {

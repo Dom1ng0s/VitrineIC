@@ -30,7 +30,10 @@ export function RefuseModal({
       />
       <p className="mt-2 font-sans text-xs text-navy/50">Visível ao solicitante e à curadoria.</p>
       <div className="mt-8 flex items-center justify-end gap-3">
-        <button onClick={onClose} className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy">
+        <button
+          onClick={onClose}
+          className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
+        >
           Cancelar
         </button>
         <button onClick={() => onConfirm(reason)} className="vt-btn vt-btn-danger">

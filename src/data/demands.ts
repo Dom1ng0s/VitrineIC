@@ -17,7 +17,8 @@ export const DEMANDS: Demand[] = [
     scope: "Pequeno (< 3 meses)",
     deadline: "15 dez 2026",
     skills: ["React", "Python", "AWS"],
-    description: "Painel que cruza a medição dos quadros elétricos com a produção de cada linha, para achar onde o consumo foge do normal.",
+    description:
+      "Painel que cruza a medição dos quadros elétricos com a produção de cada linha, para achar onde o consumo foge do normal.",
     submitted: "18 out 2026",
     status: "nova",
     priority: "normal",
@@ -30,7 +31,8 @@ export const DEMANDS: Demand[] = [
     scope: "Médio (3–6 meses)",
     deadline: "28 fev 2027",
     skills: ["Python", "Pandas", "scikit-learn", "SQL"],
-    description: "Modelo que antecipa falhas em compressores industriais a partir do histórico de vibração, temperatura e paradas.",
+    description:
+      "Modelo que antecipa falhas em compressores industriais a partir do histórico de vibração, temperatura e paradas.",
     submitted: "10 out 2026",
     status: "em_analise",
     priority: "normal",
@@ -43,7 +45,8 @@ export const DEMANDS: Demand[] = [
     scope: "Médio (3–6 meses)",
     deadline: "30 nov 2026",
     skills: ["Python", "MQTT", "PostgreSQL", "Docker", "React"],
-    description: "Desenvolvimento de plataforma de coleta e visualização de dados de sensores industriais em tempo real. Pipeline de ingestão com tolerância a falhas e dashboard de monitoramento.",
+    description:
+      "Desenvolvimento de plataforma de coleta e visualização de dados de sensores industriais em tempo real. Pipeline de ingestão com tolerância a falhas e dashboard de monitoramento.",
     submitted: "12 set 2026",
     status: "aprovada",
     priority: "alta",
@@ -56,7 +59,8 @@ export const DEMANDS: Demand[] = [
     scope: "Pequeno (< 3 meses)",
     deadline: "15 dez 2026",
     skills: ["Python", "scikit-learn", "SQL", "Pandas"],
-    description: "Modelo preditivo para identificação antecipada de cancelamento de clientes em plataforma SaaS B2B. Feature engineering, treinamento e API de inferência.",
+    description:
+      "Modelo preditivo para identificação antecipada de cancelamento de clientes em plataforma SaaS B2B. Feature engineering, treinamento e API de inferência.",
     submitted: "05 set 2026",
     status: "aprovada",
     priority: "alta",
@@ -69,7 +73,8 @@ export const DEMANDS: Demand[] = [
     scope: "Médio (3–6 meses)",
     deadline: "31 jan 2027",
     skills: ["React", "TypeScript", "FastAPI", "PostgreSQL"],
-    description: "Aplicativo para o inspetor registrar não conformidades no chão de fábrica, com fotos, checklist por máquina e relatório por turno.",
+    description:
+      "Aplicativo para o inspetor registrar não conformidades no chão de fábrica, com fotos, checklist por máquina e relatório por turno.",
     submitted: "28 ago 2026",
     status: "contato_liberado",
     priority: "normal",
@@ -82,7 +87,8 @@ export const DEMANDS: Demand[] = [
     scope: "Pequeno (< 3 meses)",
     deadline: "20 dez 2026",
     skills: ["Python", "LangChain", "OpenAI API", "FastAPI"],
-    description: "Integração de LLM para geração automática de relatórios financeiros a partir de dados estruturados e templates.",
+    description:
+      "Integração de LLM para geração automática de relatórios financeiros a partir de dados estruturados e templates.",
     submitted: "20 ago 2026",
     status: "aprovada",
     priority: "normal",
@@ -95,7 +101,8 @@ export const DEMANDS: Demand[] = [
     scope: "Grande (6–12 meses)",
     deadline: "10 dez 2026",
     skills: ["React", "Node.js", "PostgreSQL", "AWS"],
-    description: "LMS customizado para treinamento técnico industrial com gamificação, trilhas adaptativas e relatórios gerenciais.",
+    description:
+      "LMS customizado para treinamento técnico industrial com gamificação, trilhas adaptativas e relatórios gerenciais.",
     submitted: "08 ago 2026",
     status: "contato_liberado",
     priority: "normal",

@@ -4,11 +4,11 @@ import type { DemandStatus } from "@/types";
 
 /** Rótulos do solicitante para o vocabulário único de status da demanda. */
 export const STATUS_MAP: Record<DemandStatus, { label: string; color: string }> = {
-  nova:             { label: "Em Análise",           color: OCHRE },
-  em_analise:       { label: "Em Análise",           color: OCHRE },
-  aprovada:         { label: "Recebendo interesses", color: RED },
-  rejeitada:        { label: "Rejeitada",            color: TERRACOTTA },
-  contato_liberado: { label: "Contato liberado",     color: MOSS },
+  nova: { label: "Em Análise", color: OCHRE },
+  em_analise: { label: "Em Análise", color: OCHRE },
+  aprovada: { label: "Recebendo interesses", color: RED },
+  rejeitada: { label: "Rejeitada", color: TERRACOTTA },
+  contato_liberado: { label: "Contato liberado", color: MOSS },
 };
 
 /** Pílula de status do guia: fundo tingido a 10%. */

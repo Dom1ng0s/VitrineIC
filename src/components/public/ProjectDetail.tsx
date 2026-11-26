@@ -65,9 +65,7 @@ export function ProjectDetail({
       <div className="mt-10 grid items-start gap-10 lg:grid-cols-[1fr_340px]">
         <div>
           <Eyebrow>Descrição</Eyebrow>
-          <p className="mt-4 max-w-[740px] font-sans text-[17px] leading-[1.6] text-navy/65">
-            {project.description}
-          </p>
+          <p className="mt-4 max-w-[740px] font-sans text-[17px] leading-[1.6] text-navy/65">{project.description}</p>
           {project.link && (
             <a href={project.link} target="_blank" rel="noreferrer" className="vt-btn vt-btn-secondary mt-5">
               Abrir projeto <Arrow />

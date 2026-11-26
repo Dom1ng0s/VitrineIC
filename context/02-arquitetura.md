@@ -6,17 +6,17 @@
 
 ## Stack
 
-| Camada | Escolha |
-|---|---|
-| UI | React 19 (`react`, `react-dom` — nenhuma lib de UI) |
-| Build | Vite 8 |
-| Linguagem | TypeScript 5.7+, `strict: true` |
-| Estilo | Tailwind CSS v4 via `@tailwindcss/vite`, sem config file |
-| Pacotes | pnpm 10.34.3, Node 22 (`.mise.toml`) |
-| Roteador | **nenhum** |
-| Estado global | **nenhum** — só `useState` local |
-| Backend / API | **nenhum** — sem `fetch`, sem env var |
-| Testes | **nenhum** |
+| Camada        | Escolha                                                  |
+| ------------- | -------------------------------------------------------- |
+| UI            | React 19 (`react`, `react-dom` — nenhuma lib de UI)      |
+| Build         | Vite 8                                                   |
+| Linguagem     | TypeScript 5.7+, `strict: true`                          |
+| Estilo        | Tailwind CSS v4 via `@tailwindcss/vite`, sem config file |
+| Pacotes       | pnpm 10.34.3, Node 22 (`.mise.toml`)                     |
+| Roteador      | **nenhum**                                               |
+| Estado global | **nenhum** — só `useState` local                         |
+| Backend / API | **nenhum** — sem `fetch`, sem env var                    |
+| Testes        | **nenhum**                                               |
 
 ```bash
 pnpm install
@@ -42,11 +42,11 @@ const [area, setArea] = useState<Area>("landing");
 
 **Nível 2 — dentro de cada área**, um `view` controla a tela:
 
-| Área | Valores de `view` |
-|---|---|
-| `StudentArea` | `dashboard`, `lab`, `profile` (+ flag `onboarded`) |
-| `RequesterArea` | `dashboard`, `new`, `success`, `matches` |
-| `CuratorArea` | `triage`, `matchmaking`, `confirm`, `confirmed` |
+| Área            | Valores de `view`                                  |
+| --------------- | -------------------------------------------------- |
+| `StudentArea`   | `dashboard`, `lab`, `profile` (+ flag `onboarded`) |
+| `RequesterArea` | `dashboard`, `new`, `success`, `matches`           |
+| `CuratorArea`   | `triage`, `matchmaking`, `confirm`, `confirmed`    |
 
 ### Consequências que afetam qualquer tarefa
 
@@ -90,7 +90,7 @@ varrer `src/`.
 ## Dívida estrutural conhecida
 
 **Ilhas com primitivas duplicadas.** Cada área reimplementa `Label`, `Rule`,
-`NavBar` e `StatusBadge`. São versões *parecidas, não idênticas* — o `Label` do
+`NavBar` e `StatusBadge`. São versões _parecidas, não idênticas_ — o `Label` do
 solicitante tem uma prop `light` que os outros não têm. Mudança em uma não
 propaga; ao alterar uma primitiva, verifique as irmãs.
 

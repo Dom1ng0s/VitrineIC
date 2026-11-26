@@ -7,7 +7,14 @@ import { INTERESTS } from "@/data/interests";
 import { hashPassword } from "../security";
 import type { Sql } from "./pool";
 import type { StoredAccount } from "./types";
-import { salvarConta, salvarDemanda, salvarEstudante, salvarInteresse, salvarProjeto, salvarSolicitante } from "./mutations";
+import {
+  salvarConta,
+  salvarDemanda,
+  salvarEstudante,
+  salvarInteresse,
+  salvarProjeto,
+  salvarSolicitante,
+} from "./mutations";
 
 /**
  * Carga de demonstração.
@@ -19,10 +26,12 @@ import { salvarConta, salvarDemanda, salvarEstudante, salvarInteresse, salvarPro
  * aparecerem na vitrine sem virarem porta de entrada.
  */
 async function contaPara(
-  email: string, nome: string, papel: StoredAccount["role"],
+  email: string,
+  nome: string,
+  papel: StoredAccount["role"],
   profileId: string,
 ): Promise<StoredAccount> {
-  const demo = DEMO_ACCOUNTS.find(a => a.email === email);
+  const demo = DEMO_ACCOUNTS.find((a) => a.email === email);
   return {
     id: demo?.id ?? `ACC-${randomUUID()}`,
     role: papel,
@@ -51,7 +60,7 @@ export async function seedDemo(sql: Sql) {
     for (const projeto of estudante.projects ?? []) await salvarProjeto(sql, estudante.id, projeto);
   }
 
-  for (const curador of DEMO_ACCOUNTS.filter(a => a.role === "curator")) {
+  for (const curador of DEMO_ACCOUNTS.filter((a) => a.role === "curator")) {
     const { password, ...conta } = curador;
     await salvarConta(sql, { ...conta, passwordHash: await hashPassword(password) });
   }

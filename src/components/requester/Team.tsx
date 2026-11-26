@@ -8,11 +8,23 @@ import { useCurrentRequester } from "@/lib/auth";
 export function Team({ onInvite }: { onInvite: () => void }) {
   const { interests, demands, students } = useVitrine();
   const requester = useCurrentRequester();
-  const teamMembers = interests.filter(i => i.status === "contato_liberado").flatMap(i => {
-    const demand = demands.find(d => d.id === i.demandId && d.company === requester);
-    const student = students.find(s => s.id === i.studentId);
-    return demand && student ? [{ id: i.id, name: student.name, email: student.email, project: demand.title, role: student.inProject ? "Em projeto" : "Contato liberado" }] : [];
-  });
+  const teamMembers = interests
+    .filter((i) => i.status === "contato_liberado")
+    .flatMap((i) => {
+      const demand = demands.find((d) => d.id === i.demandId && d.company === requester);
+      const student = students.find((s) => s.id === i.studentId);
+      return demand && student
+        ? [
+            {
+              id: i.id,
+              name: student.name,
+              email: student.email,
+              project: demand.title,
+              role: student.inProject ? "Em projeto" : "Contato liberado",
+            },
+          ]
+        : [];
+    });
 
   return (
     <main className={`${PAGE} pb-20`}>

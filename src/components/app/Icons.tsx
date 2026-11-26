@@ -50,7 +50,12 @@ export function ClockIcon() {
 export function BuildingIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M2.5 12.5v-10h6v10M8.5 5.5h3v7M1.5 12.5h11" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+      <path
+        d="M2.5 12.5v-10h6v10M8.5 5.5h3v7M1.5 12.5h11"
+        stroke="currentColor"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
       <path d="M4.5 5h2M4.5 7.5h2M4.5 10h2" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
     </svg>
   );
@@ -59,7 +64,13 @@ export function BuildingIcon() {
 export function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="m3 7.5 2.5 2.5L11 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="m3 7.5 2.5 2.5L11 4.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

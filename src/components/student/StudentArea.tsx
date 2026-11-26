@@ -38,9 +38,7 @@ export default function StudentArea({ onBack }: { onBack: () => void }) {
   }
 
   const unreadCount = notifications.filter((n) => n.unread).length;
-  const awaitingMe = interests.filter(
-    (i) => i.studentId === student.id && i.status === "aguardando_estudante",
-  ).length;
+  const awaitingMe = interests.filter((i) => i.studentId === student.id && i.status === "aguardando_estudante").length;
 
   return (
     <div className="min-h-screen bg-offwhite">
@@ -64,22 +62,21 @@ export default function StudentArea({ onBack }: { onBack: () => void }) {
                 Sem nenhuma competência, você não aparece no diretório, não recebe convites e não pode se candidatar.
               </p>
             </div>
-            <button onClick={() => setResumeOnboarding(true)} className="vt-btn vt-btn-primary shrink-0 self-start md:self-auto">
+            <button
+              onClick={() => setResumeOnboarding(true)}
+              className="vt-btn vt-btn-primary shrink-0 self-start md:self-auto"
+            >
               Continuar onboarding <ArrowIcon />
             </button>
           </div>
         </div>
       )}
 
-      {view === "opportunities" && (
-        <Opportunities student={student} onGoToInterests={() => setView("interests")} />
-      )}
+      {view === "opportunities" && <Opportunities student={student} onGoToInterests={() => setView("interests")} />}
 
       {view === "interests" && <Interests studentId={student.id} />}
 
-      {view === "projects" && (
-        <Projects projects={projects} studentId={student.id} />
-      )}
+      {view === "projects" && <Projects projects={projects} studentId={student.id} />}
 
       {view === "inbox" && <Inbox />}
 

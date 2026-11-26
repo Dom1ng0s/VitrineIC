@@ -28,12 +28,8 @@ export function ProjectCard({
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">
-          {project.title}
-        </h3>
-        {!compact && (
-          <p className="line-clamp-2 font-sans text-sm leading-[1.5] text-navy/65">{project.description}</p>
-        )}
+        <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">{project.title}</h3>
+        {!compact && <p className="line-clamp-2 font-sans text-sm leading-[1.5] text-navy/65">{project.description}</p>}
       </div>
 
       {!compact && (

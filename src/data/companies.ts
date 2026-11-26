@@ -74,8 +74,7 @@ export const COMPANIES: Company[] = [
     since: "2024",
     site: "educorpora.com",
     contactEmail: "contato@educorpora.com",
-    description:
-      "Plataforma de treinamento corporativo para equipes técnicas, com trilhas presenciais e a distância.",
+    description: "Plataforma de treinamento corporativo para equipes técnicas, com trilhas presenciais e a distância.",
   },
   {
     name: "DocScan Ltda",
@@ -86,7 +85,6 @@ export const COMPANIES: Company[] = [
     since: "2025",
     site: "docscan.com.br",
     contactEmail: "contato@docscan.com.br",
-    description:
-      "Digitalização e extração de dados de documentos para cartórios e escritórios de advocacia.",
+    description: "Digitalização e extração de dados de documentos para cartórios e escritórios de advocacia.",
   },
 ];

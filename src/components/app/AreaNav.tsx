@@ -82,7 +82,9 @@ export function AreaNav({
               aria-label="Caixa de entrada"
               aria-current={inboxActive ? "page" : undefined}
               className={`relative grid size-8 place-items-center transition-colors hover:text-navy ${
-                inboxActive ? "bg-white text-navy shadow-[0_1px_2px_rgba(11,37,69,0.06),0_2px_8px_rgba(11,37,69,0.06)]" : "text-navy/65"
+                inboxActive
+                  ? "bg-white text-navy shadow-[0_1px_2px_rgba(11,37,69,0.06),0_2px_8px_rgba(11,37,69,0.06)]"
+                  : "text-navy/65"
               }`}
             >
               <InboxIcon />

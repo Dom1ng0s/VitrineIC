@@ -22,13 +22,7 @@ export type OnboardingField = "name" | "unit" | "course" | "matricula" | "bio";
  * passo mudou, para que sair no meio não perca nada. "Pular por agora" leva ao
  * painel; o perfil só aparece na vitrine com ao menos uma competência.
  */
-export function Onboarding({
-  student,
-  onDone,
-}: {
-  student: Student;
-  onDone: () => void;
-}) {
+export function Onboarding({ student, onDone }: { student: Student; onDone: () => void }) {
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<ProfileDraft>(() => toDraft(student));
 
@@ -57,16 +51,16 @@ export function Onboarding({
   const next = async () => {
     if (!validate()) return;
     if (step < 3) {
-      if (!await persist()) return;
+      if (!(await persist())) return;
       goTo(step + 1);
     } else {
-      if (!await persist({ onboardedAt: new Date().toISOString().slice(0, 10), onboardingSkipped: false })) return;
+      if (!(await persist({ onboardedAt: new Date().toISOString().slice(0, 10), onboardingSkipped: false }))) return;
       onDone();
     }
   };
 
   const skip = async () => {
-    if (!await persist({ onboardingSkipped: true })) return;
+    if (!(await persist({ onboardingSkipped: true }))) return;
     onDone();
   };
 

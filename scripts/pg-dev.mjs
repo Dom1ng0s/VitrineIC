@@ -65,16 +65,21 @@ function init() {
   } finally {
     rmSync(senha, { force: true });
   }
-  appendFileSync(join(DATA, "postgresql.conf"),
-    `\n# VitrineIC: cluster isolado de desenvolvimento\nport = ${PORT}\nlisten_addresses = 'localhost'\n`);
-  writeFileSync(join(DATA, "pg_hba.conf"),
+  appendFileSync(
+    join(DATA, "postgresql.conf"),
+    `\n# VitrineIC: cluster isolado de desenvolvimento\nport = ${PORT}\nlisten_addresses = 'localhost'\n`,
+  );
+  writeFileSync(
+    join(DATA, "pg_hba.conf"),
     "# Cluster de desenvolvimento do VitrineIC - somente loopback, com senha.\n" +
-    "host    all    all    127.0.0.1/32    scram-sha-256\n" +
-    "host    all    all    ::1/128         scram-sha-256\n");
+      "host    all    all    127.0.0.1/32    scram-sha-256\n" +
+      "host    all    all    ::1/128         scram-sha-256\n",
+  );
   start();
-  const criado = spawnSync(binario("createdb"),
-    ["-h", "localhost", "-p", PORT, "-U", USER, "-O", USER, "vitrineic"],
-    { stdio: "inherit", env: { ...process.env, PGPASSWORD: PASSWORD } });
+  const criado = spawnSync(binario("createdb"), ["-h", "localhost", "-p", PORT, "-U", USER, "-O", USER, "vitrineic"], {
+    stdio: "inherit",
+    env: { ...process.env, PGPASSWORD: PASSWORD },
+  });
   if (criado.status !== 0) throw new Error("createdb falhou.");
   console.log(`\nBanco pronto: postgresql://${USER}:${PASSWORD}@localhost:${PORT}/vitrineic`);
   console.log("Agora rode: pnpm db:migrate");
@@ -86,21 +91,32 @@ function init() {
  * stdio ignorado solta o processo de vez.
  */
 function start() {
-  if (noAr()) { console.log(`Já está no ar em localhost:${PORT}.`); return; }
+  if (noAr()) {
+    console.log(`Já está no ar em localhost:${PORT}.`);
+    return;
+  }
   const filho = spawn(binario("pg_ctl"), ["-D", DATA, "-l", LOG, "-w", "start"], {
-    detached: true, stdio: "ignore", windowsHide: true,
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
   });
   filho.unref();
-  const dormir = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+  const dormir = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
   for (let tentativa = 0; tentativa < 40; tentativa++) {
     dormir(300);
-    if (noAr()) { console.log(`No ar em localhost:${PORT}.`); return; }
+    if (noAr()) {
+      console.log(`No ar em localhost:${PORT}.`);
+      return;
+    }
   }
   throw new Error(`Não subiu. Veja ${LOG}.`);
 }
 
 function stop() {
-  if (!noAr()) { console.log("Já estava parado."); return; }
+  if (!noAr()) {
+    console.log("Já estava parado.");
+    return;
+  }
   rodar("pg_ctl", ["-D", DATA, "-m", "fast", "stop"]);
 }
 

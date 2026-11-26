@@ -16,7 +16,9 @@ import { comoDecorrido, paraExibicao } from "@/lib/datas";
 /** Perfil do solicitante: dados da empresa e as demandas aprovadas que ela publicou. */
 function CompanyModal({ name, demands, onClose }: { name: string; demands: Demand[]; onClose: () => void }) {
   const company = findCompany(name);
-  const published = demands.filter((d) => d.company === name && d.status !== "nova" && d.status !== "em_analise" && d.status !== "rejeitada");
+  const published = demands.filter(
+    (d) => d.company === name && d.status !== "nova" && d.status !== "em_analise" && d.status !== "rejeitada",
+  );
 
   return (
     <Modal eyebrow="Solicitante" title={name} onClose={onClose} width="max-w-[560px]">
@@ -137,7 +139,9 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
             </div>
             <div>
               <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-moss">Próximo passo</dt>
-              <dd className="mt-1 font-sans text-sm text-navy/75">Combinem direto entre vocês. O site não acompanha a partir daqui.</dd>
+              <dd className="mt-1 font-sans text-sm text-navy/75">
+                Combinem direto entre vocês. O site não acompanha a partir daqui.
+              </dd>
             </div>
           </dl>
         )}
@@ -165,7 +169,7 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
           title={`Recusar ${interest.origin === "convite" ? "o convite" : "a sugestão"}?`}
           onClose={() => setRefusing(false)}
           onConfirm={async (reason) => {
-            if (!await respondInterest(interest.id, "estudante", false, reason)) return;
+            if (!(await respondInterest(interest.id, "estudante", false, reason))) return;
             setRefusing(false);
           }}
         />
@@ -226,7 +230,9 @@ export function Interests({ studentId }: { studentId: string }) {
         <div className="flex flex-col gap-6">
           {shown.map((interest) => {
             const demand = demands.find((d) => d.id === interest.demandId);
-            return demand ? <InterestCard key={interest.id} interest={interest} demand={demand} demands={demands} /> : null;
+            return demand ? (
+              <InterestCard key={interest.id} interest={interest} demand={demand} demands={demands} />
+            ) : null;
           })}
         </div>
       )}

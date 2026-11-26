@@ -44,7 +44,9 @@ export function MatchConfirmed({
             {demand.id} · {demand.company}
           </Mono>
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {demand.skills.map((s) => <SkillTag key={s}>{s}</SkillTag>)}
+            {demand.skills.map((s) => (
+              <SkillTag key={s}>{s}</SkillTag>
+            ))}
           </div>
         </div>
         <div className="p-6 md:p-8">
@@ -60,7 +62,9 @@ export function MatchConfirmed({
           </div>
           <p className="mt-5 flex items-baseline gap-2">
             <span className="font-display text-[28px] font-medium text-navy">{score}%</span>
-            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/55">compatibilidade técnica</span>
+            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/55">
+              compatibilidade técnica
+            </span>
           </p>
         </div>
       </section>
@@ -75,7 +79,10 @@ export function MatchConfirmed({
               text: "Estudante aceita a sugestão",
             },
             { done: passed(["contato_liberado"]), text: "Solicitante aceita o estudante" },
-            { done: passed(["contato_liberado"]), text: "Contato liberado para os dois; a curadoria só vê que foi liberado" },
+            {
+              done: passed(["contato_liberado"]),
+              text: "Contato liberado para os dois; a curadoria só vê que foi liberado",
+            },
           ].map((item) => (
             <li key={item.text} className="flex items-center gap-3 py-3">
               <span

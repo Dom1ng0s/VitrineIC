@@ -28,12 +28,22 @@ const PHASE_COLOR: Record<string, string> = {
   Publicado: MOSS,
 };
 
-const PHASE_STATUS: Record<string, import("@/types").ProjectStatus> = { Idealização: "ideation", Codificação: "coding", Revisão: "review", Publicado: "done" };
+const PHASE_STATUS: Record<string, import("@/types").ProjectStatus> = {
+  Idealização: "ideation",
+  Codificação: "coding",
+  Revisão: "review",
+  Publicado: "done",
+};
 
 export function toMyProject(project: import("@/types").StudentProject): MyProject {
-  return { id: project.id, title: project.title, description: project.description,
-    phase: Object.keys(PHASE_STATUS).find(k => PHASE_STATUS[k] === project.status) ?? "Idealização",
-    tools: project.stack.join(", "), link: project.link };
+  return {
+    id: project.id,
+    title: project.title,
+    description: project.description,
+    phase: Object.keys(PHASE_STATUS).find((k) => PHASE_STATUS[k] === project.status) ?? "Idealização",
+    tools: project.stack.join(", "),
+    link: project.link,
+  };
 }
 
 /**
@@ -67,13 +77,7 @@ function InProjectToggle({ studentId }: { studentId: string }) {
   );
 }
 
-export function Projects({
-  projects,
-  studentId,
-}: {
-  projects: MyProject[];
-  studentId: string;
-}) {
+export function Projects({ projects, studentId }: { projects: MyProject[]; studentId: string }) {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<Partial<MyProject>>({});
   const [opened, setOpened] = useState<MyProject | null>(null);
@@ -93,10 +97,16 @@ export function Projects({
   const saveProject = async () => {
     if (!validate()) return;
     const project = await addProject({
-      title: form.title!, description: form.description!,
+      title: form.title!,
+      description: form.description!,
       status: PHASE_STATUS[form.phase!],
-      stack: (form.tools ?? "").split(",").map(s => s.trim()).filter(Boolean),
-      year: String(new Date().getFullYear()), area: "", link: form.link ?? "",
+      stack: (form.tools ?? "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+      year: String(new Date().getFullYear()),
+      area: "",
+      link: form.link ?? "",
     });
     if (project) close();
   };
@@ -221,13 +231,13 @@ export function Projects({
             />
           </div>
           <div className="mt-8 flex items-center justify-end gap-3">
-            <button onClick={close} className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy">
+            <button
+              onClick={close}
+              className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
+            >
               Cancelar
             </button>
-            <button
-              onClick={saveProject}
-              className="vt-btn vt-btn-primary"
-            >
+            <button onClick={saveProject} className="vt-btn vt-btn-primary">
               Publicar projeto <ArrowIcon />
             </button>
           </div>

@@ -16,7 +16,14 @@ const KIND_LABEL: Record<UpdateKind, string> = {
  */
 export function UpdatesMenu({ onOpen }: { onOpen: (target: string) => void }) {
   const { notifications } = useVitrine();
-  const updates: Update[] = notifications.map(n => ({ id: n.id, kind: "processo", text: n.project, time: n.time, unread: n.unread, target: "inbox" }));
+  const updates: Update[] = notifications.map((n) => ({
+    id: n.id,
+    kind: "processo",
+    text: n.project,
+    time: n.time,
+    unread: n.unread,
+    target: "inbox",
+  }));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -39,7 +46,7 @@ export function UpdatesMenu({ onOpen }: { onOpen: (target: string) => void }) {
   }, [open]);
 
   const select = async (update: Update) => {
-    if (!await markRead(update.id)) return;
+    if (!(await markRead(update.id))) return;
     setOpen(false);
     onOpen(update.target);
   };

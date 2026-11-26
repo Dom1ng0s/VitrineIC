@@ -109,11 +109,7 @@ export function UnitsCard({ variant = "full" }: { variant?: "full" | "compact" }
   }
 
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className="vt-stone flex h-[567px] flex-col justify-between rounded-3xl p-9"
-    >
+    <div role="group" aria-label={label} className="vt-stone flex h-[567px] flex-col justify-between rounded-3xl p-9">
       <span className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/35 bg-emerald-400/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-emerald-300">
         <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
         Vitrine aberta

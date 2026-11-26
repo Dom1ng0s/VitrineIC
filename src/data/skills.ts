@@ -251,24 +251,63 @@ export const ALL_SKILLS: SkillDef[] = [
  */
 export const SUGGESTED_BY_COURSE: Record<Course, string[] | undefined> = {
   "Ciência da Computação": [
-    "Algoritmos", "Estruturas de Dados", "Python", "Java", "Git", "SQL",
-    "Sistemas Operacionais", "Compiladores", "Sistemas Distribuídos",
-    "React", "Docker", "Testes Automatizados",
+    "Algoritmos",
+    "Estruturas de Dados",
+    "Python",
+    "Java",
+    "Git",
+    "SQL",
+    "Sistemas Operacionais",
+    "Compiladores",
+    "Sistemas Distribuídos",
+    "React",
+    "Docker",
+    "Testes Automatizados",
   ],
   "Engenharia da Computação": [
-    "C", "C++", "Arduino", "ESP32", "STM32", "FPGA", "VHDL", "Verilog",
-    "Firmware", "I2C/SPI", "Arquitetura de Computadores", "Controle e Automação",
+    "C",
+    "C++",
+    "Arduino",
+    "ESP32",
+    "STM32",
+    "FPGA",
+    "VHDL",
+    "Verilog",
+    "Firmware",
+    "I2C/SPI",
+    "Arquitetura de Computadores",
+    "Controle e Automação",
   ],
   "Inteligência Artificial": [
-    "Python", "Machine Learning", "Deep Learning", "PyTorch", "scikit-learn",
-    "Pandas", "NumPy", "Visão Computacional", "NLP", "LLMs", "RAG", "MLOps",
+    "Python",
+    "Machine Learning",
+    "Deep Learning",
+    "PyTorch",
+    "scikit-learn",
+    "Pandas",
+    "NumPy",
+    "Visão Computacional",
+    "NLP",
+    "LLMs",
+    "RAG",
+    "MLOps",
   ],
 };
 
 /** Usado quando o curso ainda não foi informado. */
 export const POPULAR_SKILLS = [
-  "Python", "JavaScript", "Git", "SQL", "React", "Java",
-  "C", "Docker", "Algoritmos", "Linux", "HTML/CSS", "Machine Learning",
+  "Python",
+  "JavaScript",
+  "Git",
+  "SQL",
+  "React",
+  "Java",
+  "C",
+  "Docker",
+  "Algoritmos",
+  "Linux",
+  "HTML/CSS",
+  "Machine Learning",
 ];
 
 /** Atalhos a exibir: os do curso, ou os populares como retaguarda. */
@@ -290,12 +329,7 @@ export const LEVEL_SHORT: Record<SkillLevel, string> = {
 
 /** Minúsculas, sem acento e sem espaço duplicado — base de toda comparação. */
 export function foldSkill(input: string): string {
-  return input
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+  return input.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -305,9 +339,7 @@ export function foldSkill(input: string): string {
 export function canonicalSkill(input: string): string {
   const folded = foldSkill(input);
   if (!folded) return "";
-  const hit = ALL_SKILLS.find(
-    (s) => foldSkill(s.name) === folded || s.aliases?.some((a) => foldSkill(a) === folded),
-  );
+  const hit = ALL_SKILLS.find((s) => foldSkill(s.name) === folded || s.aliases?.some((a) => foldSkill(a) === folded));
   return hit ? hit.name : input.replace(/\s+/g, " ").trim();
 }
 

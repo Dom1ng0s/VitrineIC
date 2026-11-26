@@ -6,9 +6,9 @@ import { useVitrine } from "@/lib/store";
 import { TERRACOTTA } from "@/styles/tokens";
 import type { Demand } from "@/types";
 
-export function MatchmakingHub({ demands, onSelect }: { demands: Demand[], onSelect: (d: Demand) => void }) {
+export function MatchmakingHub({ demands, onSelect }: { demands: Demand[]; onSelect: (d: Demand) => void }) {
   const { interests } = useVitrine();
-  const approvedDemands = demands.filter(d => d.status === "aprovada");
+  const approvedDemands = demands.filter((d) => d.status === "aprovada");
   const countFor = (id: string) => interests.filter((i) => i.demandId === id).length;
 
   return (
@@ -31,7 +31,9 @@ export function MatchmakingHub({ demands, onSelect }: { demands: Demand[], onSel
               {d.priority === "alta" && <StatusPill color={TERRACOTTA}>Alta</StatusPill>}
             </div>
             <div>
-              <h3 className="font-display text-xl font-medium leading-[1.25] tracking-[-0.015em] text-navy">{d.title}</h3>
+              <h3 className="font-display text-xl font-medium leading-[1.25] tracking-[-0.015em] text-navy">
+                {d.title}
+              </h3>
               <p className="mt-1 font-sans text-[13px] text-navy/55">{d.company}</p>
             </div>
             <p className="line-clamp-3 font-sans text-[13px] leading-[1.55] text-navy/65">{d.description}</p>
@@ -48,7 +50,9 @@ export function MatchmakingHub({ demands, onSelect }: { demands: Demand[], onSel
             <p className="flex w-full items-center gap-1.5 border-t border-navy/8 pt-4 font-sans text-[12px] text-navy/55">
               <ClockIcon />
               {d.scope}
-              <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.08em]">{countFor(d.id)} interesses</span>
+              <span className="ml-auto font-mono text-[10px] uppercase tracking-[0.08em]">
+                {countFor(d.id)} interesses
+              </span>
             </p>
           </button>
         ))}

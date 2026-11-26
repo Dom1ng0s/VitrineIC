@@ -12,7 +12,9 @@ import { useCurrentRequester } from "@/lib/auth";
 import { useVitrine } from "@/lib/store";
 
 export default function RequesterArea({ onBack }: { onBack: () => void }) {
-  const [view, setView] = useState<"dashboard" | "new" | "success" | "matches" | "profile" | "available_students" | "team" | "inbox">("available_students");
+  const [view, setView] = useState<
+    "dashboard" | "new" | "success" | "matches" | "profile" | "available_students" | "team" | "inbox"
+  >("available_students");
   const [protocol, setProtocol] = useState("");
   const [matchDemand, setMatchDemand] = useState<string | null>(null);
   const { demands, interests, notifications } = useVitrine();
@@ -37,9 +39,7 @@ export default function RequesterArea({ onBack }: { onBack: () => void }) {
         awaitingMe={awaitingMe}
       />
 
-      {view === "available_students" && (
-        <AvailableStudents />
-      )}
+      {view === "available_students" && <AvailableStudents />}
 
       {view === "dashboard" && (
         <MyDemands
@@ -62,12 +62,7 @@ export default function RequesterArea({ onBack }: { onBack: () => void }) {
         />
       )}
 
-      {view === "success" && (
-        <SuccessScreen
-          protocol={protocol}
-          onDashboard={() => handleSetView("dashboard")}
-        />
-      )}
+      {view === "success" && <SuccessScreen protocol={protocol} onDashboard={() => handleSetView("dashboard")} />}
 
       {view === "matches" && (
         <MatchScreen

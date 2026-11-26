@@ -40,7 +40,10 @@ export function NewDemandWizard({
   });
 
   const update = (k: string, v: string) => setForm({ ...form, [k]: v });
-  const skillList = form.skills.split(",").map((t) => t.trim()).filter(Boolean);
+  const skillList = form.skills
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
 
   // Cada passo valida só os próprios campos; a revisão já chega com tudo certo.
   const { validate, field, reset } = useValidation<"title" | "problem" | "skills" | "deadline">(() => {
@@ -158,12 +161,7 @@ export function NewDemandWizard({
     /* 03 · Prazo e formato */
     <div key="s2" className="flex flex-col gap-5">
       <div className="grid gap-5 md:grid-cols-2">
-        <SelectField
-          label="Duração"
-          options={SCOPE_OPTIONS}
-          value={form.scope}
-          onChange={(v) => update("scope", v)}
-        />
+        <SelectField label="Duração" options={SCOPE_OPTIONS} value={form.scope} onChange={(v) => update("scope", v)} />
         <Input
           label="Prazo final"
           type="date"
@@ -202,7 +200,10 @@ export function NewDemandWizard({
           { label: "Prazo", value: [form.scope, form.deadline].filter(Boolean).join(" · ") },
           { label: "Formato", value: [form.teamSize, form.budget && `R$ ${form.budget}`].filter(Boolean).join(" · ") },
         ].map((r) => (
-          <div key={r.label} className="flex flex-col gap-1 py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
+          <div
+            key={r.label}
+            className="flex flex-col gap-1 py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+          >
             <dt className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/55">{r.label}</dt>
             <dd className="font-sans text-sm text-navy sm:text-right">{r.value || "—"}</dd>
           </div>

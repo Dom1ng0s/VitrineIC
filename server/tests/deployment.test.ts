@@ -6,11 +6,13 @@ import { bootstrapCurator } from "../curator";
 import { verifyPassword } from "../security";
 import { readConfig } from "../config";
 
-
 test("Render usa origem pública automática, permite domínio próprio e preserva validação de produção", () => {
   const env: NodeJS.ProcessEnv = {
-    NODE_ENV: "production", RENDER: "true", RENDER_EXTERNAL_URL: "https://vitrineic-teste.onrender.com",
-    MAIL_MODE: "disabled", REQUIRE_VERIFIED_EMAIL: "false",
+    NODE_ENV: "production",
+    RENDER: "true",
+    RENDER_EXTERNAL_URL: "https://vitrineic-teste.onrender.com",
+    MAIL_MODE: "disabled",
+    REQUIRE_VERIFIED_EMAIL: "false",
     DATABASE_URL: "postgresql://usuario:senha@db.example.com:5432/vitrineic",
   };
   assert.equal(readConfig(env).origin, "https://vitrineic-teste.onrender.com");
@@ -42,10 +44,14 @@ test("Render usa origem pública automática, permite domínio próprio e preser
   assert.match(readConfig({ NODE_ENV: "development" }).databaseUrl, /^postgresql:\/\//);
 });
 
-test("bootstrap cria somente curadoria, exige opt-in e nunca redefine credenciais existentes", async t => {
+test("bootstrap cria somente curadoria, exige opt-in e nunca redefine credenciais existentes", async (t) => {
   const db = await prepararBanco();
   t.after(() => db.close());
-  const env = { CURATOR_EMAIL: "curadoria@example.com", CURATOR_NAME: "Curadoria", CURATOR_PASSWORD: "senha-teste-forte" };
+  const env = {
+    CURATOR_EMAIL: "curadoria@example.com",
+    CURATOR_NAME: "Curadoria",
+    CURATOR_PASSWORD: "senha-teste-forte",
+  };
   const conta = () => contas.porEmail(db.sql, env.CURATOR_EMAIL);
 
   assert.equal(await bootstrapCurator(db, env), false);
@@ -59,7 +65,9 @@ test("bootstrap cria somente curadoria, exige opt-in e nunca redefine credenciai
 
   assert.equal(
     await bootstrapCurator(db, { ...env, BOOTSTRAP_CURATOR: "true", CURATOR_PASSWORD: "outra-senha-forte" }),
-    false, "rodar de novo não redefine a senha");
+    false,
+    "rodar de novo não redefine a senha",
+  );
   assert.equal((await conta())!.passwordHash, criada.passwordHash);
 
   // Conta existente que não é da curadoria nunca é promovida.

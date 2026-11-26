@@ -13,13 +13,13 @@ leitura do código e navegação pela aplicação rodando localmente.
 
 ## 1. Panorama
 
-| Arquivo | Linhas | Componentes | `useState` | Papel |
-|---|---:|---:|---:|---|
-| `src/App.tsx` | 744 | 7 | 6 | Landing, modal de acesso e roteamento raiz |
-| `src/StudentArea.tsx` | 1.440 | 15 | 9 | Área do estudante |
-| `src/RequesterArea.tsx` | 1.335 | 13 | 7 | Área do solicitante |
-| `src/CuratorArea.tsx` | 1.149 | 14 | 8 | Área da curadoria (crivo humano) |
-| **Total** | **4.678** | **49** | **30** | |
+| Arquivo                 |    Linhas | Componentes | `useState` | Papel                                      |
+| ----------------------- | --------: | ----------: | ---------: | ------------------------------------------ |
+| `src/App.tsx`           |       744 |           7 |          6 | Landing, modal de acesso e roteamento raiz |
+| `src/StudentArea.tsx`   |     1.440 |          15 |          9 | Área do estudante                          |
+| `src/RequesterArea.tsx` |     1.335 |          13 |          7 | Área do solicitante                        |
+| `src/CuratorArea.tsx`   |     1.149 |          14 |          8 | Área da curadoria (crivo humano)           |
+| **Total**               | **4.678** |      **49** |     **30** |                                            |
 
 Stack inalterada: React 19, Vite 8, TypeScript strict, Tailwind v4, sem
 roteador, sem estado global, sem backend, sem testes.
@@ -62,11 +62,11 @@ por vez" existe na cabeça de quem escreveu, não no código.
 
 **Nível 2 — dentro de cada área**, um `view` em string controla a tela:
 
-| Área | Estado | Valores |
-|---|---|---|
-| `StudentArea` | `onboarded` + `view` | `dashboard`, `lab`, `profile` |
-| `RequesterArea` | `view` tipado | `dashboard`, `new`, `success`, `matches` |
-| `CuratorArea` | `view` tipado | `triage`, `matchmaking`, `confirm`, `confirmed` |
+| Área            | Estado               | Valores                                         |
+| --------------- | -------------------- | ----------------------------------------------- |
+| `StudentArea`   | `onboarded` + `view` | `dashboard`, `lab`, `profile`                   |
+| `RequesterArea` | `view` tipado        | `dashboard`, `new`, `success`, `matches`        |
+| `CuratorArea`   | `view` tipado        | `triage`, `matchmaking`, `confirm`, `confirmed` |
 
 Duas consequências arquiteturais: **não há URL por tela**, então nada é
 compartilhável por link nem responde ao botão voltar do navegador; e **o estado
@@ -81,10 +81,10 @@ São **14 telas**, contra 2 na versão anterior.
 
 ### 3.1 Pública (`App.tsx`)
 
-| Tela | Conteúdo |
-|---|---|
-| **Landing** | Nav, hero, stats, grid de destaques, CTA, footer — inalterada |
-| **Modal de acesso** | Abas Estudante / Empresa-Solicitante |
+| Tela                | Conteúdo                                                      |
+| ------------------- | ------------------------------------------------------------- |
+| **Landing**         | Nav, hero, stats, grid de destaques, CTA, footer — inalterada |
+| **Modal de acesso** | Abas Estudante / Empresa-Solicitante                          |
 
 Duas mudanças: os botões `Acessar` dos formulários agora **entram de fato** nas
 áreas (`onEnterStudent`, `onEnterCompany`), e a nav ganhou um botão discreto
@@ -93,14 +93,14 @@ protótipo, mas significa que a área de moderação está aberta a qualquer vis
 
 ### 3.2 Área do estudante (`StudentArea.tsx`)
 
-| Tela | Conteúdo |
-|---|---|
-| **Onboarding 1/3** — Perfil & Interesses | foto, nome, curso, semestre, e-mail institucional, bio, 11 áreas de interesse selecionáveis |
-| **Onboarding 2/3** — Hard Skills | tecnologias com proficiência em 4 níveis (Básico → Especialista), via `ProficiencyBars` |
-| **Onboarding 3/3** — Portfólio | GitHub, LinkedIn, site, Lattes, upload de documento |
-| **Dashboard** | boas-vindas, competências, notificações (convites, visualizações, mensagens), cartão de perfil público com contadores |
-| **Laboratório** | projetos com status (`codificação`, `ideação`, `revisão`), stack e repositório; formulário de novo projeto |
-| **Perfil** | visualização do perfil montado |
+| Tela                                     | Conteúdo                                                                                                              |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Onboarding 1/3** — Perfil & Interesses | foto, nome, curso, semestre, e-mail institucional, bio, 11 áreas de interesse selecionáveis                           |
+| **Onboarding 2/3** — Hard Skills         | tecnologias com proficiência em 4 níveis (Básico → Especialista), via `ProficiencyBars`                               |
+| **Onboarding 3/3** — Portfólio           | GitHub, LinkedIn, site, Lattes, upload de documento                                                                   |
+| **Dashboard**                            | boas-vindas, competências, notificações (convites, visualizações, mensagens), cartão de perfil público com contadores |
+| **Laboratório**                          | projetos com status (`codificação`, `ideação`, `revisão`), stack e repositório; formulário de novo projeto            |
+| **Perfil**                               | visualização do perfil montado                                                                                        |
 
 O **Laboratório é a vitrine de projetos** pedida no README, e é a única tela do
 sistema, fora da curadoria, com estado que muda de verdade: `useState(SAMPLE_PROJECTS)`
@@ -111,12 +111,12 @@ um dado mais rico do que qualquer outra parte do sistema consome hoje.
 
 ### 3.3 Área do solicitante (`RequesterArea.tsx`)
 
-| Tela | Conteúdo |
-|---|---|
-| **Dashboard** | tabela de 5 demandas com ID, título, área, prazo e status; contadores; linha expansível |
-| **Nova Demanda 1–4** | wizard: Descrição → Escopo → Requisitos → Revisão |
-| **Sucesso** | confirmação com número de protocolo |
-| **Matches** | estudantes selecionados pela curadoria, com % de compatibilidade e expansão de perfil |
+| Tela                 | Conteúdo                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------- |
+| **Dashboard**        | tabela de 5 demandas com ID, título, área, prazo e status; contadores; linha expansível |
+| **Nova Demanda 1–4** | wizard: Descrição → Escopo → Requisitos → Revisão                                       |
+| **Sucesso**          | confirmação com número de protocolo                                                     |
+| **Matches**          | estudantes selecionados pela curadoria, com % de compatibilidade e expansão de perfil   |
 
 O **Dashboard é o mural de demandas**. O wizard em quatro passos e o protocolo
 de acompanhamento sugerem um processo formal, quase de protocolo institucional
@@ -128,12 +128,12 @@ universidade.
 A área mais importante, porque materializa o **crivo humano** que o README
 define como inegociável.
 
-| Tela | Conteúdo |
-|---|---|
-| **Triagem** | kanban de 4 colunas (`nova`, `em_analise`, `aprovada`, `matched`); cards expandem com descrição, skills e ações de status |
-| **Matchmaking** | demanda à esquerda, candidatos ranqueados à direita com % de match, skills em comum destacadas, projetos e disponibilidade |
-| **Confirmação** | modal com resumo do par, compatibilidade, projetos do estudante e **campo de justificativa interna** |
-| **Match efetivado** | protocolo (`MCH-147713`), par confirmado e checklist de próximas ações automáticas |
+| Tela                | Conteúdo                                                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Triagem**         | kanban de 4 colunas (`nova`, `em_analise`, `aprovada`, `matched`); cards expandem com descrição, skills e ações de status  |
+| **Matchmaking**     | demanda à esquerda, candidatos ranqueados à direita com % de match, skills em comum destacadas, projetos e disponibilidade |
+| **Confirmação**     | modal com resumo do par, compatibilidade, projetos do estudante e **campo de justificativa interna**                       |
+| **Match efetivado** | protocolo (`MCH-147713`), par confirmado e checklist de próximas ações automáticas                                         |
 
 Percorri esse fluxo inteiro na aplicação: a triagem muda status, o matchmaking
 ranqueia, a confirmação grava e a demanda passa a `matched` no kanban.
@@ -207,9 +207,7 @@ Em `CuratorArea.tsx`, linha 440 — é a única lógica de negócio do sistema:
 
 ```ts
 function scoreStudent(student, demand): number {
-  const matched = student.skills.filter((s) =>
-    demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase())
-  ).length;
+  const matched = student.skills.filter((s) => demand.skills.some((ds) => ds.toLowerCase() === s.toLowerCase())).length;
   return Math.round((matched / demand.skills.length) * 100);
 }
 ```
@@ -246,12 +244,12 @@ a precisão que o README sugere.
 
 Tudo continua **em memória e fictício**, agora espalhado por três arquivos:
 
-| Arquivo | Coleções |
-|---|---|
-| `App.tsx` | `stats`, `featuredStudents` (6) |
-| `StudentArea.tsx` | `SAMPLE_PROJECTS`, `notifications`, `LEVELS` |
-| `RequesterArea.tsx` | `DEMANDS` (5), `MATCHED_STUDENTS` |
-| `CuratorArea.tsx` | `DEMANDS` (`Demand[]`), `STUDENTS` (5) |
+| Arquivo             | Coleções                                     |
+| ------------------- | -------------------------------------------- |
+| `App.tsx`           | `stats`, `featuredStudents` (6)              |
+| `StudentArea.tsx`   | `SAMPLE_PROJECTS`, `notifications`, `LEVELS` |
+| `RequesterArea.tsx` | `DEMANDS` (5), `MATCHED_STUDENTS`            |
+| `CuratorArea.tsx`   | `DEMANDS` (`Demand[]`), `STUDENTS` (5)       |
 
 ### O achado central: três bancos paralelos
 
@@ -269,8 +267,8 @@ alta fidelidade — e essa é a distância real entre o que existe e um produto.
 
 O mesmo conceito tem dois vocabulários, um por área, sem mapeamento:
 
-| Curadoria (`DemandStatus`) | Solicitante (`StatusKey`) |
-|---|---|
+| Curadoria (`DemandStatus`)                               | Solicitante (`StatusKey`)                                       |
+| -------------------------------------------------------- | --------------------------------------------------------------- |
 | `nova`, `em_analise`, `aprovada`, `rejeitada`, `matched` | `analise`, `buscando`, `em_andamento`, `concluido`, `cancelado` |
 
 São duas visões legítimas do ciclo de vida de uma demanda — a interna, de
@@ -294,12 +292,12 @@ onboarding sem forma declarada.
 
 Os quatro arquivos são autossuficientes, e isso produz repetição estrutural:
 
-| Elemento | Repetições |
-|---|---|
-| `NAVY`, `RED`, `OFFWHITE` | 4 (um por arquivo) |
-| `NavBar` | 3 |
-| `Label`, `Rule`, `StatusBadge` | 3 |
-| `Input` | 2 |
+| Elemento                       | Repetições         |
+| ------------------------------ | ------------------ |
+| `NAVY`, `RED`, `OFFWHITE`      | 4 (um por arquivo) |
+| `NavBar`                       | 3                  |
+| `Label`, `Rule`, `StatusBadge` | 3                  |
+| `Input`                        | 2                  |
 
 As cópias são **parecidas, não idênticas** — o `Label` do `RequesterArea` tem
 uma prop `light` que os outros não têm. Isso é o padrão clássico de divergência
@@ -323,16 +321,16 @@ mono em caixa alta nos rótulos, vermelho como acento pontual, zero border-radiu
 
 Onde cada fluxo está entre "tela pintada" e "funcionalidade":
 
-| Fluxo | Maturidade |
-|---|---|
-| Triagem e match (curadoria) | **Funcional** — estado muda, decisão persiste na sessão |
-| Cadastro de projeto (laboratório) | **Funcional** — lista cresce de verdade |
-| Onboarding do estudante | **Navegável** — os 3 passos avançam; o que é digitado não alimenta o perfil |
-| Nova demanda (wizard) | **Navegável** — 4 passos e protocolo, sem gravar na lista |
-| Matches do solicitante | **Estático** — lista fixa, não vem da curadoria |
-| Notificações | **Estático** |
-| Autenticação | **Fachada** — "Acessar" entra sem validar; SSO decorativo |
-| Navegação pública (Projetos, Estudantes, Sobre) | **Fachada** — sem destino |
+| Fluxo                                           | Maturidade                                                                  |
+| ----------------------------------------------- | --------------------------------------------------------------------------- |
+| Triagem e match (curadoria)                     | **Funcional** — estado muda, decisão persiste na sessão                     |
+| Cadastro de projeto (laboratório)               | **Funcional** — lista cresce de verdade                                     |
+| Onboarding do estudante                         | **Navegável** — os 3 passos avançam; o que é digitado não alimenta o perfil |
+| Nova demanda (wizard)                           | **Navegável** — 4 passos e protocolo, sem gravar na lista                   |
+| Matches do solicitante                          | **Estático** — lista fixa, não vem da curadoria                             |
+| Notificações                                    | **Estático**                                                                |
+| Autenticação                                    | **Fachada** — "Acessar" entra sem validar; SSO decorativo                   |
+| Navegação pública (Projetos, Estudantes, Sobre) | **Fachada** — sem destino                                                   |
 
 O padrão é claro: **a curadoria é o único lugar onde o software faz algo**. As
 outras áreas são superfícies de apresentação sobre dados fixos. Isso é coerente
@@ -343,16 +341,16 @@ que a equipe atacou primeiro a parte conceitualmente mais difícil.
 
 ## 9. Aderência ao escopo
 
-| Requisito do README | Antes | Agora |
-|---|---|---|
-| Vitrine de projetos | ❌ | ✅ `StudentArea` → Laboratório |
-| Mural de vagas e demandas | ❌ | ✅ `RequesterArea` → Dashboard |
-| Sistema de match apontando 1 pessoa | ❌ | ✅ `CuratorArea` → Matchmaking |
-| Crivo humano antes do contato | ❌ | ✅ Triagem + confirmação com justificativa |
-| Avisos de demandas compatíveis | ❌ | ⚠️ notificações existem, são estáticas |
-| Perfis de usuário | ⚠️ | ⚠️ estudante, solicitante e curador |
-| Persistência | ❌ | ❌ tudo em memória |
-| Autenticação | ⚠️ | ⚠️ ainda só UI |
+| Requisito do README                 | Antes | Agora                                      |
+| ----------------------------------- | ----- | ------------------------------------------ |
+| Vitrine de projetos                 | ❌    | ✅ `StudentArea` → Laboratório             |
+| Mural de vagas e demandas           | ❌    | ✅ `RequesterArea` → Dashboard             |
+| Sistema de match apontando 1 pessoa | ❌    | ✅ `CuratorArea` → Matchmaking             |
+| Crivo humano antes do contato       | ❌    | ✅ Triagem + confirmação com justificativa |
+| Avisos de demandas compatíveis      | ❌    | ⚠️ notificações existem, são estáticas     |
+| Perfis de usuário                   | ⚠️    | ⚠️ estudante, solicitante e curador        |
+| Persistência                        | ❌    | ❌ tudo em memória                         |
+| Autenticação                        | ⚠️    | ⚠️ ainda só UI                             |
 
 **As três peças inegociáveis do README agora existem.** O crivo humano deixou de
 ser um espaço reservado no design e virou fila de triagem com estados, passo de

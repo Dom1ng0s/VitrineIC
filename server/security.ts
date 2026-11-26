@@ -9,9 +9,12 @@ import type { Role } from "@/types";
 
 const COOKIE = "vitrine_session";
 const SESSION_SECONDS = 60 * 60 * 24 * 7;
-const derive = (password: string, salt: string) => new Promise<Buffer>((resolve, reject) => {
-  scrypt(password, salt, 64, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }, (error, key) => error ? reject(error) : resolve(key));
-});
+const derive = (password: string, salt: string) =>
+  new Promise<Buffer>((resolve, reject) => {
+    scrypt(password, salt, 64, { N: 32768, r: 8, p: 1, maxmem: 64 * 1024 * 1024 }, (error, key) =>
+      error ? reject(error) : resolve(key),
+    );
+  });
 
 export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
@@ -33,7 +36,9 @@ export async function accountFor(db: Database, request: FastifyRequest): Promise
   const token = request.cookies[COOKIE];
   if (!token) return;
   const sessao = await db.sql.row<{ conta_id: string }>(
-    "SELECT conta_id FROM sessao WHERE token_hash = $1 AND expira_em > now()", [tokenHash(token)]);
+    "SELECT conta_id FROM sessao WHERE token_hash = $1 AND expira_em > now()",
+    [tokenHash(token)],
+  );
   return sessao ? contas.porId(db.sql, sessao.conta_id) : undefined;
 }
 
@@ -46,8 +51,7 @@ export async function requireAccount(db: Database, request: FastifyRequest, role
 
 export async function requireVerifiedAccount(db: Database, request: FastifyRequest, config: Config, role?: Role) {
   const account = await requireAccount(db, request, role);
-  ensure(!config.requireVerifiedEmail || account.emailVerifiedAt, 403,
-    "Confirme seu e-mail para continuar.");
+  ensure(!config.requireVerifiedEmail || account.emailVerifiedAt, 403, "Confirme seu e-mail para continuar.");
   return account;
 }
 
@@ -58,7 +62,11 @@ export async function clearSession(db: Database, request: FastifyRequest, reply:
 }
 
 export async function createSession(
-  db: Database, config: Config, request: FastifyRequest, reply: FastifyReply, account: StoredAccount,
+  db: Database,
+  config: Config,
+  request: FastifyRequest,
+  reply: FastifyReply,
+  account: StoredAccount,
 ) {
   await clearSession(db, request, reply);
   await db.sql.run("DELETE FROM sessao WHERE expira_em <= now()");
@@ -68,7 +76,11 @@ export async function createSession(
     [tokenHash(token), account.id, SESSION_SECONDS],
   );
   reply.setCookie(COOKIE, token, {
-    httpOnly: true, secure: config.production, sameSite: "strict", path: "/", maxAge: SESSION_SECONDS,
+    httpOnly: true,
+    secure: config.production,
+    sameSite: "strict",
+    path: "/",
+    maxAge: SESSION_SECONDS,
   });
 }
 

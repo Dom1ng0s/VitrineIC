@@ -28,7 +28,15 @@ function Meta({ demand }: { demand: Demand }) {
 }
 
 /** Botão de candidatura com a nota opcional; se já houver interesse, mostra o andamento. */
-function Apply({ demand, student, onGoToInterests }: { demand: Demand; student: Student; onGoToInterests: () => void }) {
+function Apply({
+  demand,
+  student,
+  onGoToInterests,
+}: {
+  demand: Demand;
+  student: Student;
+  onGoToInterests: () => void;
+}) {
   const { interests } = useVitrine();
   const studentId = student.id;
   const [writing, setWriting] = useState(false);
@@ -39,7 +47,10 @@ function Apply({ demand, student, onGoToInterests }: { demand: Demand; student: 
     return (
       <div className="mt-6 flex flex-col items-start gap-3">
         <InterestStatusPill status={existing.status} viewer="estudante" />
-        <button onClick={onGoToInterests} className="font-sans text-[13px] text-navy/65 underline underline-offset-4 hover:text-navy">
+        <button
+          onClick={onGoToInterests}
+          className="font-sans text-[13px] text-navy/65 underline underline-offset-4 hover:text-navy"
+        >
           Ver em Interesses
         </button>
       </div>
@@ -78,26 +89,28 @@ function Apply({ demand, student, onGoToInterests }: { demand: Demand; student: 
         className="vt-input"
       />
       <div className="flex flex-wrap items-center gap-3">
-        <button onClick={() => createInterest(demand.id, studentId, "candidatura", note)} className="vt-btn vt-btn-primary">
+        <button
+          onClick={() => createInterest(demand.id, studentId, "candidatura", note)}
+          className="vt-btn vt-btn-primary"
+        >
           Enviar candidatura <ArrowIcon />
         </button>
-        <button onClick={() => setWriting(false)} className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 hover:text-navy">
+        <button
+          onClick={() => setWriting(false)}
+          className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 hover:text-navy"
+        >
           Cancelar
         </button>
       </div>
-      <p className="font-sans text-xs text-navy/50">A candidatura vai direto ao solicitante. O contato só é liberado se ele aceitar.</p>
+      <p className="font-sans text-xs text-navy/50">
+        A candidatura vai direto ao solicitante. O contato só é liberado se ele aceitar.
+      </p>
     </div>
   );
 }
 
 /** Demandas aprovadas pela curadoria, abertas a candidatura. */
-export function Opportunities({
-  student,
-  onGoToInterests,
-}: {
-  student: Student;
-  onGoToInterests: () => void;
-}) {
+export function Opportunities({ student, onGoToInterests }: { student: Student; onGoToInterests: () => void }) {
   const { demands } = useVitrine();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const firstName = student.name.trim().split(" ")[0];
@@ -173,9 +186,13 @@ export function Opportunities({
           >
             <div className="flex w-full items-center justify-between gap-3">
               <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">{demand.area}</span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">{score}% compatível</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
+                {score}% compatível
+              </span>
             </div>
-            <h3 className="font-display text-xl font-medium leading-[1.25] tracking-[-0.015em] text-navy">{demand.title}</h3>
+            <h3 className="font-display text-xl font-medium leading-[1.25] tracking-[-0.015em] text-navy">
+              {demand.title}
+            </h3>
             <Meta demand={demand} />
             <div className="flex flex-wrap gap-1.5">
               {demand.skills.map((s) => (
