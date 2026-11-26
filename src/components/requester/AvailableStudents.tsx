@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { SelectField } from "./ui";
 import { useCurrentRequester } from "@/lib/auth";
 import { isProfileVisible } from "@/lib/profile";
 import { createInterest, findActiveInterest, useVitrine } from "@/lib/store";
@@ -56,8 +55,10 @@ export function AvailableStudents() {
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
 
-  const myOpenDemands = demands.filter((d) => d.company === requester && d.status === "aprovada");
-  const demand = myOpenDemands.find((d) => d.title === selectedDemand);
+  const myOpenDemands = demands.filter(
+    (d) => d.company === requester && (d.status === "aprovada" || d.status === "contato_liberado"),
+  );
+  const demand = myOpenDemands.find((d) => d.id === selectedDemand);
   const existing = demand && selectedStudent ? findActiveInterest(interests, demand.id, selectedStudent.id) : undefined;
 
   const closeOffer = () => {
@@ -176,16 +177,33 @@ export function AvailableStudents() {
                 <p className="mb-6 font-sans text-sm leading-[1.6] text-navy/65">
                   Escolha para qual das suas demandas abertas você quer convidar este estudante.
                 </p>
-                <SelectField
-                  label="Demanda"
-                  options={myOpenDemands.map((d) => d.title)}
+                <label
+                  htmlFor="convite-demanda"
+                  className="mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65"
+                >
+                  Demanda
+                </label>
+                <select
+                  id="convite-demanda"
+                  className="vt-input"
                   value={selectedDemand}
-                  onChange={setSelectedDemand}
-                />
-                <label className="mt-5 mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
+                  onChange={(event) => setSelectedDemand(event.target.value)}
+                >
+                  <option value="">Selecione uma demanda</option>
+                  {myOpenDemands.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+                <label
+                  htmlFor="convite-mensagem"
+                  className="mt-5 mb-2 block font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65"
+                >
                   Mensagem (opcional)
                 </label>
                 <textarea
+                  id="convite-mensagem"
                   rows={3}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}

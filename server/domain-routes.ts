@@ -278,7 +278,11 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
       const demanda = await demandas.porId(tx, data.demandId);
       const estudante = await estudantes.porId(tx, data.studentId);
       ensure(demanda && estudante, 404, "Demanda ou estudante não encontrado.");
-      ensure(demanda.status === "aprovada", 409, "Esta demanda não está aberta para novos interesses.");
+      ensure(
+        demanda.status === "aprovada" || (demanda.status === "contato_liberado" && data.origin === "convite"),
+        409,
+        "Esta demanda não está aberta para novos interesses.",
+      );
       ensure(isProfileVisible(estudante), 409, "O estudante precisa cadastrar ao menos uma competência.");
       if (config.requireVerifiedEmail) {
         const conta = await contas.doEstudante(tx, estudante.id);

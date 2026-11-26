@@ -147,7 +147,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 
 - [x] Editar e encerrar/cancelar demanda (solicitante)
 - [x] Editar e excluir projeto, mudar etapa (estudante)
-- [ ] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
+- [x] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
 - [x] Motivo da rejeição visível ao solicitante
 - [ ] Histórico de decisões visível à curadoria
 - [ ] Mensagem iniciável (hoje só responde a notificação)
@@ -204,7 +204,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [ ] `store.runAction`: fila por recurso, erro identificado por ação, abort no
       unmount; retry com backoff em GET
 - [ ] Wizard como `<form>`, foco e anúncio na troca de passo
-- [ ] Convite escolhendo a demanda por id, não por título
+- [x] Convite escolhendo a demanda por id, não por título
 - [ ] Unificar o vocabulário de áreas (`AREA_OPTIONS` x semente)
 - [ ] Padronizar a nota do match numa só unidade
 - [ ] Trocar `window.confirm` da exclusão de demanda pelo modal do projeto

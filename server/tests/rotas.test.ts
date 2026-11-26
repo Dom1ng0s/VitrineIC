@@ -672,3 +672,45 @@ test("solicitante encerra demanda depois de liberar contato", async (t) => {
   assert.equal(closed.statusCode, 200, closed.body);
   assert.equal(closed.json<VitrineState>().demands.find((entry) => entry.id === demand.id)?.status, "encerrada");
 });
+
+test("solicitante pode convidar outro estudante após liberar um contato", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const first = await request(
+    c.app,
+    "POST",
+    "/api/interests",
+    { demandId: demand.id, studentId: c.studentId, origin: "candidatura" },
+    c.studentCookie,
+  );
+  const interestId = first.json<{ interest: { id: string } }>().interest.id;
+  await request(c.app, "POST", `/api/interests/${interestId}/respond`, { accept: true }, c.requesterCookie);
+  const secondStudent = await request(c.app, "POST", "/api/auth/students", {
+    ...studentData,
+    email: "segundo@ic.ufal.br",
+  });
+  const secondId = secondStudent.json<VitrineState>().accounts[0].profileId;
+  await request(c.app, "PATCH", `/api/students/${secondId}`, { skills: ["SQL"] }, cookieOf(secondStudent));
+  const invited = await request(
+    c.app,
+    "POST",
+    "/api/interests",
+    { demandId: demand.id, studentId: secondId, origin: "convite" },
+    c.requesterCookie,
+  );
+  assert.equal(invited.statusCode, 201, invited.body);
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "POST",
+        "/api/interests",
+        { demandId: demand.id, studentId: secondId, origin: "candidatura" },
+        cookieOf(secondStudent),
+      )
+    ).statusCode,
+    409,
+  );
+});
