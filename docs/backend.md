@@ -199,6 +199,9 @@ permissão. Datas novas usam ISO 8601. IDs novos são gerados no servidor.
 | POST `/attachments/:category`   | Estudante envia um arquivo multipart                            |
 | GET `/attachments/:id`          | Dono ou curador baixa arquivo privado                           |
 | DELETE `/attachments/:id`       | Dono remove arquivo próprio                                     |
+| POST `/projects/:id/cover`      | Dono envia a capa do projeto (PNG, JPEG ou WebP, até 5 MB)      |
+| GET `/projects/:id/cover`       | Capa de projeto de perfil visível; pública, sem sessão          |
+| DELETE `/projects/:id/cover`    | Dono remove a capa                                              |
 
 Cadastro de estudante: `name`, `email`, `password`, `unit`, `course`,
 `consent: true`. E-mail deve pertencer à instituição e curso deve existir em

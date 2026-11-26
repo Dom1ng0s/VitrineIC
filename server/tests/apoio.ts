@@ -33,6 +33,7 @@ const TABELAS = [
   "demanda_competencia",
   "demanda",
   "anexo_estudante",
+  "projeto_capa",
   "projeto_competencia",
   "projeto_estudante",
   "estudante_topico",

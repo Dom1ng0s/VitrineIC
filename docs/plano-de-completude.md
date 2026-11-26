@@ -187,6 +187,10 @@ erros (47 avisos de acessibilidade da fase 6) e builds do frontend e servidor.
       pública, mantendo a tabela `depoimento` sem uso declarado
 - [x] Capa de projeto e foto de perfil: assumido placeholder por decisão de
       produto e removido `photo` do tipo, schema e rota
+      — revisto depois: a capa do projeto passou a aceitar imagem enviada pelo
+      estudante (`projeto_capa`, rotas `/projects/:id/cover`); sem imagem, o
+      degradê é derivado do id em `src/lib/projeto.ts`. Foto de perfil segue
+      placeholder
 - [x] Caixinhas "Critérios" do matchmaking: rotuladas como "Contexto do
       candidato" (inclusão no peso do score registrada na pauta da próxima reunião)
 - [x] Período do painel de impacto derivado das datas reais do banco

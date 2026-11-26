@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Input, Select } from "./ui";
 import { ArrowIcon, ChevronIcon, PlusIcon } from "@/components/app/Icons";
 import { InProjectBadge } from "@/components/app/InProjectBadge";
 import { Modal } from "@/components/app/Modal";
+import { ProjectCover } from "@/components/app/ProjectCover";
 import { StatusPill } from "@/components/app/StatusPill";
 import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
-import { addProject, deleteProject, setInProject, updateProject, useVitrine } from "@/lib/store";
+import { AREA_OPTIONS } from "@/data/demand-options";
+import { LIMITE_DA_CAPA, MIMES_DE_CAPA, codigoDeProjeto } from "@/lib/projeto";
+import {
+  addProject,
+  deleteProject,
+  deleteProjectCover,
+  setInProject,
+  updateProject,
+  uploadProjectCover,
+  useVitrine,
+} from "@/lib/store";
 import { required, useValidation } from "@/lib/validate";
 import { MOSS, OCHRE, SLATE } from "@/styles/tokens";
 
@@ -19,6 +30,7 @@ export interface MyProject {
   tools?: string;
   year?: string;
   area?: string;
+  cover?: string | null;
 }
 
 const PHASES = ["Idealização", "Codificação", "Revisão", "Publicado"];
@@ -47,6 +59,7 @@ export function toMyProject(project: import("@/types").StudentProject): MyProjec
     link: project.link,
     year: project.year,
     area: project.area,
+    cover: project.cover,
   };
 }
 
@@ -81,23 +94,137 @@ function InProjectToggle({ studentId }: { studentId: string }) {
   );
 }
 
+const ACEITOS = MIMES_DE_CAPA.join(",");
+
+/**
+ * Capa do projeto no formulário. Em projeto novo a imagem fica retida até o
+ * salvar, porque o envio precisa do id que o servidor devolve.
+ */
+function CoverField({
+  project,
+  file,
+  onPick,
+}: {
+  project: MyProject | null;
+  file: File | null;
+  onPick: (file: File | null) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [erro, setErro] = useState("");
+  // O endereço da prévia nasce no evento, não na renderização nem num efeito:
+  // em StrictMode o blob criado em render ou efeito era revogado logo depois,
+  // e a prévia aparecia vazia.
+  const [previa, setPrevia] = useState<string | null>(null);
+  const previaRef = useRef<string | null>(null);
+  const trocarPrevia = (nova: string | null) => {
+    if (previaRef.current) URL.revokeObjectURL(previaRef.current);
+    previaRef.current = nova;
+    setPrevia(nova);
+  };
+  useEffect(() => () => trocarPrevia(null), []);
+
+  const escolher = (escolhido: File | undefined) => {
+    if (!escolhido) return;
+    if (!MIMES_DE_CAPA.includes(escolhido.type as (typeof MIMES_DE_CAPA)[number])) {
+      setErro("Envie uma imagem PNG, JPEG ou WebP.");
+      return;
+    }
+    if (escolhido.size > LIMITE_DA_CAPA) {
+      setErro("A imagem passa de 5 MB.");
+      return;
+    }
+    setErro("");
+    trocarPrevia(URL.createObjectURL(escolhido));
+    onPick(escolhido);
+  };
+
+  const descartar = () => {
+    trocarPrevia(null);
+    onPick(null);
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">Capa</span>
+      {previa ? (
+        <img src={previa} alt="Prévia da capa escolhida" className="h-32 w-full rounded-xl object-cover" />
+      ) : project ? (
+        <ProjectCover id={project.id} title={project.title} cover={project.cover} className="h-32 w-full rounded-xl" />
+      ) : (
+        <div className="grid h-32 w-full place-items-center rounded-xl border border-dashed border-navy/20 font-sans text-[13px] text-navy/55">
+          Sem imagem — a capa usa o degradê do projeto.
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" onClick={() => inputRef.current?.click()} className="vt-btn vt-btn-secondary">
+          {project?.cover || file ? "Trocar imagem" : "Enviar imagem"}
+        </button>
+        {file && (
+          <button
+            type="button"
+            onClick={descartar}
+            className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
+          >
+            Descartar escolha
+          </button>
+        )}
+        {!file && project?.cover && (
+          <button
+            type="button"
+            onClick={() => void deleteProjectCover(project.id)}
+            className="rounded-[10px] px-3 py-2 font-sans text-sm text-navy/65 transition-colors hover:text-navy"
+          >
+            Remover capa
+          </button>
+        )}
+        <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">PNG, JPEG ou WebP · 5 MB</span>
+      </div>
+      {erro && <p className="vt-field-error font-sans text-[13px]">{erro}</p>}
+      <input
+        ref={inputRef}
+        type="file"
+        aria-label="Imagem de capa do projeto"
+        accept={ACEITOS}
+        className="hidden"
+        onChange={(e) => {
+          const escolhido = e.target.files?.[0];
+          e.target.value = "";
+          escolher(escolhido);
+        }}
+      />
+    </div>
+  );
+}
+
 export function Projects({ projects, studentId }: { projects: MyProject[]; studentId: string }) {
   const [isAdding, setIsAdding] = useState(false);
   const [form, setForm] = useState<Partial<MyProject>>({});
   const [opened, setOpened] = useState<MyProject | null>(null);
   const [editing, setEditing] = useState<MyProject | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const { validate, field, reset } = useValidation<"title" | "phase" | "description">(() => ({
+  const { validate, field, reset } = useValidation<"title" | "phase" | "description" | "year">(() => ({
     title: required(form.title ?? "", "Dê um nome ao projeto."),
     phase: required(form.phase ?? "", "Escolha a etapa."),
     description: required(form.description ?? "", "Descreva o projeto."),
+    // Vazio vale: o ano volta para o do projeto ou o corrente.
+    year: !form.year || /^\d{4}$/.test(form.year) ? null : "Informe o ano com quatro dígitos.",
   }));
+
+  // O banco guarda a área como texto livre e tem valores anteriores ao
+  // vocabulário das demandas. Sem isso o select cairia no vazio e o salvar
+  // apagaria a área do projeto.
+  const areaOptions = useMemo(() => {
+    const atual = form.area?.trim();
+    return atual && !AREA_OPTIONS.includes(atual) ? [atual, ...AREA_OPTIONS] : AREA_OPTIONS;
+  }, [form.area]);
 
   const close = () => {
     setIsAdding(false);
     setForm({});
     setEditing(null);
+    setCoverFile(null);
     reset();
   };
 
@@ -111,15 +238,18 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
-      year: editing?.year ?? String(new Date().getFullYear()),
-      area: editing?.area ?? "",
+      year: form.year || editing?.year || String(new Date().getFullYear()),
+      area: form.area ?? editing?.area ?? "",
       link: form.link ?? "",
     };
-    if (editing) {
-      if (await updateProject(editing.id, payload)) close();
-    } else {
-      if (await addProject(payload)) close();
-    }
+    const id = editing
+      ? (await updateProject(editing.id, payload))
+        ? editing.id
+        : null
+      : (await addProject(payload))?.id;
+    if (!id) return;
+    if (coverFile && !(await uploadProjectCover(id, coverFile))) return;
+    close();
   };
 
   const startEdit = (project: MyProject) => {
@@ -149,18 +279,28 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
         </div>
       ) : (
         <ul className="vt-card divide-y divide-navy/8 overflow-hidden">
-          {projects.map((p, i) => (
+          {projects.map((p) => (
             <li key={p.id}>
               <button
                 onClick={() => setOpened(p)}
                 className="flex w-full items-center gap-4 rounded-none! px-5 py-5 text-left transition-colors hover:bg-navy/[0.03] md:gap-6 md:px-6"
               >
-                <span className="hidden w-14 shrink-0 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/45 sm:block">
-                  P{String(projects.length - i).padStart(3, "0")}
-                </span>
+                <ProjectCover
+                  id={p.id}
+                  title={p.title}
+                  cover={p.cover}
+                  semLegenda
+                  className="hidden h-11 w-16 shrink-0 rounded-lg sm:block"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-sans text-[15px] text-navy">{p.title}</p>
-                  <p className="truncate font-sans text-[13px] text-navy/55">{p.tools || p.description}</p>
+                  <p className="truncate font-sans text-[13px] text-navy/55">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-navy/45">
+                      {codigoDeProjeto(p.id)}
+                    </span>
+                    {" · "}
+                    {p.area || p.tools || p.description}
+                  </p>
                 </div>
                 <StatusPill color={PHASE_COLOR[p.phase] ?? SLATE}>{p.phase}</StatusPill>
                 <span className="grid size-8 shrink-0 place-items-center text-navy/40">
@@ -175,6 +315,7 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
       {opened && (
         <Modal eyebrow={opened.phase} title={opened.title} onClose={() => setOpened(null)}>
           <div className="flex flex-col gap-6">
+            <ProjectCover id={opened.id} title={opened.title} cover={opened.cover} className="h-36 w-full rounded-xl" />
             <p className="font-sans text-[15px] leading-[1.6] text-navy/75">{opened.description}</p>
             {opened.tools && (
               <div className="flex flex-wrap gap-1.5">
@@ -259,6 +400,23 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
                 value={form.phase || ""}
                 onChange={(v) => setForm({ ...form, phase: v })}
               />
+              <Select
+                label="Área"
+                placeholder="Sem área definida"
+                options={areaOptions}
+                value={form.area || ""}
+                onChange={(v) => setForm({ ...form, area: v })}
+              />
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input
+                {...field("year")}
+                label="Ano"
+                placeholder={String(new Date().getFullYear())}
+                value={form.year || ""}
+                onChange={(v) => setForm({ ...form, year: v.replace(/\D/g, "").slice(0, 4) })}
+                mono
+              />
               <Input
                 label="Link (opcional)"
                 placeholder="https://github.com/..."
@@ -282,6 +440,7 @@ export function Projects({ projects, studentId }: { projects: MyProject[]; stude
               value={form.tools || ""}
               onChange={(v) => setForm({ ...form, tools: v })}
             />
+            <CoverField project={editing} file={coverFile} onPick={setCoverFile} />
           </div>
           <div className="mt-8 flex items-center justify-end gap-3">
             <button

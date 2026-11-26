@@ -5,6 +5,7 @@ import { Eyebrow } from "./Eyebrow";
 import { ProjectStatusPill } from "./ProjectStatusPill";
 import { PAGE } from "./layout";
 import { ArrowIcon } from "@/components/app/Icons";
+import { ProjectCover } from "@/components/app/ProjectCover";
 
 /** Página pública de um projeto: capa, descrição, stack, autoria e chamada para parceria. */
 export function ProjectDetail({
@@ -40,7 +41,7 @@ export function ProjectDetail({
 
       <header className="pt-8">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="vt-pill">{project.area}</span>
+          {project.area && <span className="vt-pill">{project.area}</span>}
           <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">{project.year}</span>
           <ProjectStatusPill status={project.status} />
         </div>
@@ -49,11 +50,13 @@ export function ProjectDetail({
         </h1>
       </header>
 
-      <div className="vt-stone relative mt-10 h-[220px] rounded-3xl md:h-[380px]">
-        <span className="absolute bottom-6 left-6 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">
-          VIC · {project.id.replace("PRJ-", "P")} · capa do projeto
-        </span>
-      </div>
+      <ProjectCover
+        id={project.id}
+        title={project.title}
+        cover={project.cover}
+        sufixo="capa do projeto"
+        className="mt-10 h-[220px] rounded-3xl md:h-[380px]"
+      />
 
       <div className="mt-10 grid items-start gap-10 lg:grid-cols-[1fr_340px]">
         <div>

@@ -1,4 +1,5 @@
 import type { ProjectWithStudent } from "@/lib/store";
+import { ProjectCover } from "@/components/app/ProjectCover";
 import { ProjectStatusPill } from "./ProjectStatusPill";
 
 /**
@@ -17,18 +18,16 @@ export function ProjectCard({
   return (
     <button onClick={onOpen} className="vt-card vt-card-interactive flex min-w-0 flex-col gap-5 p-6 text-left">
       <div className="flex w-full items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/65">
-        <span>{project.area}</span>
-        <span>{project.year}</span>
+        <span className="truncate">{project.area || "Sem área"}</span>
+        <span className="shrink-0">{project.year}</span>
       </div>
 
-      <div className="vt-stone relative h-32 w-full rounded-xl">
-        <span className="absolute bottom-4 left-4 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">
-          VIC · {project.id.replace("PRJ-", "P")}
-        </span>
-      </div>
+      <ProjectCover id={project.id} title={project.title} cover={project.cover} className="h-32 w-full rounded-xl" />
 
       <div className="flex flex-col gap-2">
-        <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">{project.title}</h3>
+        <h3 className="line-clamp-2 font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">
+          {project.title}
+        </h3>
         {!compact && <p className="line-clamp-2 font-sans text-sm leading-[1.5] text-navy/65">{project.description}</p>}
       </div>
 

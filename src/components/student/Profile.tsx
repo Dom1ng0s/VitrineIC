@@ -5,6 +5,7 @@ import { LanguagePicker } from "./LanguagePicker";
 import type { MyProject } from "./Projects";
 import { Avatar } from "@/components/app/Avatar";
 import { ArrowIcon } from "@/components/app/Icons";
+import { ProjectCover } from "@/components/app/ProjectCover";
 import { BackButton } from "@/components/public/BackButton";
 import { Eyebrow } from "@/components/public/Eyebrow";
 import { PAGE } from "@/components/public/layout";
@@ -273,18 +274,14 @@ export function Profile({ student, email, projects }: { student: Student; email:
               </p>
             ) : (
               <div className="mt-6 grid gap-5 md:grid-cols-2">
-                {projects.map((p, i) => (
+                {projects.map((p) => (
                   <article key={p.id} className="vt-card flex flex-col gap-5 p-6">
                     <div className="flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/60">
                       <span>{p.phase}</span>
                       <span className="truncate">{p.tools}</span>
                     </div>
-                    <div className="vt-stone relative h-28 rounded-xl">
-                      <span className="absolute bottom-4 left-4 font-mono text-[10px] uppercase tracking-[0.08em] text-sky">
-                        VIC · P{String(projects.length - i).padStart(3, "0")}
-                      </span>
-                    </div>
-                    <h3 className="font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">
+                    <ProjectCover id={p.id} title={p.title} cover={p.cover} className="h-28 rounded-xl" />
+                    <h3 className="line-clamp-2 font-display text-xl font-medium leading-[1.2] tracking-[-0.02em] text-navy">
                       {p.title}
                     </h3>
                   </article>

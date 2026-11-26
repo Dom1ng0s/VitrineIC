@@ -205,6 +205,13 @@ erDiagram
         text link
         timestamptz criado_em
     }
+    projeto_capa {
+        text projeto_id PK,FK
+        text mime "image/png | image/jpeg | image/webp"
+        bytea conteudo
+        int tamanho_bytes
+        timestamptz enviada_em
+    }
     projeto_competencia {
         text projeto_id PK,FK
         uuid competencia_id PK,FK
@@ -343,6 +350,7 @@ erDiagram
     topico_interesse      ||--o{ estudante_topico         : "topico"
     estudante             ||--o{ projeto_estudante        : ""
     area                  |o--o{ projeto_estudante        : ""
+    projeto_estudante     |o--o| projeto_capa              : ""
     projeto_estudante     ||--o{ projeto_competencia      : "projeto"
     competencia           ||--o{ projeto_competencia      : ""
     estudante             ||--o{ anexo_estudante          : ""

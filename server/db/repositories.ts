@@ -60,10 +60,12 @@ export const SQL_ESTUDANTE = `
              'id', p.id, 'title', p.titulo, 'description', p.descricao,
              'status', p.situacao, 'year', p.ano,
              'area', COALESCE(a.nome, ''), 'link', p.link,
+             'cover', to_char(cap.enviada_em, 'YYYY-MM-DD"T"HH24:MI:SS.MSZ'),
              'stack', COALESCE(st.lista, '[]'::json)
            ) ORDER BY p.criado_em DESC) AS lista
     FROM projeto_estudante p
     LEFT JOIN area a ON a.id = p.area_id
+    LEFT JOIN projeto_capa cap ON cap.projeto_id = p.id
     LEFT JOIN LATERAL (
       SELECT json_agg(c.nome_canonico ORDER BY c.nome_canonico) AS lista
       FROM projeto_competencia pc JOIN competencia c ON c.id = pc.competencia_id

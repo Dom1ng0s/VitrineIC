@@ -61,6 +61,8 @@ export interface StudentProject {
   year: string;
   area: string;
   link?: string;
+  /** Instante do último envio da capa; ausente quando não há imagem. */
+  cover?: string | null;
 }
 
 export interface Student {

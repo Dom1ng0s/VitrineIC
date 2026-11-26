@@ -237,3 +237,127 @@ test("cookies Secure em produção, expiração e rotação de sessão", async (
   await db.sql.run("UPDATE sessao SET expira_em = now() - interval '1 hour'");
   assert.equal((await app.inject({ url: "/api/auth/me", headers: { cookie: secondCookie } })).statusCode, 401);
 });
+
+const PNG_1X1 = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
+
+/** Corpo multipart de um arquivo só, como o navegador envia. */
+function multipart(boundary: string, filename: string, type: string, content: Buffer) {
+  return Buffer.concat([
+    Buffer.from(
+      `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${filename}"\r\nContent-Type: ${type}\r\n\r\n`,
+    ),
+    content,
+    Buffer.from(`\r\n--${boundary}--\r\n`),
+  ]);
+}
+
+test("capa do projeto: envio do dono, leitura pública e remoção", async (t) => {
+  const limpo = await prepararBanco();
+  await limpo.close();
+  const { app } = await buildApp(configDeTeste());
+  t.after(() => app.close());
+
+  const signup = await app.inject({
+    method: "POST",
+    url: "/api/auth/students",
+    headers,
+    payload: {
+      name: "Capa",
+      email: "capa@ic.ufal.br",
+      password: "teste12345",
+      unit: "IC",
+      course: "Ciência da Computação",
+      consent: true,
+    },
+  });
+  const cookie = String(signup.headers["set-cookie"]).split(";")[0];
+  const corpo = signup.json();
+  const contaId = corpo.session.accountId;
+  const studentId = corpo.accounts.find((a: { id: string }) => a.id === contaId).profileId;
+
+  const criado = await app.inject({
+    method: "POST",
+    url: "/api/projects",
+    headers: { ...headers, cookie },
+    payload: {
+      title: "Projeto com capa",
+      description: "Descrição do projeto de teste.",
+      status: "coding",
+      year: "2026",
+      area: "Engenharia de Software",
+      stack: ["React"],
+    },
+  });
+  assert.equal(criado.statusCode, 201, criado.body);
+  const projectId = criado.json().project.id;
+
+  const boundary = "vitrine-capa-boundary";
+  const tipoMultipart = { "content-type": `multipart/form-data; boundary=${boundary}` };
+
+  // Sem competência o perfil não está na vitrine; a capa também não é pública.
+  const semImagem = await app.inject({
+    method: "POST",
+    url: `/api/projects/${projectId}/cover`,
+    headers: { ...headers, cookie, ...tipoMultipart },
+    payload: multipart(boundary, "capa.png", "image/png", Buffer.from("%PDF-1.4 não é imagem")),
+  });
+  assert.equal(semImagem.statusCode, 400, semImagem.body);
+
+  const enviada = await app.inject({
+    method: "POST",
+    url: `/api/projects/${projectId}/cover`,
+    headers: { ...headers, cookie, ...tipoMultipart },
+    payload: multipart(boundary, "capa.png", "image/png", PNG_1X1),
+  });
+  assert.equal(enviada.statusCode, 201, enviada.body);
+  const projeto = enviada.json().students.find((s: { id: string }) => s.id === studentId).projects[0];
+  assert.ok(projeto.cover, "o snapshot devolve o instante do envio");
+
+  // Dono vê; anônimo ainda não, porque o perfil não aparece na vitrine.
+  assert.equal((await app.inject({ url: `/api/projects/${projectId}/cover`, headers: { cookie } })).statusCode, 200);
+  assert.equal((await app.inject({ url: `/api/projects/${projectId}/cover` })).statusCode, 404);
+
+  const naVitrine = await app.inject({
+    method: "PATCH",
+    url: `/api/students/${studentId}`,
+    headers: { ...headers, cookie },
+    payload: { skills: ["React"] },
+  });
+  assert.equal(naVitrine.statusCode, 200, naVitrine.body);
+  const publica = await app.inject({ url: `/api/projects/${projectId}/cover` });
+  assert.equal(publica.statusCode, 200, publica.body);
+  assert.equal(publica.headers["content-type"], "image/png");
+  assert.equal(publica.rawPayload.length, PNG_1X1.length);
+
+  const outro = await app.inject({
+    method: "POST",
+    url: "/api/auth/students",
+    headers,
+    payload: {
+      name: "Intruso",
+      email: "intruso-capa@ic.ufal.br",
+      password: "teste12345",
+      unit: "IC",
+      course: "Ciência da Computação",
+      consent: true,
+    },
+  });
+  const outroCookie = String(outro.headers["set-cookie"]).split(";")[0];
+  const invasao = await app.inject({
+    method: "POST",
+    url: `/api/projects/${projectId}/cover`,
+    headers: { ...headers, cookie: outroCookie, ...tipoMultipart },
+    payload: multipart(boundary, "capa.png", "image/png", PNG_1X1),
+  });
+  assert.equal(invasao.statusCode, 404, invasao.body);
+
+  assert.equal(
+    (await app.inject({ method: "DELETE", url: `/api/projects/${projectId}/cover`, headers: { ...headers, cookie } }))
+      .statusCode,
+    200,
+  );
+  assert.equal((await app.inject({ url: `/api/projects/${projectId}/cover` })).statusCode, 404);
+});

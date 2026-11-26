@@ -193,6 +193,12 @@ export function addProject(project: Omit<StudentProject, "id">) {
 export const updateProject = (id: string, project: Omit<StudentProject, "id">) =>
   mutate(`/projects/${encodeURIComponent(id)}`, "PUT", project);
 export const deleteProject = (id: string) => mutate(`/projects/${encodeURIComponent(id)}`, "DELETE");
+export function uploadProjectCover(id: string, file: File) {
+  const form = new FormData();
+  form.append("file", file);
+  return mutate(`/projects/${encodeURIComponent(id)}/cover`, "POST", form);
+}
+export const deleteProjectCover = (id: string) => mutate(`/projects/${encodeURIComponent(id)}/cover`, "DELETE");
 export const markRead = (id: string) => mutate(`/notifications/${encodeURIComponent(id)}/read`, "POST");
 export const markAllRead = () => mutate("/notifications/read-all", "POST");
 export const replyNotification = (id: string, content: string) =>
