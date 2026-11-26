@@ -201,6 +201,7 @@ export const demandas = {
 };
 
 export const interesses = {
+  travar: (sql: Sql, id: string) => sql.row("SELECT id FROM interesse WHERE id = $1 FOR UPDATE", [id]),
   todos: async (sql: Sql) => (await sql.rows<Interest>(`${SQL_INTERESSE} ORDER BY i.criado_em DESC`)).map(limpar),
   porId: async (sql: Sql, id: string) =>
     (await sql.rows<Interest>(`${SQL_INTERESSE} WHERE i.id = $1`, [id])).map(limpar)[0],

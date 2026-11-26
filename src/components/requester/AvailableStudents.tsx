@@ -212,7 +212,7 @@ export function AvailableStudents() {
                 />
                 {existing ? (
                   <div className="mt-6 flex items-center gap-3">
-                    <InterestStatusPill status={existing.status} viewer="solicitante" />
+                    <InterestStatusPill status={existing.status} viewer="solicitante" origin={existing.origin} />
                     <span className="font-sans text-xs text-navy/55">
                       Já existe um interesse com este estudante nesta demanda.
                     </span>

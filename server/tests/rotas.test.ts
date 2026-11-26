@@ -755,3 +755,22 @@ test("mensagem pode começar pelo interesse após o aceite duplo", async (t) => 
   const received = await request(c.app, "GET", "/api/state", undefined, c.requesterCookie);
   assert.ok(received.json<VitrineState>().notifications.some((notice) => notice.content === "Olá"));
 });
+
+test("estudante pode retirar candidatura antes da resposta do solicitante", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const payload = { demandId: demand.id, studentId: c.studentId, origin: "candidatura" };
+  const created = await request(c.app, "POST", "/api/interests", payload, c.studentCookie);
+  const id = created.json<{ interest: { id: string } }>().interest.id;
+  const url = `/api/interests/${id}/withdraw`;
+  assert.equal((await request(c.app, "POST", url, undefined, c.requesterCookie)).statusCode, 403);
+  const withdrawn = await request(c.app, "POST", url, undefined, c.studentCookie);
+  assert.equal(withdrawn.statusCode, 200, withdrawn.body);
+  assert.equal(withdrawn.json<VitrineState>().interests.find((entry) => entry.id === id)?.status, "recusado_estudante");
+  assert.equal((await request(c.app, "POST", url, undefined, c.studentCookie)).statusCode, 409);
+  const newAttempt = await request(c.app, "POST", "/api/interests", payload, c.studentCookie);
+  assert.equal(newAttempt.statusCode, 201, newAttempt.body);
+  assert.notEqual(newAttempt.json<{ interest: { id: string } }>().interest.id, id);
+});

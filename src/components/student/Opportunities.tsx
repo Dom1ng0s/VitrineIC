@@ -48,7 +48,7 @@ function Apply({
   if (existing) {
     return (
       <div className="mt-6 flex flex-col items-start gap-3">
-        <InterestStatusPill status={existing.status} viewer="estudante" />
+        <InterestStatusPill status={existing.status} viewer="estudante" origin={existing.origin} />
         <button
           onClick={onGoToInterests}
           className="font-sans text-[13px] text-navy/65 underline underline-offset-4 hover:text-navy"

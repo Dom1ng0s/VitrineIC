@@ -328,6 +328,7 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
     const account = await requireVerifiedAccount(db, request, config);
     const data = responseSchema.parse(request.body);
     await db.transaction(async (tx) => {
+      await interesses.travar(tx, request.params.id);
       const interesse = await interesses.porId(tx, request.params.id);
       ensure(interesse, 404, "Interesse não encontrado.");
       const demanda = (await demandas.porId(tx, interesse.demandId))!;
@@ -348,6 +349,25 @@ export function domainRoutes(app: FastifyInstance, db: Database, config: Config)
         await mudarStatusDaDemanda(tx, demanda.id, "contato_liberado", account.id);
       }
       await notificarInteresse(tx, { ...interesse, status });
+    });
+    return estado(request);
+  });
+
+  app.post<{ Params: { id: string } }>("/api/interests/:id/withdraw", async (request) => {
+    const account = await requireVerifiedAccount(db, request, config, "student");
+    await db.transaction(async (tx) => {
+      await interesses.travar(tx, request.params.id);
+      const interest = await interesses.porId(tx, request.params.id);
+      ensure(interest, 404, "Interesse não encontrado.");
+      ensure(interest.studentId === account.profileId, 403, "Você não pode retirar esta candidatura.");
+      ensure(
+        interest.origin === "candidatura" && interest.status === "aguardando_solicitante",
+        409,
+        "A candidatura não pode ser retirada neste estado.",
+      );
+      await registrarResposta(tx, interest.id, "estudante", false, "Candidatura retirada");
+      await mudarStatusDoInteresse(tx, interest.id, "recusado_estudante");
+      await notificarInteresse(tx, { ...interest, status: "recusado_estudante" });
     });
     return estado(request);
   });

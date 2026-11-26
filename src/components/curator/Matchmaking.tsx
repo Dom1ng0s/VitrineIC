@@ -98,7 +98,7 @@ export function StudentMatchCard({
                   <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
                     {ORIGIN_LABEL[existing.origin]}
                   </span>
-                  <InterestStatusPill status={existing.status} viewer="curadoria" />
+                  <InterestStatusPill status={existing.status} viewer="curadoria" origin={existing.origin} />
                 </>
               )}
             </div>
@@ -271,7 +271,7 @@ export function Matchmaking({
                       <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">
                         {ORIGIN_LABEL[i.origin]}
                       </span>
-                      <InterestStatusPill status={i.status} viewer="curadoria" />
+                      <InterestStatusPill status={i.status} viewer="curadoria" origin={i.origin} />
                     </div>
                     {i.refusalReason && <p className="font-sans text-[12px] text-navy/55">Motivo: {i.refusalReason}</p>}
                   </li>

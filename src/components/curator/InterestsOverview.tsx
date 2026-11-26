@@ -69,7 +69,7 @@ export function InterestsOverview() {
                   )}
                 </div>
               </div>
-              <InterestStatusPill status={i.status} viewer="curadoria" />
+              <InterestStatusPill status={i.status} viewer="curadoria" origin={i.origin} />
             </li>
           );
         })}

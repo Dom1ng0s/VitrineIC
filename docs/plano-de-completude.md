@@ -20,8 +20,8 @@ Legenda: `[ ]` pendente · `[~]` em andamento · `[x]` feito.
 | 1    | Rede de segurança                 | [x]    |
 | 2    | Fundações estruturais             | [x]    |
 | 3    | Backend abre o que a UI consome   | [x]    |
-| 4    | Buracos de fluxo                  | [~]    |
-| 5    | Fachadas                          | [ ]    |
+| 4    | Buracos de fluxo                  | [x]    |
+| 5    | Fachadas                          | [~]    |
 | 6    | Acessibilidade e qualidade de uso | [ ]    |
 | 7    | Deploy e operação                 | [ ]    |
 
@@ -143,7 +143,7 @@ builds passaram; lint sem erros, com os 50 avisos de acessibilidade previstos
 para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 `GET /api/state` entrega páginas e o cliente as reúne.
 
-## Fase 4 — Buracos de fluxo
+## Fase 4 — Buracos de fluxo · fechada em 26/11/2026
 
 - [x] Editar e encerrar/cancelar demanda (solicitante)
 - [x] Editar e excluir projeto, mudar etapa (estudante)
@@ -160,7 +160,15 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
       professor/laboratório ou órgão público no mural, na triagem e no
       cadastro, com filtro por tipo
 - [x] Anexo de briefing pela demanda; portfólio liberado após o aceite duplo
-- [ ] Decidir e, se valer, implementar "retirar candidatura"
+- [x] Decidido e implementado: estudante pode retirar a candidatura enquanto
+      aguarda o solicitante. A retirada encerra o interesse, avisa o solicitante
+      e permite nova candidatura; após o aceite, o contato permanece liberado.
+
+Foram ligados à UI os fluxos de edição, encerramento, projetos, mensagens,
+equipe, pareceres, briefing e portfólio. O kanban e a API compartilham as
+transições; convites seguem possíveis depois do primeiro contato liberado.
+Verificação ao fechar: `typecheck`, 58 testes web, 46 testes da API, lint sem
+erros (47 avisos de acessibilidade da fase 6) e builds do frontend e servidor.
 
 ## Fase 5 — Eliminar fachadas
 

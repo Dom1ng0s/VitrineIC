@@ -51,7 +51,7 @@ function InterestCard({
             {student.course} · {student.semester}
           </p>
         </div>
-        <InterestStatusPill status={interest.status} viewer="solicitante" />
+        <InterestStatusPill status={interest.status} viewer="solicitante" origin={interest.origin} />
       </div>
 
       <p className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-navy/50">

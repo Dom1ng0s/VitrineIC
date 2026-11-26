@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ORIGIN_LABEL } from "@/lib/interest";
-import { companyEmail, findCompany, findStudent, respondInterest, useVitrine } from "@/lib/store";
+import { companyEmail, findCompany, findStudent, respondInterest, useVitrine, withdrawInterest } from "@/lib/store";
 import { FilterPill } from "@/components/app/FilterPill";
 import { ArrowIcon, BuildingIcon } from "@/components/app/Icons";
 import { Avatar } from "@/components/app/Avatar";
@@ -96,6 +96,7 @@ const ACCEPT_HINT: Record<string, string> = {
 function InterestCard({ interest, demand, demands }: { interest: Interest; demand: Demand; demands: Demand[] }) {
   const [showCompany, setShowCompany] = useState(false);
   const [refusing, setRefusing] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   const myTurn = interest.status === "aguardando_estudante";
 
   return (
@@ -159,10 +160,15 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
               <span className="font-sans text-xs text-navy/50">{ACCEPT_HINT[interest.origin]}</span>
             </>
           ) : (
-            <InterestStatusPill status={interest.status} viewer="estudante" />
+            <InterestStatusPill status={interest.status} viewer="estudante" origin={interest.origin} />
           )}
           {interest.status === "contato_liberado" && (
             <ContactMessage interestId={interest.id} recipient={demand.company} />
+          )}
+          {interest.origin === "candidatura" && interest.status === "aguardando_solicitante" && (
+            <button onClick={() => setWithdrawing(true)} className="vt-btn vt-btn-secondary">
+              Retirar candidatura
+            </button>
           )}
         </div>
       </div>
@@ -177,6 +183,26 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
             setRefusing(false);
           }}
         />
+      )}
+      {withdrawing && (
+        <Modal eyebrow="Candidatura" title="Retirar candidatura?" onClose={() => setWithdrawing(false)}>
+          <p className="font-sans text-sm text-navy/70">
+            O solicitante será avisado. Você poderá se candidatar novamente enquanto a demanda estiver aberta.
+          </p>
+          <div className="mt-6 flex justify-end gap-3">
+            <button className="vt-btn vt-btn-secondary" onClick={() => setWithdrawing(false)}>
+              Voltar
+            </button>
+            <button
+              className="vt-btn vt-btn-primary"
+              onClick={async () => {
+                if (await withdrawInterest(interest.id)) setWithdrawing(false);
+              }}
+            >
+              Retirar candidatura
+            </button>
+          </div>
+        </Modal>
       )}
     </article>
   );

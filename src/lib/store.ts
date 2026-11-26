@@ -149,6 +149,7 @@ export function createInterest(demandId: string, studentId: string, origin: Inte
 }
 export const respondInterest = (id: string, accept: boolean, refusalReason?: string) =>
   mutate(`/interests/${encodeURIComponent(id)}/respond`, "POST", { accept, refusalReason });
+export const withdrawInterest = (id: string) => mutate(`/interests/${encodeURIComponent(id)}/withdraw`, "POST");
 export const setInProject = (id: string, value: boolean) => updateStudent(id, { inProject: value });
 export function addProject(project: Omit<StudentProject, "id">) {
   return runAction(async () => {
