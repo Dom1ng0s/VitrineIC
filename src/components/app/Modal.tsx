@@ -26,15 +26,27 @@ export function Modal({
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
 
+  // O efeito abaixo roda uma vez só. Se dependesse de `onClose`, toda tecla
+  // digitada em um campo recriaria a função na tela de origem, remontaria o
+  // efeito e devolveria o foco ao botão de fechar.
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
+
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     document.body.classList.add("modal-open");
-    const first = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+    // O X é o primeiro focável em ordem de DOM; o foco inicial vai para o
+    // conteúdo, não para ele.
+    const first = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).find(
+      (el) => !el.hasAttribute("data-modal-close"),
+    );
     (first ?? dialogRef.current)?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        closeRef.current();
         return;
       }
       if (e.key !== "Tab" || !dialogRef.current) return;
@@ -56,7 +68,7 @@ export function Modal({
       window.removeEventListener("keydown", handleKey);
       previous?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex overflow-y-auto p-4">
@@ -77,6 +89,7 @@ export function Modal({
       >
         <button
           type="button"
+          data-modal-close
           onClick={onClose}
           aria-label="Fechar"
           className="absolute top-4 right-4 grid size-8 place-items-center rounded-lg text-navy/55 transition-colors hover:bg-navy/5 hover:text-navy"

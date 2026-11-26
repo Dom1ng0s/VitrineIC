@@ -43,15 +43,24 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const dialogRef = useRef<HTMLDivElement>(null);
 
+  // Mesma razão do `Modal` compartilhado: o efeito roda uma vez só, para que
+  // um `onClose` recriado a cada render não devolva o foco ao botão de fechar.
+  const closeRef = useRef(onClose);
+  useEffect(() => {
+    closeRef.current = onClose;
+  });
+
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     document.body.classList.add("modal-open");
-    const first = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+    const first = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []).find(
+      (el) => !el.hasAttribute("data-modal-close"),
+    );
     (first ?? dialogRef.current)?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        closeRef.current();
         return;
       }
       if (e.key !== "Tab" || !dialogRef.current) return;
@@ -73,7 +82,7 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
       window.removeEventListener("keydown", handleKey);
       previous?.focus();
     };
-  }, [onClose]);
+  }, []);
 
   const demo = async (role: Role) => {
     const result = await signInDemo(role);
@@ -103,6 +112,7 @@ export function AuthModal({ onClose, onSignedIn }: { onClose: () => void; onSign
         }`}
       >
         <button
+          data-modal-close
           onClick={onClose}
           aria-label="Fechar"
           className="absolute top-4 right-4 grid size-8 place-items-center rounded-lg text-navy/55 transition-colors hover:bg-navy/5 hover:text-navy"
