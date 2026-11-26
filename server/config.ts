@@ -46,9 +46,20 @@ function readDatabaseUrl(env: NodeJS.ProcessEnv, production: boolean): string {
   return url;
 }
 
+/**
+ * Origem pública anunciada pela plataforma, usada quando APP_ORIGIN não foi
+ * definida. O Render entrega a URL inteira; o Railway, só o domínio, sem
+ * esquema. Com domínio próprio, defina APP_ORIGIN e ela tem precedência.
+ */
+function origemDaPlataforma(env: NodeJS.ProcessEnv): string | undefined {
+  if (env.RENDER === "true") return env.RENDER_EXTERNAL_URL;
+  const railway = env.RAILWAY_PUBLIC_DOMAIN?.trim();
+  return railway ? `https://${railway}` : undefined;
+}
+
 export function readConfig(env: NodeJS.ProcessEnv = process.env): Config {
   const production = env.NODE_ENV === "production";
-  const publicOrigin = env.APP_ORIGIN || (env.RENDER === "true" ? env.RENDER_EXTERNAL_URL : undefined);
+  const publicOrigin = env.APP_ORIGIN || origemDaPlataforma(env);
   const origin = publicOrigin ?? "http://localhost:5173";
   if (production && (!publicOrigin || !origin.startsWith("https://"))) {
     throw new Error("Configure APP_ORIGIN com a URL HTTPS pública em produção.");

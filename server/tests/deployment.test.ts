@@ -44,6 +44,24 @@ test("Render usa origem pública automática, permite domínio próprio e preser
   assert.match(readConfig({ NODE_ENV: "development" }).databaseUrl, /^postgresql:\/\//);
 });
 
+test("Railway deriva a origem pública do domínio que a plataforma anuncia", () => {
+  const env: NodeJS.ProcessEnv = {
+    NODE_ENV: "production",
+    RAILWAY_PUBLIC_DOMAIN: "vitrineic-production.up.railway.app",
+    MAIL_MODE: "disabled",
+    REQUIRE_VERIFIED_EMAIL: "false",
+    DATABASE_URL: "postgresql://usuario:senha@db.example.com:5432/vitrineic",
+  };
+  // O Railway anuncia só o domínio; o esquema entra aqui.
+  assert.equal(readConfig(env).origin, "https://vitrineic-production.up.railway.app");
+  // Domínio próprio tem precedência sobre o que a plataforma anuncia.
+  assert.equal(readConfig({ ...env, APP_ORIGIN: "https://vitrine.example.com" }).origin, "https://vitrine.example.com");
+  // Sem domínio nenhum, produção continua barrada.
+  const semDominio = { ...env };
+  delete semDominio.RAILWAY_PUBLIC_DOMAIN;
+  assert.throws(() => readConfig(semDominio), /HTTPS/);
+});
+
 test("bootstrap cria somente curadoria, exige opt-in e nunca redefine credenciais existentes", async (t) => {
   const db = await prepararBanco();
   t.after(() => db.close());

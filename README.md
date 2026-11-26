@@ -108,14 +108,15 @@ Frontend e backend são servidos juntos por um único processo Node: a API
 entrega `dist/` e responde `/api`. Veja [o guia de operação](docs/backend.md)
 para o contrato da API, a configuração e a segurança.
 
-**A publicação ainda não está pronta.** `render.yaml` e o `Dockerfile` são da
-época do SQLite: definem `DATABASE_PATH` em vez de `DATABASE_URL`, e o
-`Dockerfile` copia um script de backup que não existe mais. Com eles, o serviço
-não sobe. Corrigir isso é a fase 7 de
-[docs/plano-de-completude.md](docs/plano-de-completude.md); o que falta está
-listado lá. O que o deploy vai exigir: PostgreSQL gerenciado via
-`DATABASE_URL`, `APP_ORIGIN` em HTTPS, `MAIL_MODE` configurado e backup
-automatizado.
+A publicação está preparada para PostgreSQL gerenciado. O `Dockerfile` da raiz
+constrói a imagem; `railway.json` e `render.yaml` declaram builder, healthcheck
+(`/api/ready`) e variáveis em cada plataforma. O deploy exige `DATABASE_URL`,
+`MAIL_MODE` configurado e origem pública em HTTPS — no Railway e no Render ela é
+derivada do domínio que a própria plataforma anuncia, e `APP_ORIGIN` só é
+necessária com domínio próprio.
+
+Guias: [docs/railway.md](docs/railway.md) e, para o Render, o `render.yaml` com
+[docs/backend.md](docs/backend.md). [docs/render.md](docs/render.md) é histórico.
 
 O CI (`.github/workflows/ci.yml`) roda typecheck, lint, testes e build em cada
 pull request, com um PostgreSQL de serviço para os testes de integração.
