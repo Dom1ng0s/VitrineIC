@@ -348,3 +348,123 @@ test("edição, prioridade e histórico da demanda respeitam autoria e função"
   assert.equal(visible.statusHistory?.at(-1)?.observation, "Escopo incompleto");
   assert.equal((await request(c.app, "PATCH", url, { title: "Tarde" }, c.requesterCookie)).statusCode, 403);
 });
+
+test("equipe e parecer distinguem coordenação e comitê", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = (await request(c.app, "POST", "/api/demands", demandData, c.requesterCookie)).json<{
+    demand: Demand;
+  }>().demand;
+  const member = await criarConta(c.db, { email: "comite@example.com", senha: "comite12345", role: "curator" });
+  await c.db.sql.run("UPDATE curador SET funcao_codigo = 'comite' WHERE conta_id = $1", [member.id]);
+  const login = await request(c.app, "POST", "/api/auth/login", { email: member.email, password: "comite12345" });
+  const committeeCookie = cookieOf(login);
+  assert.equal((await request(c.app, "GET", "/api/curators", undefined, committeeCookie)).statusCode, 200);
+  assert.equal((await request(c.app, "GET", "/api/curators", undefined, c.studentCookie)).statusCode, 403);
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "PATCH",
+        `/api/curators/${member.id}`,
+        { function: "curador", active: true },
+        committeeCookie,
+      )
+    ).statusCode,
+    403,
+  );
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "POST",
+        "/api/curators",
+        { name: "Outro", email: "outro@example.com", function: "curador" },
+        committeeCookie,
+      )
+    ).statusCode,
+    403,
+  );
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "POST",
+        "/api/curators",
+        { name: "Outro", email: "outro@example.com", function: "curador" },
+        c.curatorCookie,
+      )
+    ).statusCode,
+    503,
+  );
+  assert.equal(
+    (await request(c.app, "POST", `/api/demands/${demand.id}/opinions`, { text: "Escopo adequado" }, c.curatorCookie))
+      .statusCode,
+    403,
+  );
+  assert.equal(
+    (await request(c.app, "POST", `/api/demands/${demand.id}/opinions`, { text: "Escopo adequado" }, committeeCookie))
+      .statusCode,
+    201,
+  );
+  assert.equal(
+    (await request(c.app, "GET", `/api/demands/${demand.id}/opinions`, undefined, c.curatorCookie)).json<unknown[]>()
+      .length,
+    1,
+  );
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "PATCH",
+        "/api/curators/curator-rotas",
+        { function: "comite", active: true },
+        c.curatorCookie,
+      )
+    ).statusCode,
+    409,
+  );
+  assert.equal(
+    (
+      await request(
+        c.app,
+        "PATCH",
+        `/api/curators/${member.id}`,
+        { function: "comite", active: false },
+        c.curatorCookie,
+      )
+    ).statusCode,
+    200,
+  );
+  assert.equal((await request(c.app, "GET", "/api/curators", undefined, committeeCookie)).statusCode, 401);
+});
+
+test("coordenação convida integrante por link sem expor senha", async (t) => {
+  const c = await setup();
+  await c.app.close();
+  const sent: string[] = [];
+  const built = await buildApp(
+    configDeTeste({
+      demo: false,
+      production: false,
+      mail: { mode: "file", directory: ".", from: "contato@ic.ufal.br", port: 587, secure: false },
+    }),
+    {
+      mailer: {
+        async send(message) {
+          sent.push(message.text);
+        },
+      },
+    },
+  );
+  t.after(() => built.app.close());
+  const payload = { name: "Nova Curadora", email: "nova-curadora@example.com", function: "curador" };
+  assert.equal((await request(built.app, "POST", "/api/curators", payload, c.studentCookie)).statusCode, 403);
+  const invited = await request(built.app, "POST", "/api/curators", payload, c.curatorCookie);
+  assert.equal(invited.statusCode, 201, invited.body);
+  assert.equal(invited.json<{ function: string }>().function, "curador");
+  assert.equal((await request(built.app, "POST", "/api/curators", payload, c.curatorCookie)).statusCode, 409);
+  await built.mail.drain();
+  assert.equal(sent.length, 1);
+  assert.match(sent[0], /reset-password/);
+});

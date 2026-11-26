@@ -271,7 +271,7 @@ test("migração é aplicada uma vez e preserva os dados existentes", async (t) 
   const versoes = await reaberta.db.sql.rows<{ versao: string }>("SELECT versao FROM schema_migration ORDER BY versao");
   assert.deepEqual(
     versoes.map((v) => v.versao),
-    ["001_schema.sql", "002_curadoria_indices.sql"],
+    ["001_schema.sql", "002_curadoria_indices.sql", "003_parecer.sql"],
   );
   assert.equal((await contas.porId(reaberta.db.sql, id))!.email, student.email);
 });

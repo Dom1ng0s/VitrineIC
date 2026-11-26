@@ -27,6 +27,13 @@ export async function authRoutes(app: FastifyInstance, db: Database, config: Con
     const account = await contas.porEmail(db.sql, data.email);
     const valid = await verifyPassword(data.password, account?.passwordHash ?? dummyHash);
     ensure(account && valid && (!data.role || account.role === data.role), 401, "E-mail ou senha incorretos.");
+    if (account.role === "curator") {
+      ensure(
+        await db.sql.row("SELECT 1 FROM curador WHERE conta_id = $1 AND ativo", [account.id]),
+        401,
+        "E-mail ou senha incorretos.",
+      );
+    }
     // Não cria sessão com credenciais que mudaram enquanto o scrypt estava em andamento.
     const latest = (await contas.porId(db.sql, account.id))!;
     ensure(latest.passwordHash === account.passwordHash, 401, "E-mail ou senha incorretos.");

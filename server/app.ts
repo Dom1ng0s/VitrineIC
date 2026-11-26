@@ -19,6 +19,7 @@ import { inboxRoutes } from "./inbox-routes";
 import { fileRoutes } from "./file-routes";
 import { createMailer, MailQueue, type Mailer } from "./mail";
 import { accountRoutes } from "./account-routes";
+import { curatorRoutes } from "./curator-routes";
 
 export async function buildApp(overrides: Partial<Config> = {}, services: { mailer?: Mailer } = {}) {
   const config = { ...readConfig(), ...overrides };
@@ -98,6 +99,7 @@ export async function buildApp(overrides: Partial<Config> = {}, services: { mail
   await authRoutes(app, db, config, mail);
   accountRoutes(app, db, config, mail);
   domainRoutes(app, db, config);
+  curatorRoutes(app, db, config, mail);
   inboxRoutes(app, db, config);
   fileRoutes(app, db, config);
   const dist = resolve("dist");

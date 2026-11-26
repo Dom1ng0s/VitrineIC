@@ -114,12 +114,12 @@ cliques não surtiam efeito até a sincronização terminar.
 - [x] Observação do histórico de status no snapshot (motivo da rejeição)
 - [x] Histórico de interesse (quem respondeu o quê, quando)
 - [x] Prioridade da demanda (`PATCH /api/demands/:id/priority`, só coordenação)
-- [ ] Três papéis da curadoria (decisão da fase 0): `curador`, `coordenacao` e
+- [x] Três papéis da curadoria (decisão da fase 0): `curador`, `coordenacao` e
       `comite` no banco, com checagem por rota — curador tria e sugere;
       coordenação aprova, rejeita e exclui; comitê só lê e registra parecer
-- [ ] Rotas de gestão da equipe de curadoria: listar, convidar, trocar papel,
+- [x] Rotas de gestão da equipe de curadoria: listar, convidar, trocar papel,
       desativar (hoje só existe o script `curator:create`)
-- [ ] Parecer do comitê: tabela e rota de escrita, sem poder de decisão
+- [x] Parecer do comitê: tabela e rota de escrita, sem poder de decisão
 - [ ] Validação uuid nos `params` de notificações e anexos (hoje 500, não 404)
 - [ ] Cota por conta em demandas, interesses e mensagens
 - [ ] Bloqueio de força bruta por conta no login

@@ -39,7 +39,14 @@ export async function accountFor(db: Database, request: FastifyRequest): Promise
     "SELECT conta_id FROM sessao WHERE token_hash = $1 AND expira_em > now()",
     [tokenHash(token)],
   );
-  return sessao ? contas.porId(db.sql, sessao.conta_id) : undefined;
+  if (!sessao) return;
+  const account = await contas.porId(db.sql, sessao.conta_id);
+  if (
+    account?.role === "curator" &&
+    !(await db.sql.row("SELECT 1 FROM curador WHERE conta_id = $1 AND ativo", [account.id]))
+  )
+    return;
+  return account;
 }
 
 export async function requireAccount(db: Database, request: FastifyRequest, role?: Role) {
