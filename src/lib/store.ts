@@ -161,6 +161,8 @@ export const markRead = (id: string) => mutate(`/notifications/${encodeURICompon
 export const markAllRead = () => mutate("/notifications/read-all", "POST");
 export const replyNotification = (id: string, content: string) =>
   mutate(`/notifications/${encodeURIComponent(id)}/reply`, "POST", { content });
+export const sendMessage = (interestId: string, content: string) =>
+  mutate(`/interests/${encodeURIComponent(interestId)}/messages`, "POST", { content });
 export const deleteAttachment = (id: string) => mutate(`/attachments/${encodeURIComponent(id)}`, "DELETE");
 export function uploadAttachment(category: string, file: File) {
   const form = new FormData();

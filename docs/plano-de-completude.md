@@ -150,7 +150,7 @@ para a fase 6. O snapshot completo continua nas respostas de mutação; a rota
 - [x] Convidar depois do contato liberado (incluir `contato_liberado` no filtro)
 - [x] Motivo da rejeição visível ao solicitante
 - [x] Histórico de decisões visível à curadoria
-- [ ] Mensagem iniciável (hoje só responde a notificação)
+- [x] Mensagem iniciável pelo interesse com contato liberado
 - [x] Transições do kanban derivadas da mesma tabela do servidor, com alvo
       inválido desabilitado e motivo no card
 - [x] Tela de equipe da curadoria: quem é o quê, convidar, trocar papel,

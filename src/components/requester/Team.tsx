@@ -4,6 +4,7 @@ import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import { useVitrine } from "@/lib/store";
 import { useCurrentRequester } from "@/lib/auth";
+import { ContactMessage } from "@/components/app/ContactMessage";
 
 export function Team({ onInvite }: { onInvite: () => void }) {
   const { interests, demands, students } = useVitrine();
@@ -52,6 +53,7 @@ export function Team({ onInvite }: { onInvite: () => void }) {
               </div>
               <p className="hidden font-sans text-[13px] text-navy/60 md:block">{member.project}</p>
               <span className="vt-pill">{member.role}</span>
+              <ContactMessage interestId={member.id} recipient={member.name} />
             </li>
           ))}
         </ul>

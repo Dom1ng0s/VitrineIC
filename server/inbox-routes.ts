@@ -8,6 +8,35 @@ import { messageSchema } from "./schemas";
 import { contas, demandas, interesses } from "./db/repositories";
 import { criarMensagem, criarNotificacao, marcarNotificacaoLida, marcarTodasLidas } from "./db/mutations";
 import { checkAccountQuota } from "./db/quotas";
+import type { Sql } from "./db/pool";
+import type { StoredAccount } from "./db/types";
+
+async function sendToContact(tx: Sql, account: StoredAccount, interestId: string, content: string) {
+  const interest = await interesses.porId(tx, interestId);
+  ensure(interest, 404, "Interesse não encontrado.");
+  ensure(interest.status === "contato_liberado", 409, "Mensagens ficam disponíveis após o aceite dos dois lados.");
+  const demand = (await demandas.porId(tx, interest.demandId))!;
+  ensure(
+    (account.role === "student" && account.profileId === interest.studentId) ||
+      (account.role === "requester" && account.profileId === demand.company),
+    403,
+    "Você não participa deste contato.",
+  );
+  const recipient =
+    account.role === "student"
+      ? await contas.doSolicitante(tx, demand.company)
+      : await contas.doEstudante(tx, interest.studentId);
+  ensure(recipient, 409, "O destinatário ainda não tem conta na plataforma.");
+  await checkAccountQuota(tx, account.id, "messages");
+  const messageId = await criarMensagem(tx, interest.id, account.id, content);
+  await criarNotificacao(tx, {
+    destinatarioContaId: recipient.id,
+    tipo: "MENSAGEM",
+    demandaId: demand.id,
+    interesseId: interest.id,
+    mensagemId: messageId,
+  });
+}
 
 export function inboxRoutes(app: FastifyInstance, db: Database, config: Config) {
   app.post<{ Params: { id: string } }>("/api/notifications/:id/read", async (request) => {
@@ -39,37 +68,17 @@ export function inboxRoutes(app: FastifyInstance, db: Database, config: Config) 
       );
       ensure(notificacao, 404, "Notificação não encontrada.");
 
-      const interesse = notificacao.interesse_id ? await interesses.porId(tx, notificacao.interesse_id) : undefined;
-      ensure(
-        interesse && interesse.status === "contato_liberado",
-        409,
-        "Mensagens ficam disponíveis após o aceite dos dois lados.",
-      );
-      const demanda = (await demandas.porId(tx, interesse.demandId))!;
-      ensure(
-        (account.role === "student" && account.profileId === interesse.studentId) ||
-          (account.role === "requester" && account.profileId === demanda.company),
-        403,
-        "Você não participa deste contato.",
-      );
-
-      const destino =
-        account.role === "student"
-          ? await contas.doSolicitante(tx, demanda.company)
-          : await contas.doEstudante(tx, interesse.studentId);
-      ensure(destino, 409, "O destinatário ainda não tem conta na plataforma.");
-
-      await checkAccountQuota(tx, account.id, "messages");
-      const mensagemId = await criarMensagem(tx, interesse.id, account.id, data.content);
-      await criarNotificacao(tx, {
-        destinatarioContaId: destino.id,
-        tipo: "MENSAGEM",
-        demandaId: demanda.id,
-        interesseId: interesse.id,
-        mensagemId,
-      });
+      ensure(notificacao.interesse_id, 409, "Esta notificação não permite resposta.");
+      await sendToContact(tx, account, notificacao.interesse_id, data.content);
       await marcarNotificacaoLida(tx, request.params.id, account.id);
     });
+    return snapshot(db.sql, config, account);
+  });
+
+  app.post<{ Params: { id: string } }>("/api/interests/:id/messages", async (request) => {
+    const account = await requireAccount(db, request);
+    const data = messageSchema.parse(request.body);
+    await db.transaction((tx) => sendToContact(tx, account, request.params.id, data.content));
     return snapshot(db.sql, config, account);
   });
 }

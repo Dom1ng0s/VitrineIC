@@ -732,3 +732,26 @@ test("tipo do solicitante acompanha a demanda no estado", async (t) => {
     .state.demands.find((entry) => entry.company === "Laboratório de Pesquisa");
   assert.equal(demand?.requesterKind, "professor");
 });
+
+test("mensagem pode começar pelo interesse após o aceite duplo", async (t) => {
+  const c = await setup();
+  t.after(() => c.app.close());
+  const demand = await demandaAprovada(c);
+  await request(c.app, "PATCH", `/api/students/${c.studentId}`, { skills: ["React"] }, c.studentCookie);
+  const created = await request(
+    c.app,
+    "POST",
+    "/api/interests",
+    { demandId: demand.id, studentId: c.studentId, origin: "candidatura" },
+    c.studentCookie,
+  );
+  const id = created.json<{ interest: { id: string } }>().interest.id;
+  const url = `/api/interests/${id}/messages`;
+  assert.equal((await request(c.app, "POST", url, { content: "Antes" }, c.studentCookie)).statusCode, 409);
+  await request(c.app, "POST", `/api/interests/${id}/respond`, { accept: true }, c.requesterCookie);
+  assert.equal((await request(c.app, "POST", url, { content: "Olá" }, c.curatorCookie)).statusCode, 403);
+  const sent = await request(c.app, "POST", url, { content: "Olá" }, c.studentCookie);
+  assert.equal(sent.statusCode, 200, sent.body);
+  const received = await request(c.app, "GET", "/api/state", undefined, c.requesterCookie);
+  assert.ok(received.json<VitrineState>().notifications.some((notice) => notice.content === "Olá"));
+});

@@ -12,6 +12,7 @@ import { PageHead } from "@/components/public/PageHead";
 import { PAGE } from "@/components/public/layout";
 import type { Demand, Interest, InterestStatus } from "@/types";
 import { comoDecorrido, paraExibicao } from "@/lib/datas";
+import { ContactMessage } from "@/components/app/ContactMessage";
 
 /** Perfil do solicitante: dados da empresa e as demandas aprovadas que ela publicou. */
 function CompanyModal({ name, demands, onClose }: { name: string; demands: Demand[]; onClose: () => void }) {
@@ -159,6 +160,9 @@ function InterestCard({ interest, demand, demands }: { interest: Interest; deman
             </>
           ) : (
             <InterestStatusPill status={interest.status} viewer="estudante" />
+          )}
+          {interest.status === "contato_liberado" && (
+            <ContactMessage interestId={interest.id} recipient={demand.company} />
           )}
         </div>
       </div>
