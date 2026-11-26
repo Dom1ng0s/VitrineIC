@@ -1,21 +1,25 @@
 # Contexto do VitrineIC
 
-> Atualização de 21/10/2026: o backend foi implementado e integrado. A referência
-> atual de execução, persistência, segurança e endpoints é [docs/backend.md](../docs/backend.md).
-> As menções abaixo a ausência de backend ou simulação descrevem o protótipo anterior.
+> Atualização de 25/11/2026: o backend está implementado e integrado
+> (PostgreSQL em 3FN). A referência de execução, persistência, segurança e
+> endpoints é [docs/backend.md](../docs/backend.md); o que falta no projeto e
+> em que ordem está em
+> [docs/plano-de-completude.md](../docs/plano-de-completude.md). Se algum
+> arquivo de contexto falar em ausência de backend, simulação ou
+> `localStorage`, está descrevendo o protótipo anterior — avise ou corrija.
 
 Contexto curado para agentes de IA e para quem entra no projeto. Cada arquivo
 cobre um assunto e é curto de propósito: **leia só o que a tarefa exige**.
 
-| Arquivo | Leia quando |
-|---|---|
-| [01-produto.md](01-produto.md) | precisar saber o que o VitrineIC é, para quem, e o que não pode ser cortado |
-| [02-arquitetura.md](02-arquitetura.md) | for mexer em estrutura, roteamento, build ou criar arquivo novo |
-| [03-dominio.md](03-dominio.md) | for mexer em demanda, estudante, status ou no algoritmo de match |
-| [04-design-system.md](04-design-system.md) | for escrever ou ajustar UI |
-| [05-convencoes.md](05-convencoes.md) | for escrever código |
-| [06-estado-atual.md](06-estado-atual.md) | precisar saber o que já funciona de verdade e o que é fachada |
-| [07-glossario.md](07-glossario.md) | encontrar um termo que não reconhece |
+| Arquivo                                    | Leia quando                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| [01-produto.md](01-produto.md)             | precisar saber o que o VitrineIC é, para quem, e o que não pode ser cortado |
+| [02-arquitetura.md](02-arquitetura.md)     | for mexer em estrutura, roteamento, build ou criar arquivo novo             |
+| [03-dominio.md](03-dominio.md)             | for mexer em demanda, estudante, status ou no algoritmo de match            |
+| [04-design-system.md](04-design-system.md) | for escrever ou ajustar UI                                                  |
+| [05-convencoes.md](05-convencoes.md)       | for escrever código                                                         |
+| [06-estado-atual.md](06-estado-atual.md)   | precisar saber o que já funciona de verdade e o que é fachada               |
+| [07-glossario.md](07-glossario.md)         | encontrar um termo que não reconhece                                        |
 
 ## Ordem sugerida
 
@@ -37,13 +41,17 @@ Tarefa estrutural: 02 → 06 → `docs/analise-frontend.md`.
 
 ## As cinco coisas que mais causam erro aqui
 
-1. **Todo dado é fictício.** Nomes, métricas e demandas são inventados. Nada em
-   `src/data/` é real.
-2. **Existem bases paralelas.** `data/demands.ts` (curadoria) e
-   `data/requester-demands.ts` (solicitante) não se comunicam. O sistema encena
-   a integração.
-3. **Cada área tem seu próprio `ui.tsx` e `NavBar.tsx`**, parecidos mas não
-   idênticos. Mudança em um não propaga.
-4. **Não há persistência.** Recarregar a página zera tudo.
-5. **O README da raiz diverge do código** quanto a quem é o solicitante:
-   universidade (README) versus empresa (código).
+1. **Todo dado em `src/data/` é fictício** — e é só semente do seed. As telas
+   leem estudantes, solicitantes, demandas e interesses do store, que vem da
+   API; quem lê o arquivo direto não vê conta recém-criada.
+2. **O estado é do servidor.** `useVitrine` é cache de `/api/state`, e toda
+   escrita devolve o estado inteiro. Autorização e filtro de contato são
+   decididos no SQL — não confie em filtro de frontend, nem o repita.
+3. **Cada área tem seu próprio `ui.tsx`**, parecidos mas não idênticos; mudança
+   em um não propaga. A `NavBar` já foi unificada em `app/AreaNav.tsx`.
+4. **Navegar é estado React, não URL.** Não existe rota, deep link nem 404; só
+   os links de confirmação e recuperação usam fragmento.
+5. **Parte do que a tela mostra é fachada declarada** — ranking sem níveis de
+   proficiência, perfil inventado na vitrine do solicitante, prioridade de
+   demanda que não existe. A lista completa está no plano de completude; não
+   trate o que a tela exibe como prova de que o dado existe.

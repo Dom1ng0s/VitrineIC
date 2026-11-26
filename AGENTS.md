@@ -7,11 +7,18 @@ Computação.
 
 ```bash
 pnpm install
+pnpm db:init   # cluster PostgreSQL local do projeto, porta 5433
 pnpm dev
 ```
 
-Sobe em `http://localhost:5173` com hot reload.
-Outros scripts: `pnpm build` (typecheck + build), `pnpm preview`, `pnpm typecheck`.
+Sobe em `http://localhost:5173` com hot reload; a API fica em 3001.
+Verificação: `pnpm typecheck`, `pnpm lint`, `pnpm test` (frontend + API) e
+`pnpm build`. `pnpm test:web` roda só o frontend, sem banco; `pnpm test:api`
+exige o banco `vitrineic_test`, criado pelo `db:init`.
+
+**O que falta no projeto, e em que ordem**, está em
+`docs/plano-de-completude.md`. Antes de concluir que algo não existe, confira lá
+— e se a tarefa for de uma fase posterior, diga isso em vez de arbitrar.
 
 ## Onde mexer
 
@@ -20,128 +27,137 @@ Cada componente tem seu arquivo. **Abra só o que a tarefa pede** — não leia
 
 ### Área pública
 
-| Tarefa | Arquivo |
-|---|---|
-| Landing: nav, hero, stats, destaques, CTA, rodapé | `src/components/landing/LandingPage.tsx` |
-| Modal de acesso e abas | `src/components/landing/AuthModal.tsx` |
-| Formulários de login | `src/components/landing/SignInForm.tsx` (usado por `StudentForm.tsx`, `CompanyForm.tsx`) |
-| Cadastro de estudante e de solicitante | `src/components/landing/StudentSignUp.tsx`, `RequesterSignUp.tsx` |
-| Campo, seleção, divisor, faixa de erro | `src/components/landing/ui.tsx` |
-| Roteamento entre áreas (pela sessão) | `src/App.tsx` |
+| Tarefa                                            | Arquivo                                                                                  |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Landing: nav, hero, stats, destaques, CTA, rodapé | `src/components/landing/LandingPage.tsx`                                                 |
+| Modal de acesso e abas                            | `src/components/landing/AuthModal.tsx`                                                   |
+| Formulários de login                              | `src/components/landing/SignInForm.tsx` (usado por `StudentForm.tsx`, `CompanyForm.tsx`) |
+| Cadastro de estudante e de solicitante            | `src/components/landing/StudentSignUp.tsx`, `RequesterSignUp.tsx`                        |
+| Campo, seleção, divisor, faixa de erro            | `src/components/landing/ui.tsx`                                                          |
+| Roteamento entre áreas (pela sessão)              | `src/App.tsx`                                                                            |
 
 ### Páginas públicas — `src/components/public/`
 
-| Tarefa | Arquivo |
-|---|---|
-| Casca e navegação pública | `PublicArea.tsx`, `PublicNav.tsx` |
-| Catálogo de projetos (vitrine pública) | `ProjectsCatalog.tsx` |
-| Página de um projeto | `ProjectDetail.tsx` |
-| Diretório de estudantes | `StudentsDirectory.tsx` |
-| Perfil público do estudante | `PublicProfile.tsx` |
-| Indicadores da ACE1 | `Impact.tsx` |
-| Tipos das rotas públicas | `routes.ts` |
+| Tarefa                                 | Arquivo                           |
+| -------------------------------------- | --------------------------------- |
+| Casca e navegação pública              | `PublicArea.tsx`, `PublicNav.tsx` |
+| Catálogo de projetos (vitrine pública) | `ProjectsCatalog.tsx`             |
+| Página de um projeto                   | `ProjectDetail.tsx`               |
+| Diretório de estudantes                | `StudentsDirectory.tsx`           |
+| Perfil público do estudante            | `PublicProfile.tsx`               |
+| Indicadores da ACE1                    | `Impact.tsx`                      |
+| Tipos das rotas públicas               | `routes.ts`                       |
 
 ### Área do estudante — `src/components/student/`
 
-| Tarefa | Arquivo |
-|---|---|
-| Shell e troca de telas | `StudentArea.tsx` |
-| Onboarding (fluxo) | `Onboarding.tsx`, `StepIndicator.tsx` |
-| Onboarding: perfil / skills / idiomas / portfólio | `Step1.tsx` a `Step4.tsx` |
-| Seleção de competências (busca + catálogo) | `SkillPicker.tsx` |
-| Seletor de nível de proficiência | `LevelPicker.tsx` |
-| Dashboard e notificações | `Dashboard.tsx` |
-| Oportunidades (demandas abertas e candidatura) | `Opportunities.tsx` |
-| Interesses: candidaturas, convites e sugestões | `Interests.tsx` |
-| Meus projetos e selo "em projeto" | `Projects.tsx` |
-| Laboratório (vitrine de projetos) | `Lab.tsx`, `StatusBadge.tsx` |
-| Barra de navegação da área | `NavBar.tsx` |
-| Label, Input, Rule, Tag | `ui.tsx` |
+| Tarefa                                            | Arquivo                                   |
+| ------------------------------------------------- | ----------------------------------------- |
+| Shell e troca de telas                            | `StudentArea.tsx`                         |
+| Onboarding (fluxo)                                | `Onboarding.tsx`, `StepIndicator.tsx`     |
+| Onboarding: perfil / skills / idiomas / portfólio | `Step1.tsx` a `Step4.tsx`                 |
+| Seleção de competências (busca + catálogo)        | `SkillPicker.tsx`                         |
+| Seletor de nível de proficiência                  | `LevelPicker.tsx`                         |
+| Perfil, edição e visibilidade na vitrine          | `Profile.tsx`                             |
+| Oportunidades (demandas abertas e candidatura)    | `Opportunities.tsx`                       |
+| Interesses: candidaturas, convites e sugestões    | `Interests.tsx`                           |
+| Meus projetos e selo "em projeto"                 | `Projects.tsx`                            |
+| Caixa de entrada e mensagens                      | `Inbox.tsx`                               |
+| Idiomas e anexo de arquivo                        | `LanguagePicker.tsx`, `FileDrop.tsx`      |
+| Barra de navegação da área                        | `NavBar.tsx` (casca de `app/AreaNav.tsx`) |
+| Label, Input, MultiSelect                         | `ui.tsx`                                  |
 
 ### Área do solicitante — `src/components/requester/`
 
-| Tarefa | Arquivo |
-|---|---|
-| Shell e troca de telas | `RequesterArea.tsx` |
-| Mural de demandas | `Dashboard.tsx` |
-| Wizard de nova demanda (4 passos) | `NewDemandWizard.tsx` |
-| Tela de sucesso e protocolo | `SuccessScreen.tsx` |
-| Interessados (aceitar/recusar) | `MatchScreen.tsx` |
-| Vitrine de estudantes e convite | `AvailableStudents.tsx` |
-| Status das demandas | `StatusBadge.tsx` |
-| Barra de navegação da área | `NavBar.tsx` |
-| Label, Input, SelectField, Rule | `ui.tsx` |
+| Tarefa                            | Arquivo                                   |
+| --------------------------------- | ----------------------------------------- |
+| Shell e troca de telas            | `RequesterArea.tsx`                       |
+| Mural de demandas                 | `MyDemands.tsx`                           |
+| Wizard de nova demanda (4 passos) | `NewDemandWizard.tsx`                     |
+| Tela de sucesso e protocolo       | `SuccessScreen.tsx`                       |
+| Interessados (aceitar/recusar)    | `MatchScreen.tsx`                         |
+| Vitrine de estudantes e convite   | `AvailableStudents.tsx`                   |
+| Equipe com contatos liberados     | `Team.tsx`                                |
+| Perfil da organização             | `Profile.tsx`                             |
+| Caixa de entrada e mensagens      | `Inbox.tsx`                               |
+| Status das demandas               | `StatusBadge.tsx`                         |
+| Barra de navegação da área        | `NavBar.tsx` (casca de `app/AreaNav.tsx`) |
+| Label, Input, SelectField, Rule   | `ui.tsx`                                  |
 
 ### Área da curadoria — `src/components/curator/`
 
-| Tarefa | Arquivo |
-|---|---|
-| Shell e troca de telas | `CuratorArea.tsx` |
-| Login da curadoria (sem cadastro aberto) | `CuratorSignIn.tsx` |
-| Triagem (kanban) | `Triage.tsx` |
-| Matchmaking e ranking | `Matchmaking.tsx` |
-| Sugestão com justificativa | `ConfirmModal.tsx` |
-| Sugestão enviada | `MatchConfirmed.tsx` |
-| Acompanhamento de todos os interesses | `InterestsOverview.tsx` |
-| Status e colunas do kanban | `StatusBadge.tsx` |
-| Barra de navegação da área | `NavBar.tsx` |
-| Label, Mono, Rule, SkillTag | `ui.tsx` |
+| Tarefa                                   | Arquivo                                 |
+| ---------------------------------------- | --------------------------------------- |
+| Shell e troca de telas                   | `CuratorArea.tsx`                       |
+| Login da curadoria (sem cadastro aberto) | `CuratorSignIn.tsx`                     |
+| Triagem (kanban)                         | `Triage.tsx`                            |
+| Matchmaking e ranking                    | `Matchmaking.tsx`, `MatchmakingHub.tsx` |
+| Sugestão com justificativa               | `ConfirmModal.tsx`                      |
+| Sugestão enviada                         | `MatchConfirmed.tsx`                    |
+| Acompanhamento de todos os interesses    | `InterestsOverview.tsx`                 |
+| Status e colunas do kanban               | `StatusBadge.tsx`                       |
+| Barra de navegação da área               | `NavBar.tsx`                            |
+| Label, Mono, Rule, SkillTag              | `ui.tsx`                                |
 
 ### Transversais
 
-| Tarefa | Arquivo |
-|---|---|
-| Algoritmo de match | `src/lib/match.ts` |
-| Regras do fluxo de interesse | `src/lib/interest.ts` |
-| Estado compartilhado (estudantes, solicitantes, contas, sessão, demandas, interesses) | `src/lib/store.ts` |
-| Cliente de login, cadastro, sessão e segurança da conta | `src/lib/auth.ts` |
-| Contas de demonstração | `src/data/accounts.ts` |
-| Cliente HTTP e inicialização da API | `src/lib/api.ts`, `src/components/app/ApiBoundary.tsx` |
-| Regra "perfil aparece na vitrine" e rascunho do perfil | `src/lib/profile.ts` |
-| Regras de validação de formulário | `src/lib/validate.ts`, `src/components/app/FieldError.tsx` |
-| Base de demandas e de interesses | `src/data/demands.ts`, `src/data/interests.ts` |
-| Base de estudantes e projetos | `src/data/students.ts` |
-| Insumos do painel de impacto | `src/data/impact.ts` |
-| Universidade, domínios e cursos | `src/data/institution.ts` |
-| Tipos do domínio | `src/types/index.ts` |
-| Cores | `src/styles/tokens.ts` e `src/index.css` |
-| Conteúdo exibido (fictício) | `src/data/` |
+| Tarefa                                                                                | Arquivo                                                                      |
+| ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Algoritmo de match                                                                    | `src/lib/match.ts`                                                           |
+| Regras do fluxo de interesse                                                          | `src/lib/interest.ts`                                                        |
+| Estado compartilhado (estudantes, solicitantes, contas, sessão, demandas, interesses) | `src/lib/store.ts`                                                           |
+| Cliente de login, cadastro, sessão e segurança da conta                               | `src/lib/auth.ts`                                                            |
+| Contas de demonstração                                                                | `src/data/accounts.ts`                                                       |
+| Cliente HTTP e inicialização da API                                                   | `src/lib/api.ts`, `src/components/app/ApiBoundary.tsx`                       |
+| Regra "perfil aparece na vitrine" e rascunho do perfil                                | `src/lib/profile.ts`                                                         |
+| Regras de validação de formulário                                                     | `src/lib/validate.ts`, `src/components/app/FieldError.tsx`                   |
+| Base de demandas e de interesses                                                      | `src/data/demands.ts`, `src/data/interests.ts`                               |
+| Base de estudantes e projetos                                                         | `src/data/students.ts`                                                       |
+| Insumos do painel de impacto                                                          | `src/data/impact.ts`                                                         |
+| Universidade, domínios e cursos                                                       | `src/data/institution.ts`                                                    |
+| Tipos do domínio                                                                      | `src/types/index.ts`                                                         |
+| Cores                                                                                 | `src/styles/tokens.ts` e `src/index.css`                                     |
+| Conteúdo exibido (fictício)                                                           | `src/data/`                                                                  |
+| Primitivas compartilhadas (modal, pílulas, avatar, nav, caixa de entrada)             | `src/components/app/`                                                        |
+| Testes do frontend                                                                    | ao lado do arquivo, como `*.test.ts(x)`; fábricas em `src/tests/fixtures.ts` |
+| Lint, formatação e pre-commit                                                         | `eslint.config.js`, `.prettierrc.json`, `.husky/pre-commit`                  |
+| CI                                                                                    | `.github/workflows/ci.yml`                                                   |
+| O que falta no projeto, por fase                                                      | `docs/plano-de-completude.md`                                                |
 
 ### Backend
 
-| Tarefa | Arquivo |
-|---|---|
-| Inicialização da API e configuração | `server/app.ts`, `server/index.ts`, `server/config.ts` |
-| Conexão, migrações e catálogos | `server/db/pool.ts`, `server/db/migrate.ts`, `server/db/sync-catalog.ts` |
-| Leituras e escritas em SQL | `server/db/repositories.ts`, `server/db/mutations.ts` |
-| Estado devolvido pela API | `server/db/snapshot.ts` |
-| Cluster local de desenvolvimento (porta 5433) | `scripts/pg-dev.mjs` — `pnpm db:init`, `db:up`, `db:down` |
-| Esquema 3FN | `server/db/migrations/001_schema.sql`, `docs/modelo-dados-3fn.md` |
-| Mapa das consultas e seus custos | `docs/mapa-de-queries.md` |
-| Login, cadastro e sessões | `server/auth-routes.ts`, `server/security.ts` |
-| Recuperação, confirmação e troca de senha | `server/account-routes.ts`, `server/account-tokens.ts` |
-| E-mail SMTP e captura local | `server/mail.ts` |
-| Perfis, projetos, demandas e interesses | `server/domain-routes.ts`, `server/schemas.ts` |
-| Dados filtrados por conta e indicadores | `server/views.ts` |
-| Mensagens, notificações e anexos | `server/inbox-routes.ts`, `server/notifications.ts`, `server/file-routes.ts` |
-| Contas de demonstração e criação de curadores | `server/db/seed.ts`, `server/create-curator.ts` |
-| Testes de integração | `server/tests/` (apoio em `server/tests/apoio.ts`) |
-| Configuração e contrato HTTP | `docs/backend.md` |
+| Tarefa                                        | Arquivo                                                                      |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
+| Inicialização da API e configuração           | `server/app.ts`, `server/index.ts`, `server/config.ts`                       |
+| Conexão, migrações e catálogos                | `server/db/pool.ts`, `server/db/migrate.ts`, `server/db/sync-catalog.ts`     |
+| Leituras e escritas em SQL                    | `server/db/repositories.ts`, `server/db/mutations.ts`                        |
+| Estado devolvido pela API                     | `server/db/snapshot.ts`                                                      |
+| Cluster local de desenvolvimento (porta 5433) | `scripts/pg-dev.mjs` — `pnpm db:init`, `db:up`, `db:down`                    |
+| Esquema 3FN                                   | `server/db/migrations/001_schema.sql`, `docs/modelo-dados-3fn.md`            |
+| Mapa das consultas e seus custos              | `docs/mapa-de-queries.md`                                                    |
+| Login, cadastro e sessões                     | `server/auth-routes.ts`, `server/security.ts`                                |
+| Recuperação, confirmação e troca de senha     | `server/account-routes.ts`, `server/account-tokens.ts`                       |
+| E-mail SMTP e captura local                   | `server/mail.ts`                                                             |
+| Perfis, projetos, demandas e interesses       | `server/domain-routes.ts`, `server/schemas.ts`                               |
+| Dados filtrados por conta e indicadores       | `server/db/snapshot.ts`                                                      |
+| Mensagens, notificações e anexos              | `server/inbox-routes.ts`, `server/notifications.ts`, `server/file-routes.ts` |
+| Contas de demonstração e criação de curadores | `server/db/seed.ts`, `server/create-curator.ts`                              |
+| Testes de integração                          | `server/tests/` (apoio em `server/tests/apoio.ts`)                           |
+| Configuração e contrato HTTP                  | `docs/backend.md`                                                            |
 
 ## Contexto
 
 `context/` reúne o contexto do projeto em arquivos curtos e temáticos. Comece
 por `context/README.md`, que diz qual ler para cada tipo de tarefa:
 
-| Arquivo | Assunto |
-|---|---|
-| `context/01-produto.md` | o que é o VitrineIC, usuários, escopo inegociável |
-| `context/02-arquitetura.md` | stack, navegação, estrutura, dívida estrutural |
-| `context/03-dominio.md` | entidades, status, algoritmo de match, dados |
-| `context/04-design-system.md` | cores, tipografia, padrões visuais |
-| `context/05-convencoes.md` | convenções de código |
-| `context/06-estado-atual.md` | o que funciona de verdade e o que é fachada |
-| `context/07-glossario.md` | termos do produto e siglas acadêmicas |
+| Arquivo                       | Assunto                                           |
+| ----------------------------- | ------------------------------------------------- |
+| `context/01-produto.md`       | o que é o VitrineIC, usuários, escopo inegociável |
+| `context/02-arquitetura.md`   | stack, navegação, estrutura, dívida estrutural    |
+| `context/03-dominio.md`       | entidades, status, algoritmo de match, dados      |
+| `context/04-design-system.md` | cores, tipografia, padrões visuais                |
+| `context/05-convencoes.md`    | convenções de código                              |
+| `context/06-estado-atual.md`  | o que funciona de verdade e o que é fachada       |
+| `context/07-glossario.md`     | termos do produto e siglas acadêmicas             |
 
 Análise longa do front-end — 14 telas, fluxograma, modelo de dados — em
 `docs/analise-frontend.md`. Material original da equipe também em `docs/`.
@@ -171,17 +187,24 @@ texturizadas com a classe `.vt-stone`. Detalhes em `context/04-design-system.md`
 ## Cuidados
 
 - Tudo em `src/data/` é **fictício** — métricas, pessoas e demandas inventadas.
-- Demandas e interesses têm **base única** (`data/demands.ts`,
-  `data/interests.ts`) e um só vocabulário de status. As telas leem pelo
-  `useVitrine` de `src/lib/store.ts` e alteram pelas funções dele; não crie
-  outra base. O fluxo de match (candidatura, convite, sugestão, aceite duplo)
-  está em `context/03-dominio.md`.
-- Cada área tem seu próprio `ui.tsx` e `NavBar.tsx`, com implementações
-  parecidas mas não idênticas. Ao mexer em uma, verifique as irmãs.
+  Parte é catálogo (vai para o banco pelo `sync-catalog`), parte é só semente do
+  seed; a divisão está em `context/03-dominio.md`.
+- Demandas e interesses têm **base única** e um só vocabulário de status, e ela
+  é o **banco**: as telas leem pelo `useVitrine` de `src/lib/store.ts`, que é
+  cache de `/api/state`, e alteram pelas funções dele. Não crie outra base nem
+  leia `data/demands.ts` na tela. O fluxo de match (candidatura, convite,
+  sugestão, aceite duplo) está em `context/03-dominio.md`.
+- Cada área tem seu próprio `ui.tsx`, com implementações parecidas mas não
+  idênticas. Ao mexer em uma, verifique as irmãs. A `NavBar` das três já é
+  casca de `src/components/app/AreaNav.tsx`.
 - O site atende **todos os institutos da UFAL** (o projeto é do IC). E-mail de
-  estudante aceita qualquer `*.ufal.br`; unidades e cursos de cada uma vivem em
-  `UNITS`, em `src/data/institution.ts` (os cursos fora do IC são exemplo).
-  Não escreva "UFAL" nem nome de curso direto no componente.
+  estudante aceita qualquer `*.ufal.br`, mas o **cadastro só oferece unidades
+  com curso conferido** — hoje só o IC, por decisão da equipe. Use
+  `SIGNUP_UNITS` e `findSignupUnit` (`src/data/institution.ts`) em cadastro,
+  onboarding, perfil e validação; `UNITS` serve para exibir a universidade
+  inteira (o cartão do hero). Para liberar outra unidade, confira os cursos em
+  ufal.br e marque `coursesVerified: true`. Não escreva "UFAL" nem nome de curso
+  direto no componente.
 - `src/data/students.ts` e `src/data/companies.ts` são só a **semente**. As
   telas leem estudantes e solicitantes do store (`useVitrine().students`,
   `findStudent`, `findCompany`), senão contas recém-criadas não aparecem.
@@ -212,7 +235,12 @@ texturizadas com a classe `.vt-stone`. Detalhes em `context/04-design-system.md`
 - Datas: o banco guarda `date` e `timestamptz`; a tela formata com
   `paraExibicao` e `comoDecorrido`, de `src/lib/datas.ts`. Não imprima o campo
   cru — antes da migração o mesmo prazo aparecia em dois formatos.
-- `pnpm test` precisa do banco de teste (`vitrineic_test`, criado por
+- `pnpm test:api` precisa do banco de teste (`vitrineic_test`, criado por
   `pnpm db:init`) e roda em série, porque todos os casos o compartilham.
+  `pnpm test:web` (Vitest + jsdom) não precisa de banco: use-o para regra de
+  domínio e componente, com as fábricas de `src/tests/fixtures.ts`.
+- O ESLint tem ~50 avisos de `jsx-a11y` **de propósito**: são a dívida de
+  acessibilidade mapeada na fase 6 do plano. Não os silencie; corrija o que
+  tocar. Erro de lint, porém, barra o CI.
 - A navegação principal continua por estado; links de confirmação/recuperação
   usam fragmentos. `pnpm test`, `pnpm typecheck` e `pnpm build` verificam o projeto.

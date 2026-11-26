@@ -84,11 +84,11 @@ O esquema está em `server/db/migrations/001_schema.sql` e segue o modelo de
 Para testar sem Postgres local, use um Postgres gerenciado e aponte a
 `DATABASE_URL` para ele — `pnpm db:migrate` funciona igual.
 
-| Opção | Gratuito | Cuidado |
-|---|---|---|
-| **Neon** | 1 GB por projeto, sem prazo | compute suspende após 5 min ociosos e acorda na consulta seguinte |
-| Supabase | 500 MB | projeto é pausado após 7 dias sem uso e precisa ser retomado à mão |
-| Render | 1 GB | **o banco gratuito expira 30 dias após a criação** |
+| Opção    | Gratuito                    | Cuidado                                                            |
+| -------- | --------------------------- | ------------------------------------------------------------------ |
+| **Neon** | 1 GB por projeto, sem prazo | compute suspende após 5 min ociosos e acorda na consulta seguinte  |
+| Supabase | 500 MB                      | projeto é pausado após 7 dias sem uso e precisa ser retomado à mão |
+| Render   | 1 GB                        | **o banco gratuito expira 30 dias após a criação**                 |
 
 Conexões hospedadas exigem TLS. O `pg` lê o `sslmode` da URL; prefira
 `?sslmode=verify-full` explicitamente, porque `require` muda de significado no
@@ -110,11 +110,11 @@ Para uma demonstração, configure **DEMO_MODE=true** no `.env`, com
 O seed exige banco vazio e nunca apaga dados existentes. Ele usa as sementes
 de `src/data`, armazenando as senhas como hashes.
 
-| Perfil | Login | Senha de exemplo |
-|---|---|---|
-| Estudante | estudante@ic.ufal.br | demo1234 |
-| Solicitante | contato@techbr.com.br | demo1234 |
-| Curadoria | curadoria@ic.ufal.br | demo1234 |
+| Perfil      | Login                 | Senha de exemplo |
+| ----------- | --------------------- | ---------------- |
+| Estudante   | estudante@ic.ufal.br  | demo1234         |
+| Solicitante | contato@techbr.com.br | demo1234         |
+| Curadoria   | curadoria@ic.ufal.br  | demo1234         |
 
 Em produção, use banco vazio, sem seed e com `DEMO_MODE=false`.
 O servidor recusa modo de demonstração e bancos com as contas padrão em produção.
@@ -166,39 +166,39 @@ para corpos JSON e `X-Vitrine-Client: web` em POST, PATCH, PUT e DELETE.
 O cookie de sessão identifica a conta: IDs enviados pelo cliente não conferem
 permissão. Datas novas usam ISO 8601. IDs novos são gerados no servidor.
 
-| Método e rota | Acesso e finalidade |
-|---|---|
-| GET `/health` | Saúde da API e acesso ao banco |
-| GET `/state` | Estado filtrado por visitante/conta; sem credenciais |
-| GET `/impact` | Totais agregados, sem interesses ou contatos privados |
-| POST `/auth/students` | Cadastro, perfil vazio e sessão; exige consentimento |
-| POST `/auth/requesters` | Cadastro da organização e sessão |
-| POST `/auth/login` | Login e rotação de sessão; `role` opcional |
-| POST `/auth/logout` | Revoga a sessão atual e remove o cookie |
-| GET `/auth/me` | Estado da conta autenticada; 401 quando expirada |
-| POST `/auth/forgot-password` | Solicita instruções por e-mail; resposta genérica |
-| POST `/auth/reset-password` | Redefine senha com token de uso único |
-| POST `/auth/verification-email` | Conta logada solicita confirmação de endereço |
-| POST `/auth/verify-email` | Confirma posse do e-mail por token |
-| POST `/auth/change-password` | Troca a senha e revoga as sessões anteriores |
-| POST `/auth/logout-all` | Encerra todas as sessões da conta |
-| PATCH `/students/:id` | Estudante edita somente o próprio perfil |
-| PATCH `/company` | Solicitante edita somente sua organização |
-| POST `/projects` | Estudante publica projeto no próprio portfólio |
-| PUT `/projects/:id` | Substitui dados de projeto próprio |
-| DELETE `/projects/:id` | Exclui projeto próprio |
-| POST `/demands` | Solicitante cria demanda em `nova` |
-| PATCH `/demands/:id/status` | Curadoria executa transições de triagem |
-| DELETE `/demands/:id` | Curadoria; ou dono enquanto `nova`; sem histórico de interesses |
-| GET `/demands/:id/ranking` | Curadoria consulta ranking sem revelar e-mails |
-| POST `/interests` | Candidatura, convite ou sugestão, conforme o papel |
-| POST `/interests/:id/respond` | Parte envolvida responde no seu turno |
-| POST `/notifications/:id/read` | Marca uma notificação própria como lida |
-| POST `/notifications/read-all` | Marca as notificações próprias como lidas |
-| POST `/notifications/:id/reply` | Mensagem à outra parte após contato liberado |
-| POST `/attachments/:category` | Estudante envia um arquivo multipart |
-| GET `/attachments/:id` | Dono ou curador baixa arquivo privado |
-| DELETE `/attachments/:id` | Dono remove arquivo próprio |
+| Método e rota                   | Acesso e finalidade                                             |
+| ------------------------------- | --------------------------------------------------------------- |
+| GET `/health`                   | Saúde da API e acesso ao banco                                  |
+| GET `/state`                    | Estado filtrado por visitante/conta; sem credenciais            |
+| GET `/impact`                   | Totais agregados, sem interesses ou contatos privados           |
+| POST `/auth/students`           | Cadastro, perfil vazio e sessão; exige consentimento            |
+| POST `/auth/requesters`         | Cadastro da organização e sessão                                |
+| POST `/auth/login`              | Login e rotação de sessão; `role` opcional                      |
+| POST `/auth/logout`             | Revoga a sessão atual e remove o cookie                         |
+| GET `/auth/me`                  | Estado da conta autenticada; 401 quando expirada                |
+| POST `/auth/forgot-password`    | Solicita instruções por e-mail; resposta genérica               |
+| POST `/auth/reset-password`     | Redefine senha com token de uso único                           |
+| POST `/auth/verification-email` | Conta logada solicita confirmação de endereço                   |
+| POST `/auth/verify-email`       | Confirma posse do e-mail por token                              |
+| POST `/auth/change-password`    | Troca a senha e revoga as sessões anteriores                    |
+| POST `/auth/logout-all`         | Encerra todas as sessões da conta                               |
+| PATCH `/students/:id`           | Estudante edita somente o próprio perfil                        |
+| PATCH `/company`                | Solicitante edita somente sua organização                       |
+| POST `/projects`                | Estudante publica projeto no próprio portfólio                  |
+| PUT `/projects/:id`             | Substitui dados de projeto próprio                              |
+| DELETE `/projects/:id`          | Exclui projeto próprio                                          |
+| POST `/demands`                 | Solicitante cria demanda em `nova`                              |
+| PATCH `/demands/:id/status`     | Curadoria executa transições de triagem                         |
+| DELETE `/demands/:id`           | Curadoria; ou dono enquanto `nova`; sem histórico de interesses |
+| GET `/demands/:id/ranking`      | Curadoria consulta ranking sem revelar e-mails                  |
+| POST `/interests`               | Candidatura, convite ou sugestão, conforme o papel              |
+| POST `/interests/:id/respond`   | Parte envolvida responde no seu turno                           |
+| POST `/notifications/:id/read`  | Marca uma notificação própria como lida                         |
+| POST `/notifications/read-all`  | Marca as notificações próprias como lidas                       |
+| POST `/notifications/:id/reply` | Mensagem à outra parte após contato liberado                    |
+| POST `/attachments/:category`   | Estudante envia um arquivo multipart                            |
+| GET `/attachments/:id`          | Dono ou curador baixa arquivo privado                           |
+| DELETE `/attachments/:id`       | Dono remove arquivo próprio                                     |
 
 Cadastro de estudante: `name`, `email`, `password`, `unit`, `course`,
 `consent: true`. E-mail deve pertencer à instituição e curso deve existir em
@@ -398,8 +398,17 @@ aceite duplo, recusa, duplicação, mensagens, projetos, reinício do banco,
 anexos, CSRF, limites de login, rotação/expiração e cookies de produção; confirmação
 de endereço, recuperação, concorrência, revogação de sessões, uso único de tokens,
 reenvio, falha de entrega, transportes local e HTTPS e migração do banco existente.
-Também verifica origem automática do Render, bootstrap idempotente da curadoria
-e backup consistente com WAL e anexos, preservando o banco de origem.
+Também verifica origem automática do Render e bootstrap idempotente da
+curadoria, além de saúde, indicadores, ranking da curadoria, marcação de
+avisos, autorização do perfil do solicitante, exclusão de demanda pelo dono e
+as transições de status recusadas (`server/tests/rotas.test.ts`).
+
+Não há teste de backup: o backup é manual, com `pg_dump`. Automatizá-lo e
+ensaiar a restauração é item da fase 7 de
+[plano-de-completude.md](plano-de-completude.md).
+
+`pnpm test` roda também os 55 testes do frontend (`pnpm test:web`, sem banco);
+os de integração são `pnpm test:api` e exigem o banco `vitrineic_test`.
 
 Não estão implementados integração com identidade institucional ou antivírus.
 SMTP depende das credenciais e do remetente do provedor de hospedagem. O sistema segue

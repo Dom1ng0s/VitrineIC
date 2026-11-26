@@ -1,5 +1,14 @@
 # Frontend e backend juntos no Render
 
+> **Documento histórico, não siga como está (25/11/2026).** Ele descreve a
+> publicação da época do SQLite. O projeto migrou para PostgreSQL: o backend
+> exige `DATABASE_URL` e não lê mais `DATABASE_PATH`, então o `render.yaml`
+> descrito aqui faz o serviço morrer no boot. A reescrita deste guia e a
+> correção do `render.yaml` e do `Dockerfile` são a fase 7 de
+> [plano-de-completude.md](plano-de-completude.md). O que continua válido: o
+> Fastify serve `dist/` e `/api` no mesmo serviço, o health check é
+> `/api/health`, e as contas de demonstração seguem proibidas em produção.
+
 Preparação local conferida em 22/10/2026. O usuário já criou um serviço no
 Render; o primeiro log recebido mostrou falha em `corepack enable`, corrigida
 no comando abaixo. Ainda falta confirmar o deploy atualizado pela URL pública.
@@ -22,9 +31,13 @@ serão perdidos quando o sistema de arquivos for descartado. Os anexos também
 estão no SQLite, como BLOBs. Recarregar a página não apaga o banco enquanto a
 mesma instância continua em execução; reinícios, deploys e suspensão apagam.
 
-Não existe persistência durável exclusivamente no Render gratuito para esta
-implementação SQLite. Alterar apenas `DATABASE_PATH` ou adicionar `DATABASE_URL`
-não resolve: o código atual não tem um adaptador PostgreSQL.
+Não existe persistência durável exclusivamente no Render gratuito para a
+implementação SQLite descrita acima.
+
+> **Desatualizado:** o código atual **é** PostgreSQL — `server/db/pool.ts` usa
+> o driver `pg` e o esquema está em `server/db/migrations/`. O caminho de
+> publicação passou a ser um Postgres gerenciado em `DATABASE_URL`, não um
+> arquivo em disco.
 
 ## Publicar a versão gratuita de testes
 
@@ -43,15 +56,15 @@ não resolve: o código atual não tem um adaptador PostgreSQL.
 
 Se preferir **New → Web Service**, use os mesmos valores:
 
-| Campo | Valor |
-|---|---|
-| Runtime | Node |
-| Root Directory | Raiz do repositório (deixe vazio) |
-| Instance Type | Free |
-| Build Command | `pnpm install --frozen-lockfile --prod=false && pnpm build` |
-| Start Command | `node build/server.mjs` |
-| Health Check Path | `/api/health` |
-| Node | `24.22.1`, definido em `.node-version` |
+| Campo             | Valor                                                       |
+| ----------------- | ----------------------------------------------------------- |
+| Runtime           | Node                                                        |
+| Root Directory    | Raiz do repositório (deixe vazio)                           |
+| Instance Type     | Free                                                        |
+| Build Command     | `pnpm install --frozen-lockfile --prod=false && pnpm build` |
+| Start Command     | `node build/server.mjs`                                     |
+| Health Check Path | `/api/health`                                               |
+| Node              | `24.22.1`, definido em `.node-version`                      |
 
 Copie também as variáveis de `render.yaml` para **Environment**. O build precisa
 das devDependencies (TypeScript, Vite, esbuild); por isso usa `--prod=false`.
@@ -136,15 +149,15 @@ solicite outro link. A fila continua em memória, sem retentativa persistente.
 
 Segundo a documentação oficial consultada na data acima:
 
-| Limitação | Efeito neste projeto |
-|---|---|
-| Suspende após 15 minutos sem tráfego; retomada leva cerca de 1 minuto | Frontend e API ficam indisponíveis durante a partida. Uma requisição da API pode atingir o timeout de 30 s; aguarde a retomada e tente novamente. |
-| Arquivos locais perdidos em deploy, reinício ou suspensão | Todo o SQLite e seus anexos são descartados. O Render pode reiniciar a instância a qualquer momento. |
-| Sem disco persistente, Shell/SSH ou one-off jobs | Não há armazenamento durável nem operação remota de backup pela configuração gratuita. Use o bootstrap para a curadoria. |
-| 750 horas gratuitas por workspace/mês, compartilhadas entre serviços | Ao esgotar, os serviços gratuitos são suspensos até o mês seguinte. |
-| Franquias de tráfego e minutos de build | Podem gerar cobrança adicional quando houver forma de pagamento; sem ela, há suspensão de serviços ou bloqueio de novos builds, conforme a cota. Confira Billing/Usage e os limites de gasto aplicáveis. |
-| SMTP 25/465/587 bloqueado | Use transporte de e-mail HTTPS. |
-| Postgres gratuito: 1 GB, expira em 30 dias, sem backups | Não é uma solução permanente nem compatível automaticamente com o adaptador SQLite atual. |
+| Limitação                                                             | Efeito neste projeto                                                                                                                                                                                     |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Suspende após 15 minutos sem tráfego; retomada leva cerca de 1 minuto | Frontend e API ficam indisponíveis durante a partida. Uma requisição da API pode atingir o timeout de 30 s; aguarde a retomada e tente novamente.                                                        |
+| Arquivos locais perdidos em deploy, reinício ou suspensão             | Todo o SQLite e seus anexos são descartados. O Render pode reiniciar a instância a qualquer momento.                                                                                                     |
+| Sem disco persistente, Shell/SSH ou one-off jobs                      | Não há armazenamento durável nem operação remota de backup pela configuração gratuita. Use o bootstrap para a curadoria.                                                                                 |
+| 750 horas gratuitas por workspace/mês, compartilhadas entre serviços  | Ao esgotar, os serviços gratuitos são suspensos até o mês seguinte.                                                                                                                                      |
+| Franquias de tráfego e minutos de build                               | Podem gerar cobrança adicional quando houver forma de pagamento; sem ela, há suspensão de serviços ou bloqueio de novos builds, conforme a cota. Confira Billing/Usage e os limites de gasto aplicáveis. |
+| SMTP 25/465/587 bloqueado                                             | Use transporte de e-mail HTTPS.                                                                                                                                                                          |
+| Postgres gratuito: 1 GB, expira em 30 dias, sem backups               | Não é uma solução permanente nem compatível automaticamente com o adaptador SQLite atual.                                                                                                                |
 
 O Render recomenda instâncias gratuitas para testes, projetos pessoais e
 avaliação, e não para aplicações em produção. Não há mecanismo de keep-alive
